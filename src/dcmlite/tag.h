@@ -43,6 +43,10 @@ public:
     element_ = element;
   }
 
+  bool IsEmpty() const {
+    return group_ == 0 && element_ == 0;
+  }
+
   Tag ReverseBytes() const;
 
 private:

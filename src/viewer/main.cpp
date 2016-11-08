@@ -5,8 +5,7 @@
 #include <cstdint>
 #include <string>
 
-#include "dcmlite/defs.h"
-#include "dcmlite/dicom_file.h"
+#include "dcmlite/data_set.h"
 #include "dcmlite/tag.h"
 
 int main(int argc, char* argv[]) {
@@ -26,8 +25,22 @@ int main(int argc, char* argv[]) {
     std::cout << "Big Endian" << std::endl;
   }
 
-  dcmlite::DicomFile dicom_file;
-  dicom_file.Read(file_path);
+  dcmlite::DataSet data_set;
+  data_set.LoadFile(file_path);
+
+  data_set.Dump();
+
+#if 0
+  std::string private_creator_id;
+  if (data_set.GetString(dcmlite::Tag(0x0009, 0x0011), &private_creator_id)) {
+    std::cout << "Private Creator Identifier: " << private_creator_id << std::endl;
+  }
+
+  std::uint32_t drawing_buf_len = 0;
+  if (data_set.GetUint32(dcmlite::Tag(0x0009, 0x1109), &drawing_buf_len)) {
+    std::cout << "DIS drawing buffer length: " << drawing_buf_len << std::endl;
+  }
+#endif
 
   return 0;
 }

@@ -51,17 +51,17 @@ public:
     return Seek(- (long)byte_count, SEEK_CUR);
   }
 
-  bool ReadUInt8(std::uint8_t* value) {
+  bool ReadUint8(std::uint8_t* value) {
     return ReadBytes(value, 1) == 1;
   }
 
   // NOTE: Byte order is not considered.
-  bool ReadUInt16(std::uint16_t* value) {
+  bool ReadUint16(std::uint16_t* value) {
     return ReadBytes(value, 2) == 2;
   }
 
   // NOTE: Byte order is not considered.
-  bool ReadUInt32(std::uint32_t* value) {
+  bool ReadUint32(std::uint32_t* value) {
     return ReadBytes(value, 4) == 4;
   }
 
