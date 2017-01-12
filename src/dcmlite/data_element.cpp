@@ -16,7 +16,20 @@ void DataElement::SetBuffer(boost::shared_array<char> buffer, size_t length) {
 
 bool DataElement::AsString(std::string* value) const {
   if (buffer_ && length_ > 0) {
-    value->assign(buffer_.get(), length_);
+    if (buffer_[length_ - 1] == ' ') {
+      // Remove the padding space.
+      value->assign(buffer_.get(), length_ - 1);
+    } else {
+      value->assign(buffer_.get(), length_);
+    }
+    return true;
+  }
+  return false;
+}
+
+bool DataElement::AsUint16(std::uint16_t* value) const {
+  if (buffer_ && length_ == 2) {
+    *value = *(std::uint16_t*)buffer_.get();
     return true;
   }
   return false;

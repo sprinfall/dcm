@@ -47,6 +47,7 @@ DataSet::DataSet(const Tag& tag)
 }  
 
 DataSet::~DataSet() {
+  Clear();
 }
 
 void DataSet::AddElement(DataElement* element) {
@@ -138,6 +139,18 @@ bool DataSet::GetString(const Tag& tag, std::string* value) const {
 }
 
 // TODO: Check VR?
+bool DataSet::GetUint16(const Tag& tag, std::uint16_t* value) const {
+  DataElement* element = GetElement(tag);
+  if (element != NULL) {
+    if (element->AsUint16(value)) {
+      AdjustBytesUint16(*value);
+      return true;
+    }
+  }
+  return false;
+}
+
+// TODO: Check VR?
 bool DataSet::GetUint32(const Tag& tag, std::uint32_t* value) const {
   DataElement* element = GetElement(tag);
   if (element != NULL) {
@@ -146,7 +159,6 @@ bool DataSet::GetUint32(const Tag& tag, std::uint32_t* value) const {
       return true;
     }
   }
-
   return false;
 }
 

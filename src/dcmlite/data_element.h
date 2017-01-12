@@ -37,10 +37,12 @@ public:
     return buffer_;
   }
 
+  // \param length Length must be even.
   void SetBuffer(boost::shared_array<char> buffer, size_t length);
 
   bool AsString(std::string* value) const;
 
+  bool AsUint16(std::uint16_t* value) const;
   bool AsUint32(std::uint32_t* value) const;
 
 protected:

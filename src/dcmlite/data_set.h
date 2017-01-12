@@ -52,7 +52,10 @@ public:
   // Get string value of a tag.
   bool GetString(const Tag& tag, std::string* value) const;
 
-  // Get unsigned int value of a tag.
+  // Get 16-bit unsigned int value of a tag.
+  bool GetUint16(const Tag& tag, std::uint16_t* value) const;
+
+  // Get 32-bit unsigned int value of a tag.
   bool GetUint32(const Tag& tag, std::uint32_t* value) const;
 
 private:
