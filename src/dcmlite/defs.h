@@ -24,9 +24,9 @@ inline std::uint16_t ReverseBytesUint16(std::uint16_t value) {
 
 // Reverse the byte order of a 32-bit unsigned int.
 inline std::uint32_t ReverseBytesUint32(std::uint32_t value) {
-  return (((value & 0xff) << 24) ||
-          ((value & 0xff00) << 8) ||
-          ((value & 0xff0000) >> 8) ||
+  return (((value & 0xff) << 24) |
+          ((value & 0xff00) << 8) |
+          ((value & 0xff0000) >> 8) |
           ((value & 0xff000000) >> 24));
 }
 

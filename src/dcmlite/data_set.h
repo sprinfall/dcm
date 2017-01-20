@@ -38,6 +38,7 @@ public:
 
   void AddElement(DataElement* element);
 
+  // Clear data elements, reset endian type, etc.
   void Clear();
 
   void Dump(size_t indent = 0);
@@ -60,11 +61,12 @@ public:
 
 private:
   // Read data set from file.
-  // \param check_syntax Check transfer syntax during the reading.
+  // \param check_endian Check endian type during the reading.
   // \return The length read.
-  std::uint32_t Read(File& file, bool check_syntax);
+  std::uint32_t Read(File& file, bool check_endian);
 
-  bool CheckTransferSyntax(File& file);
+  bool CheckVrExplicity(File& file);
+  bool CheckEndianType(File& file);
 
   bool ReadTag(File& file, Tag* tag);
   bool ReadUint16(File& file, std::uint16_t* value);

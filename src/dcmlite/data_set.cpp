@@ -108,9 +108,13 @@ bool DataSet::LoadFile(const std::string& filename) {
     file.UndoRead(132);
   }
 
-  // Check endian type and explicit VR or not.
-  // TODO
-  CheckTransferSyntax(file);
+  // NOTE:
+  // The 0002 group will always be Little Endian even if the DICOM file
+  // is Big Endian.
+  // So don't check endian type right now. Check VR explicity only.
+  if (!CheckVrExplicity(file)) {
+    return false;
+  }
 
   Read(file, true);
 
@@ -162,7 +166,7 @@ bool DataSet::GetUint32(const Tag& tag, std::uint32_t* value) const {
   return false;
 }
 
-std::uint32_t DataSet::Read(File& file, bool check_syntax) {
+std::uint32_t DataSet::Read(File& file, bool check_endian) {
   std::uint32_t read_length = 0;
 
   bool endian_checked = false;
@@ -176,15 +180,20 @@ std::uint32_t DataSet::Read(File& file, bool check_syntax) {
 
     read_length += 4;
 
-    // TODO: For Big Endian
-    //if (check_syntax) { 
-    //  if (!endian_checked && tag.group() != 2) {
-    //    endian_checked = true;
-    //    file.UndoRead(4);
-    //    CheckTransferSyntax(file);
-    //    continue;
-    //  }
-    //}
+    // TODO: Also read Transfer Syntax UID tag.
+    if (check_endian) {
+      if (!endian_checked && tag.group() != 2) {
+        endian_checked = true;
+        file.UndoRead(4);
+        CheckEndianType(file);
+        continue;
+      }
+    }
+
+#if 0
+    if (tag == Tag(0x0002, 0x0010)) {  // Transfer Syntax UID
+    }
+#endif
 
     // End of sequence itself.
     if (tag == kSeqEndTag) {
@@ -214,12 +223,6 @@ std::uint32_t DataSet::Read(File& file, bool check_syntax) {
       //std::cout << "Item length: " << item_length << std::endl;
       continue;
     }
-
-#if 0
-    // TODO
-    if (tag == Tag(0x0002, 0x0010)) {  // Transfer Syntax UID
-    }
-#endif
 
     VR::Type vr_type = VR::UNKNOWN;
 
@@ -320,14 +323,15 @@ std::uint32_t DataSet::Read(File& file, bool check_syntax) {
   return read_length;
 }
 
-bool DataSet::CheckTransferSyntax(File& file) {
-  std::uint8_t tag_bytes[4] = { 0 };
-  std::string vr_str;
-
-  if (!file.ReadBytes(&tag_bytes, 4)) {
+bool DataSet::CheckVrExplicity(File& file) {
+  // Skip the 4 tag bytes.
+  if (!file.Seek(4, SEEK_CUR)) {
     return false;
   }
+
+  std::string vr_str;
   if (!file.ReadString(&vr_str, 2)) {
+    file.UndoRead(4);  // Put 4 tag bytes back.
     return false;
   }
 
@@ -339,6 +343,17 @@ bool DataSet::CheckTransferSyntax(File& file) {
   } else {
     explicit_vr_ = false;
   }
+
+  return true;
+}
+
+bool DataSet::CheckEndianType(File& file) {
+  std::uint8_t tag_bytes[4] = { 0 };
+  if (!file.ReadBytes(&tag_bytes, 4)) {
+    return false;
+  }
+
+  file.UndoRead(4);  // Put it back.
 
   std::uint16_t group = (tag_bytes[0] & 0xff) + ((tag_bytes[1] & 0xff) << 8);
   std::uint16_t element = (tag_bytes[2] & 0xff) + ((tag_bytes[3] & 0xff) << 8);

@@ -28,19 +28,27 @@ int main(int argc, char* argv[]) {
   dcmlite::DataSet data_set;
   data_set.LoadFile(file_path);
 
-  data_set.Dump();
+  //data_set.Dump();
 
-#if 0
-  std::string private_creator_id;
-  if (data_set.GetString(dcmlite::Tag(0x0009, 0x0011), &private_creator_id)) {
-    std::cout << "Private Creator Identifier: " << private_creator_id << std::endl;
+  std::string transfer_syntax_uid;
+  if (data_set.GetString(dcmlite::Tag(0x0002, 0x0010), &transfer_syntax_uid)) {
+    std::cout << "Transfer Syntax UID: " << transfer_syntax_uid << std::endl;
   }
 
-  std::uint32_t drawing_buf_len = 0;
-  if (data_set.GetUint32(dcmlite::Tag(0x0009, 0x1109), &drawing_buf_len)) {
-    std::cout << "DIS drawing buffer length: " << drawing_buf_len << std::endl;
+  std::string patient_name;
+  if (data_set.GetString(dcmlite::Tag(0x0010, 0x0010), &patient_name)) {
+    std::cout << "Patient Name: " << patient_name << std::endl;
   }
-#endif
+
+  std::uint16_t samples_per_pixel;
+  if (data_set.GetUint16(dcmlite::Tag(0x0028, 0x0002), &samples_per_pixel)) {
+    std::cout << "Samples Per Pixel: " << samples_per_pixel << std::endl;
+  }
 
   return 0;
 }
+
+// Example output:
+// Transfer Syntax UID: 1.2.840.10008.1.2.1
+// Patient Name : Gu^Adam
+// Samples Per Pixel : 1
