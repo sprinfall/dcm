@@ -18,7 +18,7 @@ class File;
 class DataSet : public DataElement {
 public:
   // NOTE:
-  // The data set will be nested if the tag is not empty.
+  // The data set will be nested (SQ) if the tag is not empty.
   // The VR (UNKNOWN or SQ) is determined by if the tag is empty or not.
   DataSet(const Tag& tag = Tag());
 

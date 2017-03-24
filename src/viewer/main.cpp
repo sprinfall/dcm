@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   dcmlite::DataSet data_set;
   data_set.LoadFile(file_path);
 
-  //data_set.Dump();
+  data_set.Dump();
 
   std::string transfer_syntax_uid;
   if (data_set.GetString(dcmlite::Tag(0x0002, 0x0010), &transfer_syntax_uid)) {

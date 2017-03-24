@@ -70,7 +70,7 @@ private:
 // static
 std::string VR::ToString(VR::Type vr_type) {
   if (vr_type == UNKNOWN) {
-    return "";
+    return "UNKNOWN";
   }
 
   std::string str(2, ' ');

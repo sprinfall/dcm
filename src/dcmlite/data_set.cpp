@@ -44,6 +44,8 @@ DataSet::DataSet(const Tag& tag)
     , platform_endian_(GetPlatformEndian())
     , endian_(kLittleEndian)
     , explicit_vr_(true) {
+  // Undefined length makes more sense to a data set.
+  length_ = kUndefinedLength;
 }  
 
 DataSet::~DataSet() {
@@ -76,7 +78,12 @@ void DataSet::Dump(size_t indent) {
       std::cout << "*"; 
     }
     
-    std::cout << "\t" << element->length() << std::endl;
+    std::cout << "\t";
+    if (element->length() != kUndefinedLength) {
+      std::cout << element->length() << std::endl;
+    } else {
+      std::cout << "-1" << std::endl;
+    }
 
     if (element->vr_type() == VR::SQ) {
       DataSet* data_set = dynamic_cast<DataSet*>(element);
@@ -173,6 +180,7 @@ std::uint32_t DataSet::Read(File& file, bool check_endian) {
 
   Tag tag;
 
+  // NOTE: length_ could be kUndefinedLength (0xFFFFFFFF or -1).
   while (read_length < length_) {
     if (!ReadTag(file, &tag)) {
       break;
@@ -180,20 +188,24 @@ std::uint32_t DataSet::Read(File& file, bool check_endian) {
 
     read_length += 4;
 
-    // TODO: Also read Transfer Syntax UID tag.
     if (check_endian) {
       if (!endian_checked && tag.group() != 2) {
-        endian_checked = true;
-        file.UndoRead(4);
+        file.UndoRead(4);  // Undo read tag.
+
         CheckEndianType(file);
+
+        // Some DICOM files, VR is explicit in 0x0002 group while implicit
+        // in others. E.g., CS7600 generated DICOM files.
+        CheckVrExplicity(file);
+
+        // TODO: Check Transfer Syntax UID tag.
+        //std::string ts;
+        //GetString(Tag(0x0002, 0x0010), &ts);
+
+        endian_checked = true;
         continue;
       }
     }
-
-#if 0
-    if (tag == Tag(0x0002, 0x0010)) {  // Transfer Syntax UID
-    }
-#endif
 
     // End of sequence itself.
     if (tag == kSeqEndTag) {
@@ -201,6 +213,9 @@ std::uint32_t DataSet::Read(File& file, bool check_endian) {
       //std::cout << "Sequence delimitation item." << std::endl;
       file.Seek(4, SEEK_CUR);
       read_length += 4;
+
+      elements_.push_back(new DataElement(tag, VR::UNKNOWN));
+
       break;
     }
 
@@ -210,17 +225,30 @@ std::uint32_t DataSet::Read(File& file, bool check_endian) {
       //std::cout << "Item delimitation item." << std::endl;
       file.Seek(4, SEEK_CUR);
       read_length += 4;
-      break;
+
+      elements_.push_back(new DataElement(tag, VR::UNKNOWN));
+
+      continue;
     }
 
     if (tag == kSeqItemPrefixTag) {
-      //std::cout << "Item delimitation item (FFFE, E000)." << std::endl;
-
       std::uint32_t item_length = 0;
       ReadUint32(file, &item_length);
       read_length += 4;
 
-      //std::cout << "Item length: " << item_length << std::endl;
+      elements_.push_back(new DataElement(tag, VR::UNKNOWN));
+
+      // NOTE: Ignore item_length because:
+      // if (item_length == kUndefinedLength) {
+      //   There will be Item Delimitation tag later.
+      // } else {
+      //   if (length_ == kUndefinedLength) {
+      //     There will be Sequence Delimitation tag later.
+      //   } else {
+      //     Will end when !(read_length < length_).
+      //   }
+      // }
+
       continue;
     }
 

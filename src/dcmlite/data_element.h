@@ -24,6 +24,7 @@ public:
     return tag_;
   }
 
+  // NOTE: VR is not allowed to change after construction.
   VR::Type vr_type() const {
     return vr_type_;
   }
@@ -37,7 +38,10 @@ public:
     return buffer_;
   }
 
-  // \param length Length must be even.
+  // \param length The length of the buffer, must be even.
+  // NOTE:
+  // Length must be set together with buffer to avoid inconsistent
+  // buffer and length.
   void SetBuffer(boost::shared_array<char> buffer, size_t length);
 
   bool AsString(std::string* value) const;
