@@ -6,5 +6,8 @@
 #include "dcmlite/vr.h"
 #include "dcmlite/tag.h"
 #include "dcmlite/data_set.h"
+#include "dcmlite/dicom_reader.h"
+#include "dcmlite/read_handler.h"
+#include "dcmlite/visitor.h"
 
 #endif  // DCMLITE_DCMLITE_H_

@@ -1,4 +1,6 @@
 #include "dcmlite/data_element.h"
+#include <iostream>
+#include "dcmlite/visitor.h"
 
 namespace dcmlite {
 
@@ -44,6 +46,28 @@ bool DataElement::AsUint32(std::uint32_t* value) const {
     return true;
   }
   return false;
+}
+
+void DataElement::Accept(Visitor& visitor) {
+  visitor.VisitDataElement(this);
+}
+
+std::ostream& operator<<(std::ostream& os, const DataElement& element) {
+  os << element.tag() << "\t" << VR::ToString(element.vr_type());
+
+  if (element.vr_type() == VR::SQ) {
+    os << "*";
+  }
+
+  os << "\t";
+
+  if (element.length() != kUndefinedLength) {
+    os << element.length();
+  } else {
+    os << "-1";
+  }
+
+  return os;
 }
 
 }  // namespace dcmlite

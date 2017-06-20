@@ -1,35 +1,8 @@
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <cstdint>
 #include <string>
+#include "dcmlite/dcmlite.h"
 
-#include "dcmlite/data_set.h"
-#include "dcmlite/tag.h"
-
-int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    std::cerr << argv[0] << " <file path>" << std::endl;
-    return 1;
-  }
-
-  const char* file_path = argv[1];
-
-  dcmlite::Endian platform_endian = dcmlite::GetPlatformEndian();
-
-  std::cout << "Platform endian: ";
-  if (platform_endian == dcmlite::kLittleEndian) {
-    std::cout << "Little Endian" << std::endl;
-  } else {
-    std::cout << "Big Endian" << std::endl;
-  }
-
-  dcmlite::DataSet data_set;
-  data_set.LoadFile(file_path);
-
-  data_set.Dump();
-
+static void PrintTags(const dcmlite::DataSet& data_set) {
   std::string transfer_syntax_uid;
   if (data_set.GetString(dcmlite::Tag(0x0002, 0x0010), &transfer_syntax_uid)) {
     std::cout << "Transfer Syntax UID: " << transfer_syntax_uid << std::endl;
@@ -44,11 +17,46 @@ int main(int argc, char* argv[]) {
   if (data_set.GetUint16(dcmlite::Tag(0x0028, 0x0002), &samples_per_pixel)) {
     std::cout << "Samples Per Pixel: " << samples_per_pixel << std::endl;
   }
+}
+
+static void Dump(const std::string& file_path) {
+  dcmlite::DumpReadHandler read_handler;
+  dcmlite::DicomReader reader(&read_handler);
+  reader.ReadFile(file_path);
+}
+
+
+int main(int argc, char* argv[]) {
+  if (argc != 2) {
+    std::cerr << argv[0] << " <file path>" << std::endl;
+    return 1;
+  }
+
+  std::cout << "Platform endian: ";
+  if (dcmlite::PlatformEndian() == dcmlite::kLittleEndian) {
+    std::cout << "Little Endian" << std::endl;
+  } else {
+    std::cout << "Big Endian" << std::endl;
+  }
+
+  std::cout << std::endl;
+
+  std::string file_path = argv[1];
+  std::cout << "File path: " << file_path << std::endl << std::endl;
+
+  Dump(file_path);
+  std::cout << std::endl;
+
+  dcmlite::DataSet data_set;
+  dcmlite::FullReadHandler read_handler(&data_set);
+  dcmlite::DicomReader reader(&read_handler);
+  reader.ReadFile(file_path);
+
+  dcmlite::PrintVisitor print_visitor(std::cout);
+  data_set.Accept(print_visitor);
+  std::cout << std::endl;
+
+  PrintTags(data_set);
 
   return 0;
 }
-
-// Example output:
-// Transfer Syntax UID: 1.2.840.10008.1.2.1
-// Patient Name : Gu^Adam
-// Samples Per Pixel : 1

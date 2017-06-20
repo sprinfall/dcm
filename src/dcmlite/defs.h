@@ -12,8 +12,8 @@ enum Endian {
   kBigEndian,
 };
 
-// Determine the endian type of the current platform.
-Endian GetPlatformEndian();
+// Return the endian type of the current platform.
+Endian PlatformEndian();
 
 const std::uint32_t kUndefinedLength = 0xFFFFFFFF;
 

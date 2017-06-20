@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <list>
+#include <iosfwd>
 
 #include "boost/shared_array.hpp"
 
@@ -12,7 +13,7 @@
 
 namespace dcmlite {
 
-class DataSet;
+class Visitor;
 
 class DataElement {
 public:
@@ -29,7 +30,7 @@ public:
     return vr_type_;
   }
 
-  // NOTE: Setter is provided in DataSet instead of here.
+  // NOTE: No setter.
   size_t length() const {
     return length_;
   }
@@ -49,6 +50,8 @@ public:
   bool AsUint16(std::uint16_t* value) const;
   bool AsUint32(std::uint32_t* value) const;
 
+  virtual void Accept(Visitor& visitor);
+
 protected:
   Tag tag_;
   VR::Type vr_type_;
@@ -59,6 +62,8 @@ protected:
 
   boost::shared_array<char> buffer_;
 };
+
+std::ostream& operator<<(std::ostream& os, const DataElement& element);
 
 }  // namespace dcmlite
 

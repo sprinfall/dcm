@@ -2,11 +2,16 @@
 
 namespace dcmlite {
 
-static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?', 'b' } };
+static union {
+  char c[4];
+  unsigned long mylong;
+} endian_test = { { 'l', '?', '?', 'b' } };
+
 #define ENDIANNESS ((char)endian_test.mylong)
 
-Endian GetPlatformEndian() {
-  return (ENDIANNESS == 'l') ? kLittleEndian : kBigEndian;
+Endian PlatformEndian() {
+  static Endian endian = (ENDIANNESS == 'l') ? kLittleEndian : kBigEndian;
+  return endian;
 }
 
 }  // namespace dcmlite

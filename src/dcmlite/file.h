@@ -2,6 +2,8 @@
 #define DCMLITE_FILE_H_
 #pragma once
 
+// A wrapper of C file IO.
+
 #include <cstdio>
 #include <cstdint>
 #include <string>

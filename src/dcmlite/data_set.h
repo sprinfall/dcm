@@ -14,6 +14,7 @@
 namespace dcmlite {
 
 class File;
+class Visitor;
 
 class DataSet : public DataElement {
 public:
@@ -23,6 +24,8 @@ public:
   DataSet(const Tag& tag = Tag());
 
   virtual ~DataSet();
+
+  virtual void Accept(Visitor& visitor);
 
   void set_endian(Endian endian) {
     endian_ = endian;
@@ -36,15 +39,14 @@ public:
     length_ = length;
   }
 
+  const std::list<DataElement*>& elements() const {
+    return elements_;
+  }
+
   void AddElement(DataElement* element);
 
   // Clear data elements, reset endian type, etc.
   void Clear();
-
-  void Dump(size_t indent = 0);
-
-  // Load data set from a file.
-  bool LoadFile(const std::string& file_path);
 
   bool GetBuffer(const Tag& tag,
                  boost::shared_array<char>* buffer,
@@ -63,14 +65,11 @@ private:
   // Read data set from file.
   // \param check_endian Check endian type during the reading.
   // \return The length read.
-  std::uint32_t Read(File& file, bool check_endian);
+  //std::uint32_t Read(File& file, bool check_endian);
 
-  bool CheckVrExplicity(File& file);
-  bool CheckEndianType(File& file);
-
-  bool ReadTag(File& file, Tag* tag);
-  bool ReadUint16(File& file, std::uint16_t* value);
-  bool ReadUint32(File& file, std::uint32_t* value);
+  //bool ReadTag(File& file, Tag* tag);
+  //bool ReadUint16(File& file, std::uint16_t* value);
+  //bool ReadUint32(File& file, std::uint32_t* value);
 
   // Reverse the byte order if endian types are different.
   void AdjustBytesUint16(std::uint16_t& value) const;
@@ -79,9 +78,7 @@ private:
   DataElement* GetElement(const Tag& tag) const;
 
 private:
-  Endian platform_endian_;  // Endian type of platform.
   Endian endian_;  // Endian type of DICOM file.
-
   bool explicit_vr_;  // Explicit or implicit VR.
 
   std::list<DataElement*> elements_;
