@@ -1,2 +1,2 @@
 add_subdirectory(dcmlite)
-add_subdirectory(viewer)
+add_subdirectory(demo)

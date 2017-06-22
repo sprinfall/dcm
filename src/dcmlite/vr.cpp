@@ -51,7 +51,7 @@ private:
   }
 
   void RegisterVR(VR::Type vr_type,
-                  bool long_length,  // TODO
+                  bool /*long_length*/,  // TODO
                   std::uint32_t word_size,
                   std::uint32_t max_data_length) {
     VR vr;

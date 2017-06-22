@@ -58,7 +58,7 @@ bool FullReadHandler::OnSeqElementStart(DataSet* data_set) {
   return true;
 }
 
-bool FullReadHandler::OnSeqElementEnd(DataSet* data_set) {
+bool FullReadHandler::OnSeqElementEnd(DataSet* /*data_set*/) {
   data_set_stack_.pop_back();
 
   return true;
