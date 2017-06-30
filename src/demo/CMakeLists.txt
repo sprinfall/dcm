@@ -4,7 +4,7 @@ endif()
 
 file(GLOB SRCS *.cpp *.h)
 
-add_executable(viewer ${SRCS})
+add_executable(demo ${SRCS})
 
-target_link_libraries(viewer dcmlite)
+target_link_libraries(demo dcmlite)
 

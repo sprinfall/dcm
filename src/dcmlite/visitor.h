@@ -17,8 +17,8 @@ public:
   virtual ~Visitor() {
   }
 
-  virtual void VisitDataElement(DataElement* data_element) = 0;
-  virtual void VisitDataSet(DataSet* data_set) = 0;
+  virtual void VisitDataElement(const DataElement* data_element) = 0;
+  virtual void VisitDataSet(const DataSet* data_set) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ public:
   virtual ~PrintVisitor() {
   }
 
-  virtual void VisitDataElement(DataElement* data_element) override;
-  virtual void VisitDataSet(DataSet* data_set) override;
+  virtual void VisitDataElement(const DataElement* data_element) override;
+  virtual void VisitDataSet(const DataSet* data_set) override;
 
 private:
   std::ostream& os_;

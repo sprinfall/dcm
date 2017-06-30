@@ -1,5 +1,5 @@
-#ifndef DEFS_H_
-#define DEFS_H_
+#ifndef DCMLITE_DEFS_H_
+#define DCMLITE_DEFS_H_
 #pragma once
 
 #include <cstdint>
@@ -32,4 +32,4 @@ inline std::uint32_t ReverseBytesUint32(std::uint32_t value) {
 
 }  // namespace dcmlite
 
-#endif  // DEFS_H_
+#endif  // DCMLITE_DEFS_H_

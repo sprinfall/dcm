@@ -25,7 +25,7 @@ public:
 
   virtual ~DataSet();
 
-  virtual void Accept(Visitor& visitor);
+  virtual void Accept(Visitor& visitor) const;
 
   void set_endian(Endian endian) {
     endian_ = endian;

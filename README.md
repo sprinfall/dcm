@@ -3,12 +3,18 @@ A lightweight C++ DICOM library.
 
 It's at the very beginning of the development. Don't try to use it in production.
 
-## Read File
+## Read
+
+### Read Full Data Set
 
 ```cpp
 dcmlite::DataSet data_set;
-data_set.LoadFile("path/to/some/dcm");
+dcmlite::FullReadHandler read_handler(&data_set);
+dcmlite::DicomReader reader(&read_handler);
+reader.ReadFile("path/to/some/dcm");
 ```
+
+With the data set, you can get tags.
 
 Read string:
 ```cpp
@@ -31,10 +37,23 @@ if (data_set.GetUint16(dcmlite::Tag(0x0028, 0x0002), &samples_per_pixel)) {
 }
 ```
 
-Example output:
-```
-Transfer Syntax UID: 1.2.840.10008.1.2.1
-Patient Name : Gu^Adam
-Samples Per Pixel : 1
-```
+### Read Specific Tags
 
+Much less memory allcation. Much faster.
+
+```cpp
+dcmlite::Tag tag1(0x0002, 0x0010);
+dcmlite::Tag tag2(0x0010, 0x0010);
+dcmlite::Tag tag3(0x0028, 0x0002);
+
+dcmlite::TagsReader tags_reader;
+tags_reader.AddTag(tag1).AddTag(tag2).AddTag(tag3);
+tags_reader.ReadFile("path/to/some/dcm")
+
+dcmlite::DataElement* element1 = tags_reader.GetElement(tag1);
+if (element1 != NULL) {
+  std::cout << *element1 << std::endl;
+}
+
+// ...
+```

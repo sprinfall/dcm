@@ -167,6 +167,10 @@ std::uint32_t DicomReader::ReadFile(File& file,
   Tag tag;
 
   while (read_length < max_length) {
+    if (handler_->should_stop()) {
+      break;  // Handler required to stop reading.
+    }
+
     if (!ReadTag(file, &tag)) {
       break;
     }
@@ -199,7 +203,10 @@ std::uint32_t DicomReader::ReadFile(File& file,
       file.Seek(4, SEEK_CUR);
       read_length += 4;
 
-      handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
+      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
+      if (handler_->OnElementStart(tag)) {
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+      }
 
       break;
     }
@@ -211,7 +218,10 @@ std::uint32_t DicomReader::ReadFile(File& file,
       file.Seek(4, SEEK_CUR);
       read_length += 4;
 
-      handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
+      if (handler_->OnElementStart(tag)) {
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+      }
+      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
 
       continue;
     }
@@ -221,7 +231,10 @@ std::uint32_t DicomReader::ReadFile(File& file,
       ReadUint32(file, &item_length);
       read_length += 4;
 
-      handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
+      if (handler_->OnElementStart(tag)) {
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+      }
+      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
 
       // NOTE: Ignore item_length because:
       // if (item_length == kUndefinedLength) {
@@ -328,10 +341,13 @@ std::uint32_t DicomReader::ReadFile(File& file,
 
       read_length += vl32;
 
-      DataElement* element = new DataElement(tag, vr_type);
-      element->SetBuffer(buffer, vl32);
+      if (handler_->OnElementStart(tag)) {
+        DataElement* element = new DataElement(tag, vr_type);
+        element->SetBuffer(buffer, vl32);
 
-      handler_->OnElement(element);
+        handler_->OnElementEnd(element);
+      }
+      //handler_->OnElement(element);
     }
   }
 

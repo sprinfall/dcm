@@ -17,7 +17,7 @@ DataSet::~DataSet() {
   Clear();
 }
 
-void DataSet::Accept(Visitor& visitor) {
+void DataSet::Accept(Visitor& visitor) const {
   visitor.VisitDataSet(this);
 }
 

@@ -8,6 +8,8 @@
 #include "dcmlite/data_set.h"
 #include "dcmlite/dicom_reader.h"
 #include "dcmlite/read_handler.h"
+#include "dcmlite/tags_reader.h"
 #include "dcmlite/visitor.h"
+#include "dcmlite/util.h"
 
 #endif  // DCMLITE_DCMLITE_H_

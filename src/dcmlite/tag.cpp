@@ -3,7 +3,7 @@
 #include <istream>
 #include <iomanip>
 
-#include "defs.h"
+#include "dcmlite/defs.h"
 
 namespace dcmlite {
 
