@@ -152,6 +152,9 @@ bool DicomReader::ReadFile(const std::string& file_path) {
     return false;
   }
 
+  // Tell read handler.
+  handler_->OnExplicitVR(explicit_vr_);
+
   ReadFile(file, kUndefinedLength, true);
 
   return true;
@@ -178,14 +181,23 @@ std::uint32_t DicomReader::ReadFile(File& file,
     read_length += 4;
 
     if (check_endian) {
+      // The 0002 group will always be Little Endian even if the DICOM file
+      // is Big Endian.
       if (!endian_checked && tag.group() != 2) {
         file.UndoRead(4);  // Undo read tag.
 
         CheckEndianType(file, &endian_);
 
+        // Tell read handler the endian type.
+        handler_->OnEndian(endian_);
+
         // Some DICOM files, VR is explicit in 0x0002 group while implicit
         // in others. E.g., CS7600 generated DICOM files.
+        // TODO: Add explicit_vr_0002_?
         CheckVrExplicity(file, &explicit_vr_);
+
+        // Tell read handler.
+        handler_->OnExplicitVR(explicit_vr_);
 
         // TODO: Check Transfer Syntax UID tag.
         //std::string ts;
@@ -203,7 +215,6 @@ std::uint32_t DicomReader::ReadFile(File& file,
       file.Seek(4, SEEK_CUR);
       read_length += 4;
 
-      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
       if (handler_->OnElementStart(tag)) {
         handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
       }
@@ -221,7 +232,6 @@ std::uint32_t DicomReader::ReadFile(File& file,
       if (handler_->OnElementStart(tag)) {
         handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
       }
-      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
 
       continue;
     }
@@ -234,7 +244,6 @@ std::uint32_t DicomReader::ReadFile(File& file,
       if (handler_->OnElementStart(tag)) {
         handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
       }
-      //handler_->OnElement(new DataElement(tag, VR::UNKNOWN));
 
       // NOTE: Ignore item_length because:
       // if (item_length == kUndefinedLength) {
@@ -347,7 +356,6 @@ std::uint32_t DicomReader::ReadFile(File& file,
 
         handler_->OnElementEnd(element);
       }
-      //handler_->OnElement(element);
     }
   }
 

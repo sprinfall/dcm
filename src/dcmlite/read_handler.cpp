@@ -50,6 +50,14 @@ FullReadHandler::FullReadHandler(DataSet* data_set)
   data_set_stack_.push_back(data_set);
 }
 
+void FullReadHandler::OnEndian(Endian endian) {
+  data_set_->set_endian(endian);
+}
+
+void FullReadHandler::OnExplicitVR(bool explicit_vr) {
+  data_set_->set_explicit_vr(explicit_vr);
+}
+
 void FullReadHandler::OnElementEnd(DataElement* data_element) {
   assert(!data_set_stack_.empty());
   data_set_stack_.back()->AddElement(data_element);
@@ -67,11 +75,21 @@ void FullReadHandler::OnSeqElementEnd(DataSet* /*data_set*/) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TagsReadHandler::TagsReadHandler() {
+TagsReadHandler::TagsReadHandler(DataSet* data_set)
+    : data_set_(data_set) {
+  data_set_stack_.push_back(data_set);
 }
 
 TagsReadHandler::~TagsReadHandler() {
-  Clear();
+  ClearTags();
+}
+
+void TagsReadHandler::OnEndian(Endian endian) {
+  data_set_->set_endian(endian);
+}
+
+void TagsReadHandler::OnExplicitVR(bool explicit_vr) {
+  data_set_->set_explicit_vr(explicit_vr);
 }
 
 bool TagsReadHandler::OnElementStart(const Tag& tag) {
@@ -101,20 +119,24 @@ bool TagsReadHandler::OnElementStart(const Tag& tag) {
 }
 
 void TagsReadHandler::OnElementEnd(DataElement* data_element) {
-  elements_.push_back(data_element);
+  assert(!data_set_stack_.empty());
+  data_set_stack_.back()->AddElement(data_element);
 }
 
 void TagsReadHandler::OnSeqElementStart(DataSet* data_set) {
+  assert(!data_set_stack_.empty());
+  data_set_stack_.back()->AddElement(data_set);
+  data_set_stack_.push_back(data_set);
 }
 
-void TagsReadHandler::OnSeqElementEnd(DataSet* data_set) {
-  delete data_set;
+void TagsReadHandler::OnSeqElementEnd(DataSet* /*data_set*/) {
+  data_set_stack_.pop_back();
 }
 
-void TagsReadHandler::AddTag(const Tag& tag) {
+TagsReadHandler& TagsReadHandler::AddTag(const Tag& tag) {
   if (tags_.empty()) {
     tags_.push_back(tag);
-    return;
+    return *this;
   }
 
   // Make sure the tags are sorted.
@@ -122,24 +144,12 @@ void TagsReadHandler::AddTag(const Tag& tag) {
   if (lower == tags_.end() || *lower != tag) {
     tags_.insert(lower, tag);
   }
+
+  return *this;
 }
 
-DataElement* TagsReadHandler::GetElement(const Tag& tag) const {
-  for (DataElement* element : elements_) {
-    if (element->tag() == tag) {
-      return element;
-    }
-  }
-  return NULL;
-}
-
-void TagsReadHandler::Clear() {
+void TagsReadHandler::ClearTags() {
   tags_.clear();
-
-  for (DataElement* element : elements_) {
-    delete element;
-  }
-  elements_.clear();
 }
 
 }  // namespace dcmlite

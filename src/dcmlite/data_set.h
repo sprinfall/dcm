@@ -62,15 +62,6 @@ public:
   bool GetUint32(const Tag& tag, std::uint32_t* value) const;
 
 private:
-  // Read data set from file.
-  // \param check_endian Check endian type during the reading.
-  // \return The length read.
-  //std::uint32_t Read(File& file, bool check_endian);
-
-  //bool ReadTag(File& file, Tag* tag);
-  //bool ReadUint16(File& file, std::uint16_t* value);
-  //bool ReadUint32(File& file, std::uint32_t* value);
-
   // Reverse the byte order if endian types are different.
   void AdjustBytesUint16(std::uint16_t& value) const;
   void AdjustBytesUint32(std::uint32_t& value) const;

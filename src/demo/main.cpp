@@ -3,6 +3,10 @@
 
 #include "dcmlite/dcmlite.h"
 
+static const dcmlite::Tag kTransferSyntaxUidTag(0x0002, 0x0010);
+static const dcmlite::Tag kPatientNameTag(0x0010, 0x0010);
+static const dcmlite::Tag kSamplesPerPixelTag(0x0028, 0x0002);
+
 
 static void PrintDataSet(const dcmlite::DataSet& data_set) {
   dcmlite::PrintVisitor print_visitor(std::cout);
@@ -12,17 +16,17 @@ static void PrintDataSet(const dcmlite::DataSet& data_set) {
 
 static void GetTagsFromDataSet(const dcmlite::DataSet& data_set) {
   std::string transfer_syntax_uid;
-  if (data_set.GetString(dcmlite::Tag(0x0002, 0x0010), &transfer_syntax_uid)) {
+  if (data_set.GetString(kTransferSyntaxUidTag, &transfer_syntax_uid)) {
     std::cout << "Transfer Syntax UID: " << transfer_syntax_uid << std::endl;
   }
 
   std::string patient_name;
-  if (data_set.GetString(dcmlite::Tag(0x0010, 0x0010), &patient_name)) {
+  if (data_set.GetString(kPatientNameTag, &patient_name)) {
     std::cout << "Patient Name: " << patient_name << std::endl;
   }
 
   std::uint16_t samples_per_pixel;
-  if (data_set.GetUint16(dcmlite::Tag(0x0028, 0x0002), &samples_per_pixel)) {
+  if (data_set.GetUint16(kSamplesPerPixelTag, &samples_per_pixel)) {
     std::cout << "Samples Per Pixel: " << samples_per_pixel << std::endl;
   }
 }
@@ -35,35 +39,42 @@ static void DumpDicomFile(const std::string& file_path) {
   std::cout << std::endl;
 }
 
-static void ReadSpecificTags(const std::string& file_path) {
-  dcmlite::Tag tag1(0x0002, 0x0010);
-  dcmlite::Tag tag2(0x0010, 0x0010);
-  dcmlite::Tag tag3(0x0028, 0x0002);
+static void LoadFullDataSet(const std::string& file_path) {
+  std::cout << "Load the full data set." << std::endl;
 
-  dcmlite::TagsReader tags_reader;
-  tags_reader.AddTag(tag2);  // NOTE: Order doesn't matter.
-  tags_reader.AddTag(tag1);
-  tags_reader.AddTag(tag3);
+  dcmlite::DataSet data_set;
+  dcmlite::FullReadHandler read_handler(&data_set);
+  dcmlite::DicomReader reader(&read_handler);
+  {
+    dcmlite::TimeIt ti;  // Log the time.
+    reader.ReadFile(file_path);
+  }
+
+  GetTagsFromDataSet(data_set);
+
+  std::cout << std::endl;
+}
+
+static void ReadSpecificTags(const std::string& file_path) {
+  std::cout << "Read the specific tags." << std::endl;
+
+  dcmlite::DataSet data_set;
+  dcmlite::TagsReadHandler read_handler(&data_set);
+
+  // NOTE: Add order doesn't matter.
+  read_handler.AddTag(kPatientNameTag).
+               AddTag(kTransferSyntaxUidTag).
+               AddTag(kSamplesPerPixelTag);
 
   {
-    dcmlite::TimeIt ti;
-    tags_reader.ReadFile(file_path);
-  }
-   
-  dcmlite::DataElement* element1 = tags_reader.GetElement(tag1);
-  if (element1 != NULL) {
-    std::cout << *element1 << std::endl;
+    dcmlite::TimeIt ti;  // Log the time.
+    dcmlite::DicomReader reader(&read_handler);
+    reader.ReadFile(file_path);
   }
 
-  dcmlite::DataElement* element2 = tags_reader.GetElement(tag2);
-  if (element2 != NULL) {
-    std::cout << *element2 << std::endl;
-  }
+  GetTagsFromDataSet(data_set);
 
-  dcmlite::DataElement* element3 = tags_reader.GetElement(tag3);
-  if (element3 != NULL) {
-    std::cout << *element3 << std::endl;
-  }
+  std::cout << std::endl;
 }
 
 
@@ -85,25 +96,9 @@ int main(int argc, char* argv[]) {
   std::string file_path = argv[1];
   std::cout << "File path: " << file_path << std::endl << std::endl;
 
-  // Load the full data set.
+  LoadFullDataSet(file_path);
 
-  std::cout << "Load the full data set." << std::endl;
-
-  dcmlite::DataSet data_set;
-  dcmlite::FullReadHandler read_handler(&data_set);
-  dcmlite::DicomReader reader(&read_handler);
-  {
-    dcmlite::TimeIt ti;
-    reader.ReadFile(file_path);
-  }
-
-  std::cout << std::endl;
-  std::cout << "Read the specific tags." << std::endl;
-
-  // Just read some tags.
   ReadSpecificTags(file_path);
-
-  std::cout << std::endl;
 
   return 0;
 }

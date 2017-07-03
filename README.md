@@ -1,7 +1,7 @@
 # dcmlite
 A lightweight C++ DICOM library.
 
-It's at the very beginning of the development. Don't try to use it in production.
+Currently, only support to read DICOM files.
 
 ## Read
 
@@ -42,18 +42,17 @@ if (data_set.GetUint16(dcmlite::Tag(0x0028, 0x0002), &samples_per_pixel)) {
 Much less memory allcation. Much faster.
 
 ```cpp
-dcmlite::Tag tag1(0x0002, 0x0010);
-dcmlite::Tag tag2(0x0010, 0x0010);
-dcmlite::Tag tag3(0x0028, 0x0002);
+dcmlite::DataSet data_set;
+dcmlite::TagsReadHandler read_handler(&data_set);
 
-dcmlite::TagsReader tags_reader;
-tags_reader.AddTag(tag1).AddTag(tag2).AddTag(tag3);
-tags_reader.ReadFile("path/to/some/dcm")
+// Add tags to read.
+read_handler.AddTag(dcmlite::Tag(0x0002, 0x0010)).
+    AddTag(dcmlite::Tag(0x0010, 0x0010)).
+    AddTag(dcmlite::Tag(0x0028, 0x0002));
 
-dcmlite::DataElement* element1 = tags_reader.GetElement(tag1);
-if (element1 != NULL) {
-  std::cout << *element1 << std::endl;
-}
+dcmlite::DicomReader reader(&read_handler);
+reader.ReadFile("path/to/some/dcm")
 
+// Get value from data set.
 // ...
 ```

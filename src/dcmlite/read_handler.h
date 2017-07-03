@@ -3,6 +3,7 @@
 #pragma once
 
 #include <vector>
+#include "dcmlite/defs.h"
 
 namespace dcmlite {
 
@@ -21,6 +22,9 @@ public:
   bool should_stop() const {
     return should_stop_;
   }
+
+  virtual void OnEndian(Endian endian) {}
+  virtual void OnExplicitVR(bool explicit_vr) {}
 
   // About the return value:
   // - true: OnElementEnd will be called with a new allocated data element;
@@ -70,6 +74,9 @@ public:
   virtual ~FullReadHandler() {
   }
 
+  virtual void OnEndian(Endian endian) override;
+  virtual void OnExplicitVR(bool explicit_vr) override;
+
   virtual bool OnElementStart(const Tag& tag) override {
     return true;
   }
@@ -90,8 +97,11 @@ private:
 // It avoids loading the full data set, so it's very fast.
 class TagsReadHandler : public ReadHandler {
 public:
-  TagsReadHandler();
+  explicit TagsReadHandler(DataSet* data_set);
   virtual ~TagsReadHandler();
+
+  virtual void OnEndian(Endian endian) override;
+  virtual void OnExplicitVR(bool explicit_vr) override;
 
   virtual bool OnElementStart(const Tag& tag) override;
   virtual void OnElementEnd(DataElement* data_element) override;
@@ -100,24 +110,17 @@ public:
   virtual void OnSeqElementEnd(DataSet* data_set) override;
 
   // Add a tag to read.
-  void AddTag(const Tag& tag);
+  TagsReadHandler& AddTag(const Tag& tag);
 
-  // Get a result data element by tag.
-  DataElement* GetElement(const Tag& tag) const;
-
-  size_t GetElementSize() const {
-    return elements_.size();
-  }
-
-  // Delete all tags & data elements.
-  void Clear();
+  // Delete all tags.
+  void ClearTags();
 
 private:
   // Tags (sorted) to read.
   std::vector<Tag> tags_;
 
-  // Result data elements.
-  std::vector<DataElement*> elements_;
+  DataSet* data_set_;
+  std::vector<DataSet*> data_set_stack_;
 };
 
 }  // namespace dcmlite
