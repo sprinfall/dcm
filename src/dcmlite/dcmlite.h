@@ -5,6 +5,7 @@
 #include "dcmlite/defs.h"
 #include "dcmlite/vr.h"
 #include "dcmlite/tag.h"
+#include "dcmlite/data_dictionary.h"
 #include "dcmlite/data_set.h"
 #include "dcmlite/dicom_reader.h"
 #include "dcmlite/read_handler.h"

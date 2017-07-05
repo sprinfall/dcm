@@ -127,7 +127,7 @@ DicomReader::DicomReader() {
 
 bool DicomReader::ReadFile(const std::string& file_path) {
   File file;
-  if (!file.Open(file_path.c_str(), "rb")) {
+  if (!file.Open(file_path.c_str())) {
     return false;
   }
 

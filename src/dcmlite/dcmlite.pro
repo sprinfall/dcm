@@ -31,7 +31,8 @@ SOURCES += data_dictionary.cpp \
     defs.cpp \
     file.cpp \
     tag.cpp \
-    visitor.cpp
+    visitor.cpp \
+    util.cpp
 
 HEADERS += data_dictionary.h \
     data_set.h \
@@ -44,7 +45,8 @@ HEADERS += data_dictionary.h \
     defs.h \
     file.h \
     tag.h \
-    visitor.h
+    visitor.h \
+    util.h
 
 # For include statement like "dcmlite/tag.h".
 INCLUDEPATH += "$${PWD}/.."
