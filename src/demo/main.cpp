@@ -3,15 +3,20 @@
 
 #include "dcmlite/dcmlite.h"
 
+// Test tags.
 static const dcmlite::Tag kTransferSyntaxUidTag(0x0002, 0x0010);
 static const dcmlite::Tag kPatientNameTag(0x0010, 0x0010);
 static const dcmlite::Tag kSamplesPerPixelTag(0x0028, 0x0002);
 
 
-static void PrintDataSet(const dcmlite::DataSet& data_set) {
-  dcmlite::PrintVisitor print_visitor(std::cout);
-  data_set.Accept(print_visitor);
-  std::cout << std::endl;
+static void PrintEndian(const char* title, dcmlite::Endian endian) {
+  std::cout << title;
+
+  if (endian == dcmlite::kLittleEndian) {
+    std::cout << ": Little Endian" << std::endl;
+  } else {
+    std::cout << ": Big Endian" << std::endl;
+  }
 }
 
 static void GetTagsFromDataSet(const dcmlite::DataSet& data_set) {
@@ -50,6 +55,8 @@ static void LoadFullDataSet(const std::string& file_path) {
     reader.ReadFile(file_path);
   }
 
+  PrintEndian("Data set endian", data_set.endian());
+
   GetTagsFromDataSet(data_set);
 
   std::cout << std::endl;
@@ -78,18 +85,14 @@ static void ReadSpecificTags(const std::string& file_path) {
 }
 
 
+// TODO: Add sub-command.
 int main(int argc, char* argv[]) {
   if (argc != 2) {
-    std::cerr << argv[0] << " <file path>" << std::endl;
+    std::cout << argv[0] << " <file path>" << std::endl;
     return 1;
   }
 
-  std::cout << "Platform endian: ";
-  if (dcmlite::PlatformEndian() == dcmlite::kLittleEndian) {
-    std::cout << "Little Endian" << std::endl;
-  } else {
-    std::cout << "Big Endian" << std::endl;
-  }
+  PrintEndian("Platform endian", dcmlite::PlatformEndian());
 
   std::cout << std::endl;
 

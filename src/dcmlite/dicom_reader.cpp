@@ -76,7 +76,7 @@ static bool CheckEndianType(File& file, Endian* endian) {
   std::uint16_t group = (tag_bytes[0] & 0xff) + ((tag_bytes[1] & 0xff) << 8);
   std::uint16_t element = (tag_bytes[2] & 0xff) + ((tag_bytes[3] & 0xff) << 8);
   Tag tag_l(group, element);  // Little endian
-  Tag tag_b = tag_l.ReverseBytes();  // Big endian
+  Tag tag_b = tag_l.SwapBytes();  // Big endian
 
   const DataEntry* entry_l = DataDictionary::Get().FindEntry(tag_l);
   const DataEntry* entry_b = DataDictionary::Get().FindEntry(tag_b);
@@ -216,7 +216,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
       read_length += 4;
 
       if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
       }
 
       break;
@@ -230,7 +230,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
       read_length += 4;
 
       if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
       }
 
       continue;
@@ -242,7 +242,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
       read_length += 4;
 
       if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN));
+        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
       }
 
       // NOTE: Ignore item_length because:
@@ -322,8 +322,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
     }
 
     if (vr_type == VR::SQ) {
-      DataSet* data_set = new DataSet(tag);
-      data_set->set_endian(endian_);
+      DataSet* data_set = new DataSet(tag, endian_);
       data_set->set_explicit_vr(explicit_vr_);
       data_set->set_length(vl32);
 
@@ -351,7 +350,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
       read_length += vl32;
 
       if (handler_->OnElementStart(tag)) {
-        DataElement* element = new DataElement(tag, vr_type);
+        DataElement* element = new DataElement(tag, vr_type, endian_);
         element->SetBuffer(buffer, vl32);
 
         handler_->OnElementEnd(element);
@@ -398,13 +397,13 @@ bool DicomReader::ReadUint32(File& file, std::uint32_t* value) {
 
 void DicomReader::AdjustBytesUint16(std::uint16_t& value) const {
   if (endian_ != PlatformEndian()) {
-    value = ReverseBytesUint16(value);
+    value = SwapUint16(value);
   }
 }
 
 void DicomReader::AdjustBytesUint32(std::uint32_t& value) const {
   if (endian_ != PlatformEndian()) {
-    value = ReverseBytesUint32(value);
+    value = SwapUint32(value);
   }
 }
 

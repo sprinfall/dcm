@@ -47,7 +47,7 @@ public:
     return group_ == 0 && element_ == 0;
   }
 
-  Tag ReverseBytes() const;
+  Tag SwapBytes() const;
 
 private:
   std::uint16_t group_;

@@ -11,21 +11,21 @@ PrintVisitor::PrintVisitor(std::ostream& os)
     : os_(os), level_(-1) {
 }
 
-void PrintVisitor::VisitDataElement(const DataElement* data_element) {
+void PrintVisitor::VisitDataElement(DataElement* data_element) {
   if (level_ > 0) {
     os_ << std::string(level_, '\t');
   }
   os_ << *data_element << std::endl;
 }
 
-void PrintVisitor::VisitDataSet(const DataSet* data_set) {
+void PrintVisitor::VisitDataSet(DataSet* data_set) {
   VisitDataElement(data_set);
 
   ++level_;
 
-  const std::list<DataElement*>& elements = data_set->elements();
-  for (DataElement* element : elements) {
-    element->Accept(*this);
+  size_t size = data_set->GetSize();
+  for (size_t i = 0; i < size; ++i) {
+    (*data_set)[i]->Accept(*this);
   }
 
   --level_;

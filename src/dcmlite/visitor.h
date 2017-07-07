@@ -17,16 +17,16 @@ public:
   virtual ~Visitor() {
   }
 
-  virtual void VisitDataElement(const DataElement* data_element) = 0;
-  virtual void VisitDataSet(const DataSet* data_set) = 0;
+  virtual void VisitDataElement(DataElement* data_element) = 0;
+  virtual void VisitDataSet(DataSet* data_set) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // A visitor to print the whole data set.
 // Usage:
-//   dcmlite::PrintVisitor print_visitor(std::cout);
-//   data_set.Accept(print_visitor);
+//   dcmlite::PrintVisitor v(std::cout);
+//   data_set.Accept(v);
 class PrintVisitor : public Visitor {
 public:
   explicit PrintVisitor(std::ostream& os);
@@ -34,8 +34,8 @@ public:
   virtual ~PrintVisitor() {
   }
 
-  virtual void VisitDataElement(const DataElement* data_element) override;
-  virtual void VisitDataSet(const DataSet* data_set) override;
+  virtual void VisitDataElement(DataElement* data_element) override;
+  virtual void VisitDataSet(DataSet* data_set) override;
 
 private:
   std::ostream& os_;

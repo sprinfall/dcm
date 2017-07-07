@@ -3,10 +3,8 @@
 #pragma once
 
 #include <cstdint>
-#include <list>
 #include <string>
-
-#include "boost/shared_array.hpp"
+#include <vector>
 
 #include "dcmlite/defs.h"
 #include "dcmlite/data_element.h"
@@ -21,16 +19,23 @@ public:
   // NOTE:
   // The data set will be nested (SQ) if the tag is not empty.
   // The VR (UNKNOWN or SQ) is determined by if the tag is empty or not.
-  DataSet(const Tag& tag = Tag());
+  DataSet(const Tag& tag = Tag(), Endian endian = kLittleEndian);
 
   virtual ~DataSet();
 
-  virtual void Accept(Visitor& visitor) const;
+  // TODO: const?
+  virtual void Accept(Visitor& visitor) override;
 
+  Endian endian() const {
+    return endian_;
+  }
   void set_endian(Endian endian) {
     endian_ = endian;
   }
 
+  bool explicit_vr() const {
+    return explicit_vr_;
+  }
   void set_explicit_vr(bool explicit_vr) {
     explicit_vr_ = explicit_vr;
   }
@@ -39,40 +44,48 @@ public:
     length_ = length;
   }
 
-  const std::list<DataElement*>& elements() const {
-    return elements_;
+  // Get the number of child elements.
+  size_t GetSize() const {
+    return elements_.size();
   }
 
+  // Get the element at the given index.
+  DataElement* operator[](size_t index);
+
+  // Get the element at the given index.
+  const DataElement* operator[](size_t index) const;
+
+  // Get the element at the given index.
+  // Return NULL if out of index (
+  const DataElement* At(size_t index) const;
+
+  // TODO: Move to private.
   void AddElement(DataElement* element);
+
+  const DataElement* GetElement(const Tag& tag) const;
 
   // Clear data elements, reset endian type, etc.
   void Clear();
 
-  bool GetBuffer(const Tag& tag,
-                 boost::shared_array<char>* buffer,
-                 size_t* len) const;
-
-  // Get string value of a tag.
   bool GetString(const Tag& tag, std::string* value) const;
 
-  // Get 16-bit unsigned int value of a tag.
   bool GetUint16(const Tag& tag, std::uint16_t* value) const;
 
-  // Get 32-bit unsigned int value of a tag.
   bool GetUint32(const Tag& tag, std::uint32_t* value) const;
 
+  bool GetInt16(const Tag& tag, std::int16_t* value) const;
+
+  bool GetInt32(const Tag& tag, std::int32_t* value) const;
+
+  bool GetFloat32(const Tag& tag, float32_t* value) const;
+
+  bool GetFloat64(const Tag& tag, float64_t* value) const;
+
 private:
-  // Reverse the byte order if endian types are different.
-  void AdjustBytesUint16(std::uint16_t& value) const;
-  void AdjustBytesUint32(std::uint32_t& value) const;
+  bool explicit_vr_;
 
-  DataElement* GetElement(const Tag& tag) const;
-
-private:
-  Endian endian_;  // Endian type of DICOM file.
-  bool explicit_vr_;  // Explicit or implicit VR.
-
-  std::list<DataElement*> elements_;
+  // Child elements.
+  std::vector<DataElement*> elements_;
 };
 
 }  // namespace dcmlite

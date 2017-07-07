@@ -34,8 +34,8 @@ Tag& Tag::operator=(const Tag& rhs) {
   return *this;
 }
 
-Tag Tag::ReverseBytes() const {
-  return Tag(ReverseBytesUint16(group_), ReverseBytesUint16(element_));
+Tag Tag::SwapBytes() const {
+  return Tag(SwapUint16(group_), SwapUint16(element_));
 }
 
 bool operator<(const Tag& lhs, const Tag& rhs) {

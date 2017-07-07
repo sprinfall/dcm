@@ -29,7 +29,6 @@ SOURCES += data_dictionary.cpp \
     vr.cpp \
     data_element.cpp \
     defs.cpp \
-    file.cpp \
     tag.cpp \
     visitor.cpp \
     util.cpp
@@ -51,7 +50,8 @@ HEADERS += data_dictionary.h \
 # For include statement like "dcmlite/tag.h".
 INCLUDEPATH += "$${PWD}/.."
 
-win32:INCLUDEPATH += "C:\Boost\include\boost-1_61"
+# Add Boost include path from system environment variable.
+win32:INCLUDEPATH += $$(BOOST_INCLUDE_DIR)
 
 unix {
     target.path = /usr/lib

@@ -3,7 +3,6 @@
 #pragma once
 
 #include <cstdint>
-#include <list>
 #include <iosfwd>
 
 #include "boost/shared_array.hpp"
@@ -13,11 +12,13 @@
 
 namespace dcmlite {
 
+typedef boost::shared_array<char> Buffer;
+
 class Visitor;
 
 class DataElement {
 public:
-  DataElement(const Tag& tag, VR::Type vr_type);
+  DataElement(const Tag& tag, VR::Type vr_type, Endian endian);
 
   virtual ~DataElement();
 
@@ -30,37 +31,81 @@ public:
     return vr_type_;
   }
 
-  // NOTE: No setter.
+  // Get the value length.
+  // NOTE: No set_length() is provided; see SetBuffer().
   size_t length() const {
     return length_;
   }
 
-  const boost::shared_array<char>& buffer() const {
+  // Get the value buffer.
+  // NOTE: No set_buffer() is provided; see SetBuffer().
+  const Buffer& buffer() const {
     return buffer_;
   }
 
-  // \param length The length of the buffer, must be even.
-  // NOTE:
-  // Length must be set together with buffer to avoid inconsistent
-  // buffer and length.
-  void SetBuffer(boost::shared_array<char> buffer, size_t length);
+  // Set value buffer and length together.
+  // The length must be even (2, 4, 8, etc.).
+  // Always set buffer and length together to ensure data consistency.
+  void SetBuffer(Buffer buffer, size_t length);
 
-  bool AsString(std::string* value) const;
+  // TODO: Add applicable VR types as comments.
+  bool GetString(std::string* value) const;
 
-  bool AsUint16(std::uint16_t* value) const;
-  bool AsUint32(std::uint32_t* value) const;
+  bool GetUint16(std::uint16_t* value) const;
 
+  bool GetUint32(std::uint32_t* value) const;
+
+  bool GetInt16(std::int16_t* value) const;
+
+  bool GetInt32(std::int32_t* value) const;
+
+  bool GetFloat32(float32_t* value) const;
+
+  bool GetFloat64(float64_t* value) const;
+
+  // Print value to an output stream.
+  void PrintValue(std::ostream& os) const;
+
+  // Print value to a string.
+  void PrintValue(std::string* str) const;
+
+  // Visitor design pattern.
   virtual void Accept(Visitor& visitor);
+
+protected:
+  // Get number value.
+  template <typename T>
+  bool GetNumber(T* value) const {
+    return GetNumber<T>(value, sizeof(T));
+  }
+
+  // Get number value.
+  template <typename T>
+  bool GetNumber(T* value, size_t length) const {
+    if (buffer_ && length_ == length) {
+      *value = *reinterpret_cast<T*>(buffer_.get());
+      return true;
+    }
+    return false;
+  }
+
+  void AdjustBytes16(void* value) const;
+  void AdjustBytes32(void* value) const;
+  void AdjustBytes64(void* value) const;
 
 protected:
   Tag tag_;
   VR::Type vr_type_;
 
+  // Big endian or little endian.
+  Endian endian_;
+
   // Value length.
   // Undefined length for SQ element is 0xFFFFFFFF.
   size_t length_;
 
-  boost::shared_array<char> buffer_;
+  // Value buffer.
+  Buffer buffer_;
 };
 
 std::ostream& operator<<(std::ostream& os, const DataElement& element);
