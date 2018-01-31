@@ -11,7 +11,7 @@
 
 namespace dcmlite {
 
-class File;
+class BinaryFile;
 class Visitor;
 
 class DataSet : public DataElement {
@@ -40,24 +40,20 @@ public:
     explicit_vr_ = explicit_vr;
   }
 
-  void set_length(size_t length) {
-    length_ = length;
-  }
-
   // Get the number of child elements.
-  size_t GetSize() const {
+  std::size_t GetSize() const {
     return elements_.size();
   }
 
   // Get the element at the given index.
-  DataElement* operator[](size_t index);
+  DataElement* operator[](std::size_t index);
 
   // Get the element at the given index.
-  const DataElement* operator[](size_t index) const;
+  const DataElement* operator[](std::size_t index) const;
 
   // Get the element at the given index.
   // Return NULL if out of index (
-  const DataElement* At(size_t index) const;
+  const DataElement* At(std::size_t index) const;
 
   // TODO: Move to private.
   void AddElement(DataElement* element);

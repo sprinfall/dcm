@@ -12,7 +12,7 @@ namespace dcmlite {
 
 class DataElement;
 class DataSet;
-class File;
+class BinaryFile;
 class ReadHandler;
 class Tag;
 
@@ -31,11 +31,11 @@ private:
   //        Could be kUndefinedLength (0xFFFFFFFF).
   // \param check_endian Check endian type during the reading.
   // \return The length read.
-  std::uint32_t ReadFile(File& file, size_t max_length, bool check_endian);
+  std::uint32_t ReadFile(BinaryFile& file, std::size_t max_length, bool check_endian);
 
-  bool ReadTag(File& file, Tag* tag);
-  bool ReadUint16(File& file, std::uint16_t* value);
-  bool ReadUint32(File& file, std::uint32_t* value);
+  bool ReadTag(BinaryFile& file, Tag* tag);
+  bool ReadUint16(BinaryFile& file, std::uint16_t* value);
+  bool ReadUint32(BinaryFile& file, std::uint32_t* value);
 
   // Reverse the byte order if endian types are different.
   void AdjustBytesUint16(std::uint16_t& value) const;

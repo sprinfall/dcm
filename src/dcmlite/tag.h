@@ -12,6 +12,12 @@ namespace dcmlite {
 // (a Group Number followed by an Element Number).
 // See DICOM Part 3 / 3.8 or Part 5 / 3.10.
 
+class Tag;
+
+extern const Tag kSeqEndTag;          // (0xFFFE, 0xE0DD)
+extern const Tag kSeqItemEndTag;      // (0xFFFE, 0xE00D)
+extern const Tag kSeqItemPrefixTag;   // (0xFFFE, 0xE000)
+
 class Tag {
 public:
   Tag();

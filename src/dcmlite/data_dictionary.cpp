@@ -27,7 +27,7 @@ const DataEntry* DataDictionary::FindEntry(const Tag& tag) const {
 }
 
 DataDictionary::DataDictionary() {
-  for (size_t i = 0; g_tag_table[i].tag != 0; ++i) {
+  for (std::size_t i = 0; g_tag_table[i].tag != 0; ++i) {
     RegisterTag(g_tag_table[i].tag, g_tag_table[i].vr_type, g_tag_table[i].description);
   }
 }

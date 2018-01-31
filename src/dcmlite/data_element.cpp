@@ -20,7 +20,7 @@ DataElement::DataElement(const Tag& tag, VR::Type vr_type, Endian endian)
 DataElement::~DataElement() {
 }
 
-void DataElement::SetBuffer(Buffer buffer, size_t length) {
+void DataElement::SetBuffer(Buffer buffer, std::size_t length) {
   buffer_ = buffer;
   length_ = length;
 }

@@ -6,6 +6,7 @@
 
 namespace dcmlite {
 
+class BinaryFile;
 class DataElement;
 class DataSet;
 
@@ -23,9 +24,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// A visitor to print the whole data set.
+// A visitor to print the data set recursively.
 // Usage:
-//   dcmlite::PrintVisitor v(std::cout);
+//   PrintVisitor v(std::cout);
 //   data_set.Accept(v);
 class PrintVisitor : public Visitor {
 public:
@@ -34,12 +35,36 @@ public:
   virtual ~PrintVisitor() {
   }
 
-  virtual void VisitDataElement(DataElement* data_element) override;
-  virtual void VisitDataSet(DataSet* data_set) override;
+  void VisitDataElement(DataElement* data_element) override;
+  void VisitDataSet(DataSet* data_set) override;
 
 private:
   std::ostream& os_;
   int level_;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+// A visitor to write the data set to file.
+// Usage:
+//   std::ofstream ofs("path/to/file");
+//   WriteVisitor v(ofs);
+//   data_set.Accept(v);
+class WriteVisitor : public Visitor {
+public:
+  explicit WriteVisitor(BinaryFile* file);
+
+  ~WriteVisitor() override {
+  }
+
+  void VisitDataElement(DataElement* data_element) override;
+  void VisitDataSet(DataSet* data_set) override;
+
+private:
+  bool explicit_vr_;  // Of current visited data set.
+  int level_;
+
+  BinaryFile* file_;
 };
 
 }  // namespace dcmlite 

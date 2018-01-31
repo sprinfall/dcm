@@ -20,17 +20,17 @@ void DataSet::Accept(Visitor& visitor) {
   visitor.VisitDataSet(this);
 }
 
-DataElement* DataSet::operator[](size_t index) {
+DataElement* DataSet::operator[](std::size_t index) {
   assert(index < elements_.size());
   return elements_[index];
 }
 
-const DataElement* DataSet::operator[](size_t index) const {
+const DataElement* DataSet::operator[](std::size_t index) const {
   assert(index < elements_.size());
   return elements_[index];
 }
 
-const DataElement* DataSet::At(size_t index) const {
+const DataElement* DataSet::At(std::size_t index) const {
   if (index < elements_.size()) {
     return elements_[index];
   }

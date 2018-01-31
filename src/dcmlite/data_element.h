@@ -32,9 +32,13 @@ public:
   }
 
   // Get the value length.
-  // NOTE: No set_length() is provided; see SetBuffer().
-  size_t length() const {
+  std::size_t length() const {
     return length_;
+  }
+
+  // NOTE: SetBuffer will also set length.
+  void set_length(std::size_t length) {
+    length_ = length;
   }
 
   // Get the value buffer.
@@ -46,7 +50,7 @@ public:
   // Set value buffer and length together.
   // The length must be even (2, 4, 8, etc.).
   // Always set buffer and length together to ensure data consistency.
-  void SetBuffer(Buffer buffer, size_t length);
+  void SetBuffer(Buffer buffer, std::size_t length);
 
   // TODO: Add applicable VR types as comments.
   bool GetString(std::string* value) const;
@@ -81,7 +85,7 @@ protected:
 
   // Get number value.
   template <typename T>
-  bool GetNumber(T* value, size_t length) const {
+  bool GetNumber(T* value, std::size_t length) const {
     if (buffer_ && length_ == length) {
       *value = *reinterpret_cast<T*>(buffer_.get());
       return true;
@@ -102,7 +106,7 @@ protected:
 
   // Value length.
   // Undefined length for SQ element is 0xFFFFFFFF.
-  size_t length_;
+  std::size_t length_;
 
   // Value buffer.
   Buffer buffer_;

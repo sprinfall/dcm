@@ -3,6 +3,7 @@
 #pragma once
 
 #include "dcmlite/defs.h"
+#include "dcmlite/binary_file.h"
 #include "dcmlite/vr.h"
 #include "dcmlite/tag.h"
 #include "dcmlite/data_dictionary.h"

@@ -1,25 +1,73 @@
+#include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "dcmlite/dcmlite.h"
 
-// Test tags.
-static const dcmlite::Tag kTransferSyntaxUidTag(0x0002, 0x0010);
-static const dcmlite::Tag kPatientNameTag(0x0010, 0x0010);
-static const dcmlite::Tag kSamplesPerPixelTag(0x0028, 0x0002);
+const dcmlite::Tag kTagTransferSyntaxUID(0x0002, 0x0010);
+const dcmlite::Tag kTagPatientName(0x0010, 0x0010);
+const dcmlite::Tag kTagSamplesPerPixel(0x0028, 0x0002);
 
-
-static void PrintEndian(const char* title, dcmlite::Endian endian) {
-  std::cout << title;
-
+std::string EndianToString(dcmlite::Endian endian) {
   if (endian == dcmlite::kLittleEndian) {
-    std::cout << ": Little Endian" << std::endl;
+    return "Little Endian";
   } else {
-    std::cout << ": Big Endian" << std::endl;
+    return "Big Endian";
   }
 }
 
-static void GetTagsFromDataSet(const dcmlite::DataSet& data_set) {
+void CoutKeyValue(const std::string& key, const std::string& value) {
+  std::cout << std::left << std::setfill(' ') << std::setw(24)
+    << key << ": " << value << std::endl;
+}
+
+// Print basic info (Endian type, explicit VR or not, etc.).
+void InfoDicomFile(const std::string& file_path) {
+  dcmlite::DataSet data_set;
+  dcmlite::FullReadHandler read_handler(&data_set);
+  dcmlite::DicomReader reader(&read_handler);
+
+  if (!reader.ReadFile(file_path)) {
+    std::cerr << "Failed to read file." << std::endl;
+    return;
+  }
+
+  CoutKeyValue("Endian", EndianToString(data_set.endian()));
+  CoutKeyValue("Explicit VR", data_set.explicit_vr() ? "true" : "false");
+}
+
+void DumpDicomFile(const std::string& file_path) {
+  dcmlite::DumpReadHandler read_handler;
+  dcmlite::DicomReader reader(&read_handler);
+  reader.ReadFile(file_path);
+
+  std::cout << std::endl;
+}
+
+void CopyDicomFile(const std::string& file_path) {
+  // Load data set.
+  dcmlite::DataSet data_set;
+  dcmlite::FullReadHandler read_handler(&data_set);
+  dcmlite::DicomReader reader(&read_handler);
+
+  if (!reader.ReadFile(file_path)) {
+    std::cerr << "Failed to read file.\n";
+    return;
+  }
+
+  dcmlite::BinaryFile file;
+  if (!file.Open("output.dcm", dcmlite::BinaryFile::Mode::WRITE)) {
+    std::cerr << "Failed to open output file.\n";
+    return;
+  }
+
+  dcmlite::WriteVisitor visitor(&file);
+  data_set.Accept(visitor);
+}
+
+#if 0
+void GetTagsFromDataSet(const dcmlite::DataSet& data_set) {
   std::string transfer_syntax_uid;
   if (data_set.GetString(kTransferSyntaxUidTag, &transfer_syntax_uid)) {
     std::cout << "Transfer Syntax UID: " << transfer_syntax_uid << std::endl;
@@ -36,15 +84,7 @@ static void GetTagsFromDataSet(const dcmlite::DataSet& data_set) {
   }
 }
 
-static void DumpDicomFile(const std::string& file_path) {
-  dcmlite::DumpReadHandler read_handler;
-  dcmlite::DicomReader reader(&read_handler);
-  reader.ReadFile(file_path);
-
-  std::cout << std::endl;
-}
-
-static void LoadFullDataSet(const std::string& file_path) {
+void LoadFullDataSet(const std::string& file_path) {
   std::cout << "Load the full data set." << std::endl;
 
   dcmlite::DataSet data_set;
@@ -55,14 +95,14 @@ static void LoadFullDataSet(const std::string& file_path) {
     reader.ReadFile(file_path);
   }
 
-  PrintEndian("Data set endian", data_set.endian());
+  std::cout << EndianToString(data_set.endian());
 
   GetTagsFromDataSet(data_set);
 
   std::cout << std::endl;
 }
 
-static void ReadSpecificTags(const std::string& file_path) {
+void ReadSpecificTags(const std::string& file_path) {
   std::cout << "Read the specific tags." << std::endl;
 
   dcmlite::DataSet data_set;
@@ -83,25 +123,38 @@ static void ReadSpecificTags(const std::string& file_path) {
 
   std::cout << std::endl;
 }
+#endif  // 0
 
+void Help(const char* argv0) {
+  std::cout << "Usage:" << std::endl;
+  std::cout << "  " << argv0 << " info|dump|copy <file_path>" << std::endl;
+}
 
-// TODO: Add sub-command.
 int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    std::cout << argv[0] << " <file path>" << std::endl;
+  if (argc != 3) {
+    Help(argv[0]);
     return 1;
   }
 
-  PrintEndian("Platform endian", dcmlite::PlatformEndian());
+  std::cout << "Platform: "
+            << EndianToString(dcmlite::PlatformEndian())
+            << std::endl << std::endl;
+
+  std::string command = argv[1];
+  std::cout << "command: " << command << std::endl;
+
+  std::string file_path = argv[2];
+  std::cout << "file path: " << file_path << std::endl;
 
   std::cout << std::endl;
 
-  std::string file_path = argv[1];
-  std::cout << "File path: " << file_path << std::endl << std::endl;
-
-  LoadFullDataSet(file_path);
-
-  ReadSpecificTags(file_path);
+  if (command == "info") {
+    InfoDicomFile(file_path);
+  } else if (command == "dump") {
+    DumpDicomFile(file_path);
+  } else if (command == "copy") {
+    CopyDicomFile(file_path);
+  }
 
   return 0;
 }

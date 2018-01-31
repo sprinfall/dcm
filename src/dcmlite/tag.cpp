@@ -7,6 +7,10 @@
 
 namespace dcmlite {
 
+const Tag kSeqEndTag(0xFFFE, 0xE0DD);
+const Tag kSeqItemEndTag(0xFFFE, 0xE00D);
+const Tag kSeqItemPrefixTag(0xFFFE, 0xE000);
+
 Tag::Tag()
     : group_(0), element_(0) {
 }

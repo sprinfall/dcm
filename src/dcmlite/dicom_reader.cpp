@@ -5,43 +5,15 @@
 #include "dcmlite/data_element.h"
 #include "dcmlite/data_dictionary.h"
 #include "dcmlite/data_set.h"
-#include "dcmlite/file.h"
+#include "dcmlite/binary_file.h"
 #include "dcmlite/read_handler.h"
+#include "dcmlite/util.h"
 
 namespace dcmlite {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static const Tag kSeqEndTag(0xFFFE, 0xE0DD);
-static const Tag kSeqItemEndTag(0xFFFE, 0xE00D);
-static const Tag kSeqItemPrefixTag(0xFFFE, 0xE000);
-
-static bool Is16BitsFollowingVrReversed(VR::Type vr_type) {
-  static const VR::Type kVRs[] = {
-    VR::OB,
-    VR::OD,
-    VR::OF,
-    VR::OL,
-    VR::OW,
-    VR::SQ,
-    VR::UN,
-    VR::UC,
-    VR::UR,
-    VR::UT,
-  };
-
-  size_t size = sizeof(kVRs) / sizeof(VR::Type);
-
-  for (size_t i = 0; i < size; ++i) {
-    if (vr_type == kVRs[i]) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-static bool CheckVrExplicity(File& file, bool* explicit_vr) {
+static bool CheckVrExplicity(BinaryFile& file, bool* explicit_vr) {
   // Skip the 4 tag bytes.
   if (!file.Seek(4, SEEK_CUR)) {
     return false;
@@ -65,7 +37,7 @@ static bool CheckVrExplicity(File& file, bool* explicit_vr) {
   return true;
 }
 
-static bool CheckEndianType(File& file, Endian* endian) {
+static bool CheckEndianType(BinaryFile& file, Endian* endian) {
   std::uint8_t tag_bytes[4] = { 0 };
   if (!file.ReadBytes(&tag_bytes, 4)) {
     return false;
@@ -126,13 +98,12 @@ DicomReader::DicomReader() {
 }
 
 bool DicomReader::ReadFile(const std::string& file_path) {
-  File file;
-  if (!file.Open(file_path.c_str())) {
+  BinaryFile file;
+  if (!file.Open(file_path.c_str(), BinaryFile::READ)) {
     return false;
   }
 
   // Preamble
-
   file.Seek(128);
 
   std::string prefix;
@@ -160,8 +131,8 @@ bool DicomReader::ReadFile(const std::string& file_path) {
   return true;
 }
 
-std::uint32_t DicomReader::ReadFile(File& file,
-                                    size_t max_length,
+std::uint32_t DicomReader::ReadFile(BinaryFile& file,
+                                    std::size_t max_length,
                                     bool check_endian) {
   std::uint32_t read_length = 0;
 
@@ -242,19 +213,21 @@ std::uint32_t DicomReader::ReadFile(File& file,
       read_length += 4;
 
       if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
+        DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+        element->set_length(item_length);
+        handler_->OnElementEnd(element);
       }
 
       // NOTE: Ignore item_length because:
-      // if (item_length == kUndefinedLength) {
-      //   There will be Item Delimitation tag later.
-      // } else {
-      //   if (length == kUndefinedLength) {
-      //     There will be Sequence Delimitation tag later.
+      //   if (item_length == kUndefinedLength) {
+      //     There will be Item Delimitation tag later.
       //   } else {
-      //     Will end when !(read_length < length).
+      //     if (length == kUndefinedLength) {
+      //       There will be Sequence Delimitation tag later.
+      //     } else {
+      //       Will end when !(read_length < length).
+      //     }
       //   }
-      // }
 
       continue;
     }
@@ -281,6 +254,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
           vr_type = data_entry->vr_type;
         } else {
           // TODO: How to handle private tags in implicit VR?
+          std::cerr << "Error: Private tags in implicit VR." << std::endl;
           break;
         }
       }
@@ -341,7 +315,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
         break;  // TODO: return -1 to indicate the error?
       }
 
-      boost::shared_array<char> buffer(new char[vl32]);
+      Buffer buffer(new char[vl32]);
       if (file.ReadBytes(buffer.get(), vl32) != vl32) {
         std::cerr << "Error: Failed to read value of size: " << vl32 << std::endl;
         break;  // TODO: return -1 to indicate the error?
@@ -361,7 +335,7 @@ std::uint32_t DicomReader::ReadFile(File& file,
   return read_length;
 }
 
-bool DicomReader::ReadTag(File& file, Tag* tag) {
+bool DicomReader::ReadTag(BinaryFile& file, Tag* tag) {
   std::uint16_t group = 0;
   std::uint16_t element = 0;
 
@@ -379,7 +353,7 @@ bool DicomReader::ReadTag(File& file, Tag* tag) {
   return true;
 }
 
-bool DicomReader::ReadUint16(File& file, std::uint16_t* value) {
+bool DicomReader::ReadUint16(BinaryFile& file, std::uint16_t* value) {
   if (file.ReadUint16(value)) {
     AdjustBytesUint16(*value);
     return true;
@@ -387,7 +361,7 @@ bool DicomReader::ReadUint16(File& file, std::uint16_t* value) {
   return false;
 }
 
-bool DicomReader::ReadUint32(File& file, std::uint32_t* value) {
+bool DicomReader::ReadUint32(BinaryFile& file, std::uint32_t* value) {
   if (file.ReadUint32(value)) {
     AdjustBytesUint32(*value);
     return true;
