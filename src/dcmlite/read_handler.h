@@ -3,13 +3,14 @@
 #pragma once
 
 #include <vector>
+
 #include "dcmlite/defs.h"
+#include "dcmlite/tag.h"
 
 namespace dcmlite {
 
 class DataElement;
 class DataSet;
-class Tag;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +30,7 @@ public:
   // About the return value:
   // - true: OnElementEnd will be called with a new allocated data element;
   // - false: OnElementEnd won't be called (this element will be skipped).
-  virtual bool OnElementStart(const Tag& tag) = 0;
+  virtual bool OnElementStart(Tag tag) = 0;
 
   virtual void OnElementEnd(DataElement* data_element) = 0;
 
@@ -53,7 +54,7 @@ public:
   DumpReadHandler();
   virtual ~DumpReadHandler();
 
-  virtual bool OnElementStart(const Tag& tag) override;
+  virtual bool OnElementStart(Tag tag) override;
   virtual void OnElementEnd(DataElement* data_element) override;
 
   virtual void OnSeqElementStart(DataSet* data_set) override;
@@ -77,7 +78,7 @@ public:
   virtual void OnEndian(Endian endian) override;
   virtual void OnExplicitVR(bool explicit_vr) override;
 
-  virtual bool OnElementStart(const Tag& tag) override {
+  virtual bool OnElementStart(Tag tag) override {
     return true;
   }
 
@@ -103,14 +104,14 @@ public:
   virtual void OnEndian(Endian endian) override;
   virtual void OnExplicitVR(bool explicit_vr) override;
 
-  virtual bool OnElementStart(const Tag& tag) override;
+  virtual bool OnElementStart(Tag tag) override;
   virtual void OnElementEnd(DataElement* data_element) override;
 
   virtual void OnSeqElementStart(DataSet* data_set) override;
   virtual void OnSeqElementEnd(DataSet* data_set) override;
 
   // Add a tag to read.
-  TagsReadHandler& AddTag(const Tag& tag);
+  TagsReadHandler& AddTag(Tag tag);
 
   // Delete all tags.
   void ClearTags();

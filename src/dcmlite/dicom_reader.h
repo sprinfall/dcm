@@ -31,7 +31,9 @@ private:
   //        Could be kUndefinedLength (0xFFFFFFFF).
   // \param check_endian Check endian type during the reading.
   // \return The length read.
-  std::uint32_t ReadFile(BinaryFile& file, std::size_t max_length, bool check_endian);
+  std::uint32_t ReadFile(BinaryFile& file,
+                         std::size_t max_length,
+                         bool check_endian);
 
   bool ReadTag(BinaryFile& file, Tag* tag);
   bool ReadUint16(BinaryFile& file, std::uint16_t* value);

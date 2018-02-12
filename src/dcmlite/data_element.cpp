@@ -10,14 +10,11 @@ namespace dcmlite {
 // NOTE:
 // In order to be consistent with the initial state of buffer, length_ is
 // initialized as 0 instead of kUndefinedLength.
-DataElement::DataElement(const Tag& tag, VR::Type vr_type, Endian endian)
+DataElement::DataElement(Tag tag, VR::Type vr_type, Endian endian)
     : tag_(tag)
     , vr_type_(vr_type)
     , endian_(endian)
     , length_(0) {
-}
-
-DataElement::~DataElement() {
 }
 
 void DataElement::SetBuffer(Buffer buffer, std::size_t length) {

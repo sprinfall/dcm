@@ -18,11 +18,12 @@ class Visitor;
 
 class DataElement {
 public:
-  DataElement(const Tag& tag, VR::Type vr_type, Endian endian);
+  DataElement(Tag tag, VR::Type vr_type, Endian endian);
 
-  virtual ~DataElement();
+  virtual ~DataElement() {
+  }
 
-  const Tag& tag() const {
+  Tag tag() const {
     return tag_;
   }
 

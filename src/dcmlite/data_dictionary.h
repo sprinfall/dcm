@@ -15,7 +15,7 @@ public:
 
   ~DataDictionary() = default;
 
-  const DataEntry* FindEntry(const Tag& tag) const;
+  const DataEntry* FindEntry(Tag tag) const;
 
 private:
   DataDictionary() = default;

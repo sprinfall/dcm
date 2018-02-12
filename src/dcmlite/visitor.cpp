@@ -45,7 +45,7 @@ WriteVisitor::WriteVisitor(BinaryFile* file)
 }
 
 void WriteVisitor::VisitDataElement(DataElement* data_element) {
-  const Tag& tag = data_element->tag();
+  Tag tag = data_element->tag();
   VR::Type vr_type = data_element->vr_type();
 
   // Tag

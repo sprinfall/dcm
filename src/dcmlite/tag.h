@@ -2,6 +2,11 @@
 #define DCMLITE_TAG_H_
 #pragma once
 
+// Data Element Tag:
+// A unique identifier for a Data Element composed of an ordered pair of numbers
+// (a Group Number followed by an Element Number).
+// See DICOM Part 3 / 3.8 or Part 5 / 3.10.
+
 #include <cstdint>
 #include <iosfwd>
 
@@ -9,17 +14,15 @@
 
 namespace dcmlite {
 
-// Data Element Tag:
-// A unique identifier for a Data Element composed of an ordered pair of numbers
-// (a Group Number followed by an Element Number).
-// See DICOM Part 3 / 3.8 or Part 5 / 3.10.
-
 class Tag;
 
 extern const Tag kSeqEndTag;          // (0xFFFE, 0xE0DD)
 extern const Tag kSeqItemEndTag;      // (0xFFFE, 0xE00D)
 extern const Tag kSeqItemPrefixTag;   // (0xFFFE, 0xE000)
 
+// Usage Hint:
+//   Since the size of a tag is only 4-bytes, feel free to pass and
+//   return by value.
 class Tag {
 public:
   Tag() = default;
@@ -67,21 +70,31 @@ private:
   std::uint16_t element_;
 };
 
-inline bool operator==(const Tag& lhs, const Tag& rhs) {
+inline bool operator==(Tag lhs, Tag rhs) {
   return (lhs.group() == rhs.group() && lhs.element() == rhs.element());
 }
 
-inline bool operator!=(const Tag& lhs, const Tag& rhs) {
+inline bool operator!=(Tag lhs, Tag rhs) {
   return !(lhs == rhs);
 }
 
-bool operator<(const Tag& lhs, const Tag& rhs);
-bool operator>(const Tag& lhs, const Tag& rhs);
+inline bool operator<(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() < rhs.ToUint32();
+}
 
-bool operator<=(const Tag& lhs, const Tag& rhs);
-bool operator>=(const Tag& lhs, const Tag& rhs);
+inline bool operator>(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() > rhs.ToUint32();
+}
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag);
+inline bool operator<=(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() <= rhs.ToUint32();
+}
+
+inline bool operator>=(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() >= rhs.ToUint32();
+}
+
+std::ostream& operator<<(std::ostream& os, Tag tag);
 
 }  // namespace dcmlite
 

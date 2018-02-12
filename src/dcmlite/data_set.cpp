@@ -4,7 +4,7 @@
 
 namespace dcmlite {
 
-DataSet::DataSet(const Tag& tag, Endian endian)
+DataSet::DataSet(Tag tag, Endian endian)
     : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian)
     , explicit_vr_(true) {
 
@@ -42,7 +42,7 @@ void DataSet::AddElement(DataElement* element) {
   elements_.push_back(element);
 }
 
-const DataElement* DataSet::GetElement(const Tag& tag) const {
+const DataElement* DataSet::GetElement(Tag tag) const {
   for (DataElement* element : elements_) {
     if (element->tag() == tag) {
       return element;
@@ -61,6 +61,18 @@ void DataSet::Clear() {
   elements_.clear(); 
 }
 
+bool DataSet::GetBuffer(Tag tag,
+                        boost::shared_array<char>* buffer,
+                        std::size_t* length) const {
+  const DataElement* element = GetElement(tag);
+  if (element != NULL) {
+    *buffer = element->buffer();
+    *length = element->length();
+    return true;
+  }
+  return false;
+}
+
 // type: Uint16, Int32, etc.
 #define GET_VALUE(type)\
 const DataElement* element = GetElement(tag);\
@@ -69,31 +81,31 @@ if (element != NULL) {\
 }\
 return false;
 
-bool DataSet::GetString(const Tag& tag, std::string* value) const {
+bool DataSet::GetString(Tag tag, std::string* value) const {
   GET_VALUE(String);
 }
 
-bool DataSet::GetUint16(const Tag& tag, std::uint16_t* value) const {
+bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
   GET_VALUE(Uint16);
 }
 
-bool DataSet::GetUint32(const Tag& tag, std::uint32_t* value) const {
+bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
   GET_VALUE(Uint32);
 }
 
-bool DataSet::GetInt16(const Tag& tag, std::int16_t* value) const {
+bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
   GET_VALUE(Int16);
 }
 
-bool DataSet::GetInt32(const Tag& tag, std::int32_t* value) const {
+bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
   GET_VALUE(Int32);
 }
 
-bool DataSet::GetFloat32(const Tag& tag, float32_t* value) const {
+bool DataSet::GetFloat32(Tag tag, float32_t* value) const {
   GET_VALUE(Float32);
 }
 
-bool DataSet::GetFloat64(const Tag& tag, float64_t* value) const {
+bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
   GET_VALUE(Float64);
 }
 

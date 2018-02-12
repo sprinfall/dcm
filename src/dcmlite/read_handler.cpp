@@ -18,7 +18,7 @@ DumpReadHandler::DumpReadHandler()
 DumpReadHandler::~DumpReadHandler() {
 }
 
-bool DumpReadHandler::OnElementStart(const Tag& tag) {
+bool DumpReadHandler::OnElementStart(Tag /*tag*/) {
   return true;  // Go on to read the element.
 }
 
@@ -92,7 +92,7 @@ void TagsReadHandler::OnExplicitVR(bool explicit_vr) {
   data_set_->set_explicit_vr(explicit_vr);
 }
 
-bool TagsReadHandler::OnElementStart(const Tag& tag) {
+bool TagsReadHandler::OnElementStart(Tag tag) {
   if (tags_.empty()) {
     // All tags have been read, stop the process.
     should_stop_ = true;
@@ -133,7 +133,7 @@ void TagsReadHandler::OnSeqElementEnd(DataSet* /*data_set*/) {
   data_set_stack_.pop_back();
 }
 
-TagsReadHandler& TagsReadHandler::AddTag(const Tag& tag) {
+TagsReadHandler& TagsReadHandler::AddTag(Tag tag) {
   if (tags_.empty()) {
     tags_.push_back(tag);
     return *this;

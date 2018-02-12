@@ -22,7 +22,7 @@ DataDictionary& DataDictionary::Get() {
   return *s_instance;
 }
 
-const DataEntry* DataDictionary::FindEntry(const Tag& tag) const {
+const DataEntry* DataDictionary::FindEntry(Tag tag) const {
   std::uint32_t tag_value = tag.ToUint32();
 
   std::size_t j = 0;  // begin
