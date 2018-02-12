@@ -2,20 +2,13 @@
 #define DCMLITE_TAG_TABLE_H_
 #pragma once
 
-#include "dcmlite/defs.h"
-#include "dcmlite/vr.h"
+#include "dcmlite/data_entry.h"
 
 namespace dcmlite {
 
-// Tags description and VR.
-struct TagDescription {
-  std::uint32_t tag;
-  std::string description;
-  std::string keyword;
-  VR::Type vr_type;
-};
+extern const std::size_t TAG_COUNT;
 
-extern const TagDescription g_tag_table[];
+extern const DataEntry g_tag_table[];
 
 }  // namespace dcmlite
 

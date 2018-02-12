@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <iosfwd>
 
+#include "dcmlite/defs.h"
+
 namespace dcmlite {
 
 // Data Element Tag:
@@ -20,20 +22,17 @@ extern const Tag kSeqItemPrefixTag;   // (0xFFFE, 0xE000)
 
 class Tag {
 public:
-  Tag();
+  Tag() = default;
+  Tag(const Tag& rhs) = default;
+  Tag& operator=(const Tag& rhs) = default;
 
-  Tag(std::uint16_t group, std::uint16_t element);
+  Tag(std::uint16_t group, std::uint16_t element)
+      : group_(group), element_(element) {
+  }
 
-  // Create a tag using a 4-byte unsigned integer.
-  // The high two bytes is the group number, the low two bytes is the
-  // element number.
-  Tag(std::uint32_t tag_key);
-
-  Tag(const Tag& rhs);
-
-  ~Tag();
-
-  Tag& operator=(const Tag& rhs);
+  Tag(std::uint32_t tag_key)
+      : group_((tag_key >> 16) & 0xFFFF), element_(tag_key & 0xFFFF) {
+  }
 
   std::uint16_t group() const {
     return group_;
@@ -53,7 +52,15 @@ public:
     return group_ == 0 && element_ == 0;
   }
 
-  Tag SwapBytes() const;
+  Tag SwapBytes() const {
+    return Tag(SwapUint16(group_), SwapUint16(element_));
+  }
+
+  // Convert to a 4-byte unsigned integer.
+  // Group in high two bytes, element in low two bytes.
+  std::uint32_t ToUint32() const {
+    return (group_ << 16) + element_;
+  }
 
 private:
   std::uint16_t group_;

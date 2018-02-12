@@ -1,46 +1,13 @@
-#include "tag.h"
+#include "dcmlite/tag.h"
 
 #include <istream>
 #include <iomanip>
-
-#include "dcmlite/defs.h"
 
 namespace dcmlite {
 
 const Tag kSeqEndTag(0xFFFE, 0xE0DD);
 const Tag kSeqItemEndTag(0xFFFE, 0xE00D);
 const Tag kSeqItemPrefixTag(0xFFFE, 0xE000);
-
-Tag::Tag()
-    : group_(0), element_(0) {
-}
-
-Tag::Tag(std::uint16_t group, std::uint16_t element)
-    : group_(group), element_(element) {
-}
-
-Tag::Tag(std::uint32_t tag_key)
-    : group_((tag_key >> 16) & 0xFFFF), element_(tag_key & 0xFFFF) {
-}
-
-Tag::Tag(const Tag& rhs)
-    : group_(rhs.group_), element_(rhs.element_) {
-}
-
-Tag::~Tag() {
-}
-
-Tag& Tag::operator=(const Tag& rhs) {
-  if (&rhs != this) {
-    group_ = rhs.group_;
-    element_ = rhs.element_;
-  }
-  return *this;
-}
-
-Tag Tag::SwapBytes() const {
-  return Tag(SwapUint16(group_), SwapUint16(element_));
-}
 
 bool operator<(const Tag& lhs, const Tag& rhs) {
   if (lhs.group() < rhs.group()) {
