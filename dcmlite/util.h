@@ -1,6 +1,5 @@
 #ifndef DCMLITE_UTIL_H_
 #define DCMLITE_UTIL_H_
-#pragma once
 
 #include <chrono>
 #include "dcmlite/vr.h"

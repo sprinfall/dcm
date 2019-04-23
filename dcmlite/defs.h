@@ -1,6 +1,5 @@
 #ifndef DCMLITE_DEFS_H_
 #define DCMLITE_DEFS_H_
-#pragma once
 
 #include <cstdint>
 #include <string>

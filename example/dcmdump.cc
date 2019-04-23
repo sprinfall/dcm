@@ -1,6 +1,5 @@
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <string>
 
 #include "dcmlite/dcmlite.h"
@@ -13,10 +12,10 @@ std::string EndianToString(dcmlite::Endian endian) {
   }
 }
 
-void DumpDicomFile(const std::string& file_path) {
+void DumpDicomFile(const boost::filesystem::path& path) {
   dcmlite::DumpReadHandler read_handler;
   dcmlite::DicomReader reader(&read_handler);
-  reader.ReadFile(file_path);
+  reader.ReadFile(path);
 
   std::cout << std::endl;
 }
@@ -36,8 +35,8 @@ int main(int argc, char* argv[]) {
             << EndianToString(dcmlite::PlatformEndian())
             << std::endl << std::endl;
 
-  std::string file_path = argv[1];
-  std::cout << "file path: " << file_path << std::endl;
+  const char* file_path = argv[1];
+  std::cout << "File path: " << file_path << std::endl;
   std::cout << std::endl;
 
   DumpDicomFile(file_path);

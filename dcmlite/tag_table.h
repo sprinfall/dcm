@@ -1,6 +1,5 @@
 #ifndef DCMLITE_TAG_TABLE_H_
 #define DCMLITE_TAG_TABLE_H_
-#pragma once
 
 #include "dcmlite/data_entry.h"
 

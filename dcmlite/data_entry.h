@@ -1,6 +1,5 @@
 #ifndef DCMLITE_DATA_ENTRY_H_
 #define DCMLITE_DATA_ENTRY_H_
-#pragma once
 
 // Data dictionary entry.
 

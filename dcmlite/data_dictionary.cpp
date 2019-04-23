@@ -1,16 +1,12 @@
 #include "data_dictionary.h"
-
-#include <memory>
-#include <mutex>
-
 #include "dcmlite/tag_table.h"
 
 namespace dcmlite {
 
-DataDictionary& DataDictionary::Get() {
-  static std::unique_ptr<DataDictionary> s_instance;
-  static std::mutex s_mutex;
+std::unique_ptr<DataDictionary> DataDictionary::s_instance;
+std::mutex DataDictionary::s_mutex;
 
+DataDictionary& DataDictionary::Get() {
   if (!s_instance) {
     std::lock_guard<std::mutex> lock(s_mutex);
 

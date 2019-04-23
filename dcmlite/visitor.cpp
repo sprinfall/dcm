@@ -1,9 +1,8 @@
 #include "dcmlite/visitor.h"
 
 #include <iostream>
-#include <fstream>
 
-#include "dcmlite/binary_file.h"
+#include "dcmlite/writer.h"
 #include "dcmlite/data_element.h"
 #include "dcmlite/data_set.h"
 #include "dcmlite/util.h"
@@ -38,25 +37,19 @@ void PrintVisitor::VisitDataSet(DataSet* data_set) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-WriteVisitor::WriteVisitor(BinaryFile* file)
-    : explicit_vr_(false)
-    , level_(0)
-    , file_(file) {
-}
-
 void WriteVisitor::VisitDataElement(DataElement* data_element) {
   Tag tag = data_element->tag();
   VR::Type vr_type = data_element->vr_type();
 
   // Tag
-  file_->WriteUint16(tag.group());
-  file_->WriteUint16(tag.element());
+  writer_->WriteUint16(tag.group());
+  writer_->WriteUint16(tag.element());
 
   // Special data element for SQ.
   if (tag == kSeqEndTag ||
       tag == kSeqItemEndTag ||
       tag == kSeqItemPrefixTag) {
-    file_->WriteUint32(data_element->length());
+    writer_->WriteUint32(data_element->length());
     return;
   }
 
@@ -64,27 +57,27 @@ void WriteVisitor::VisitDataElement(DataElement* data_element) {
 
   // VR
   if (explicit_vr_ || tag.group() == 2) {
-    file_->WriteString(VR::ToString(vr_type));
+    writer_->WriteString(VR::ToString(vr_type));
 
     if (Is16BitsFollowingVrReversed(vr_type)) {
       // 2 reversed bytes.
-      file_->WriteUint16(0);
+      writer_->WriteUint16(0);
       // 4 bytes value length.
-      file_->WriteUint32(length);
+      writer_->WriteUint32(length);
     } else {
       // 2 bytes value length.
-      file_->WriteUint16(static_cast<std::uint16_t>(length));
+      writer_->WriteUint16(static_cast<std::uint16_t>(length));
     }
   } else {
     // Implicit VR
     // 4 bytes value length.
-    file_->WriteUint32(length);
+    writer_->WriteUint32(length);
   }
 
   if (vr_type != VR::SQ) {  // SQ is handled in VisitDataSet().
     if (length > 0) {
       // TODO: Convert endian for numbers if necessary.
-      file_->WriteBytes(data_element->buffer().get(), length);
+      writer_->WriteBytes(data_element->buffer().get(), length);
     }
   }
 }
@@ -100,11 +93,11 @@ void WriteVisitor::VisitDataSet(DataSet* data_set) {
 
     // Preamble (128 bytes)
     for (std::size_t i = 0; i < 32; ++i) {
-      file_->WriteUint32(0);
+      writer_->WriteUint32(0);
     }
 
     // Prefix
-    file_->WriteString("DICM");
+    writer_->WriteString("DICM");
 
   } if (level_ > 0) {
     // Visit the data set as a data element.

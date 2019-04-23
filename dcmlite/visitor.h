@@ -1,14 +1,13 @@
 #ifndef DCMLITE_VISITOR_H_
 #define DCMLITE_VISITOR_H_
-#pragma once
 
 #include <iosfwd>
 
 namespace dcmlite {
 
-class BinaryFile;
 class DataElement;
 class DataSet;
+class Writer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,8 +31,7 @@ class PrintVisitor : public Visitor {
 public:
   explicit PrintVisitor(std::ostream& os);
 
-  virtual ~PrintVisitor() {
-  }
+  ~PrintVisitor() override = default;
 
   void VisitDataElement(DataElement* data_element) override;
   void VisitDataSet(DataSet* data_set) override;
@@ -47,24 +45,24 @@ private:
 
 // A visitor to write the data set to file.
 // Usage:
-//   std::ofstream ofs("path/to/file");
-//   WriteVisitor v(ofs);
+//   WriteVisitor v("path/to/file");
 //   data_set.Accept(v);
 class WriteVisitor : public Visitor {
 public:
-  explicit WriteVisitor(BinaryFile* file);
+  explicit WriteVisitor(Writer *writer) : writer_(writer) {}
 
-  ~WriteVisitor() override {
-  }
+  ~WriteVisitor() override = default;
 
   void VisitDataElement(DataElement* data_element) override;
   void VisitDataSet(DataSet* data_set) override;
 
 private:
-  bool explicit_vr_;  // Of current visited data set.
-  int level_;
+  Writer* writer_;
 
-  BinaryFile* file_;
+  // If the current visited data set is explicit VR or not.
+  bool explicit_vr_ = false;
+
+  int level_ = 0;
 };
 
 }  // namespace dcmlite 

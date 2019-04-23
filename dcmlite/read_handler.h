@@ -1,6 +1,5 @@
 #ifndef DCMLITE_READER_HANDLER_H_
 #define DCMLITE_READER_HANDLER_H_
-#pragma once
 
 #include <vector>
 

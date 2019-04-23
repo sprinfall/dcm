@@ -1,8 +1,10 @@
 #ifndef DCMLITE_DATA_DICTIONARY_H_
 #define DCMLITE_DATA_DICTIONARY_H_
-#pragma once
 
 // Data dictionary singleton.
+
+#include <memory>
+#include <mutex>
 
 #include "dcmlite/data_entry.h"
 #include "dcmlite/tag.h"
@@ -19,6 +21,9 @@ public:
 
 private:
   DataDictionary() = default;
+
+  static std::unique_ptr<DataDictionary> s_instance;
+  static std::mutex s_mutex;
 };
 
 }  // namespace dcmlite

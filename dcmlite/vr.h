@@ -1,6 +1,5 @@
 #ifndef DCMLITE_VR_H_
 #define DCMLITE_VR_H_
-#pragma once
 
 // Value Representation.
 // See PS 3.5 Section 6.2 - Value Representation (VR).

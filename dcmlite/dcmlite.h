@@ -1,9 +1,9 @@
 #ifndef DCMLITE_DCMLITE_H_
 #define DCMLITE_DCMLITE_H_
-#pragma once
 
 #include "dcmlite/defs.h"
-#include "dcmlite/binary_file.h"
+#include "dcmlite/file_reader.h"
+#include "dcmlite/file_writer.h"
 #include "dcmlite/vr.h"
 #include "dcmlite/tag.h"
 #include "dcmlite/data_dictionary.h"

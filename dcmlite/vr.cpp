@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>  // for unique_ptr
+#include <mutex>
 
 namespace dcmlite {
 
@@ -10,7 +11,14 @@ namespace dcmlite {
 class VrDict {
 public:
   static const VrDict& Get() {
-    static std::unique_ptr<VrDict> s_instance(new VrDict());
+    if (!s_instance) {
+      std::lock_guard<std::mutex> lock(s_mutex);
+
+      if (!s_instance) {
+        s_instance.reset(new VrDict());
+      }
+    }
+
     return *s_instance;
   }
 
@@ -65,7 +73,13 @@ private:
 private:
   typedef std::map<VR::Type, VR> VrMap;
   VrMap vr_map_;
+
+  static std::unique_ptr<VrDict> s_instance;
+  static std::mutex s_mutex;
 };
+
+std::unique_ptr<VrDict> VrDict::s_instance;
+std::mutex VrDict::s_mutex;
 
 // static
 std::string VR::ToString(VR::Type vr_type) {

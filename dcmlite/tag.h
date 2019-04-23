@@ -1,6 +1,5 @@
 #ifndef DCMLITE_TAG_H_
 #define DCMLITE_TAG_H_
-#pragma once
 
 // Data Element Tag:
 // A unique identifier for a Data Element composed of an ordered pair of numbers

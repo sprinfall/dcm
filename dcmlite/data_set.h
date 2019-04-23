@@ -1,6 +1,5 @@
 #ifndef DCMLITE_DATA_SET_H_
 #define DCMLITE_DATA_SET_H_
-#pragma once
 
 #include <cstdint>
 #include <string>
@@ -11,7 +10,7 @@
 
 namespace dcmlite {
 
-class BinaryFile;
+class Reader;
 class Visitor;
 
 class DataSet : public DataElement {
