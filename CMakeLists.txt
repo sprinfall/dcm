@@ -8,8 +8,8 @@ endif()
 
 project(dcmlite)
 
-option(DCMLITE_BUILD_UNITTEST "Enable unit test?" OFF)
-option(DCMLITE_BUILD_EXAMPLE "Build examples?" ON)
+option(DCMLITE_BUILD_UNITTEST "Build unit test?" OFF)
+option(DCMLITE_BUILD_EXAMPLES "Build examples?" ON)
 
 if(WIN32)
     option(DCMLITE_ENABLE_VLD "Enable VLD (Visual Leak Detector)?" OFF)
@@ -42,21 +42,28 @@ if(DCMLITE_BUILD_UNITTEST)
     enable_testing()
 endif()
 
-# For including its own headers as "dcmlite/xxx.h".
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(
+    # For including its own headers as "dcmlite/xxx.h".
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_BINARY_DIR}
+    )
+
+set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
 
 if(WIN32)
-    include_directories(${PROJECT_SOURCE_DIR}/third_party/win32/include)
-    link_directories(${PROJECT_SOURCE_DIR}/third_party/win32/lib)
+    include_directories(${THIRD_PARTY_DIR}/win32/include)
+    link_directories(${THIRD_PARTY_DIR}/win32/lib)
 endif()
+
+include_directories(${THIRD_PARTY_DIR}/src)
 
 add_subdirectory(dcmlite)
 
-if(DCMLITE_BUILD_EXAMPLE)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/example)
+if(DCMLITE_BUILD_EXAMPLES)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
 if(DCMLITE_BUILD_UNITTEST)
-    add_subdirectory(third_party/src/gtest)
+    add_subdirectory(${THIRD_PARTY_DIR}/src/gtest)
     add_subdirectory(unittest)
 endif()
