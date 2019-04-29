@@ -1,14 +1,15 @@
 # Unit test
 
 set(UT_SRCS
+    charset_unittest.cpp
     dicom_reader_unittest.cpp
     main.cpp
     )
 
-set(UT_TARGET_NAME dcmlite_unittest)
+set(UT_TARGET_NAME dcm_unittest)
 
 # Common libraries to link.
-set(UT_LIBS dcmlite gtest ${Boost_LIBRARIES})
+set(UT_LIBS dcm gtest ${Boost_LIBRARIES})
 
 add_executable(${UT_TARGET_NAME} ${UT_SRCS})
 target_link_libraries(${UT_TARGET_NAME} ${UT_LIBS})

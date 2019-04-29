@@ -6,16 +6,16 @@ if(POLICY CMP0074)
     cmake_policy(SET CMP0074 NEW)
 endif()
 
-project(dcmlite)
+project(dcm)
 
-option(DCMLITE_BUILD_UNITTEST "Build unit test?" OFF)
-option(DCMLITE_BUILD_EXAMPLES "Build examples?" ON)
+option(DCM_BUILD_UNITTEST "Build unit test?" OFF)
+option(DCM_BUILD_EXAMPLES "Build examples?" ON)
 
 if(WIN32)
-    option(DCMLITE_ENABLE_VLD "Enable VLD (Visual Leak Detector)?" OFF)
+    option(DCM_ENABLE_VLD "Enable VLD (Visual Leak Detector)?" OFF)
 
-    if(DCMLITE_ENABLE_VLD)
-        add_definitions(-DDCMLITE_ENABLE_VLD)
+    if(DCM_ENABLE_VLD)
+        add_definitions(-DDCM_ENABLE_VLD)
     endif()
 endif()
 
@@ -38,12 +38,12 @@ if(Boost_FOUND)
     link_directories(${Boost_LIBRARY_DIRS})
 endif()
 
-if(DCMLITE_BUILD_UNITTEST)
+if(DCM_BUILD_UNITTEST)
     enable_testing()
 endif()
 
 include_directories(
-    # For including its own headers as "dcmlite/xxx.h".
+    # For including its own headers as "dcm/xxx.h".
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}
     )
@@ -57,13 +57,13 @@ endif()
 
 include_directories(${THIRD_PARTY_DIR}/src)
 
-add_subdirectory(dcmlite)
+add_subdirectory(dcm)
 
-if(DCMLITE_BUILD_EXAMPLES)
+if(DCM_BUILD_EXAMPLES)
     add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
-if(DCMLITE_BUILD_UNITTEST)
+if(DCM_BUILD_UNITTEST)
     add_subdirectory(${THIRD_PARTY_DIR}/src/gtest)
     add_subdirectory(unittest)
 endif()

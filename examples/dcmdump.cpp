@@ -2,25 +2,27 @@
 #include <iostream>
 #include <string>
 
-#include "dcmlite/dcmlite.h"
+#include "dcm/data_set.h"
+#include "dcm/dicom_reader.h"
+#include "dcm/read_handler.h"
 
-std::string EndianToString(dcmlite::Endian endian) {
-  if (endian == dcmlite::kLittleEndian) {
+static std::string EndianToString(dcm::Endian endian) {
+  if (endian == dcm::kLittleEndian) {
     return "Little Endian";
   } else {
     return "Big Endian";
   }
 }
 
-void DumpDicomFile(const boost::filesystem::path& path) {
-  dcmlite::DumpReadHandler read_handler;
-  dcmlite::DicomReader reader(&read_handler);
+static void DumpDicomFile(const boost::filesystem::path& path) {
+  dcm::DumpReadHandler read_handler;
+  dcm::DicomReader reader(&read_handler);
   reader.ReadFile(path);
 
   std::cout << std::endl;
 }
 
-void Help(const char* argv0) {
+static void Help(const char* argv0) {
   std::cout << "Usage:" << std::endl;
   std::cout << "  " << argv0 << " <file_path>" << std::endl;
 }
@@ -32,7 +34,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << "Platform: "
-            << EndianToString(dcmlite::PlatformEndian())
+            << EndianToString(dcm::PlatformEndian())
             << std::endl << std::endl;
 
   const char* file_path = argv[1];
