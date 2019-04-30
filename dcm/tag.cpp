@@ -3,6 +3,8 @@
 #include <istream>
 #include <iomanip>
 
+#include "dcm/util.h"
+
 namespace dcm {
 
 const Tag kSeqEndTag(0xFFFE, 0xE0DD);
@@ -23,6 +25,10 @@ std::ostream& operator<<(std::ostream& os, Tag tag) {
   os.flags(old_flags);
 
   return os;
+}
+
+Tag Tag::SwapBytes() const {
+  return Tag(SwapUint16(group_), SwapUint16(element_));
 }
 
 }  // namespace dcm

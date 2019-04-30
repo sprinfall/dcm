@@ -1,59 +1,58 @@
 #ifndef DCM_DATA_ELEMENT_H_
 #define DCM_DATA_ELEMENT_H_
 
+#include <cassert>
 #include <cstdint>
 #include <iosfwd>
-
-#include "boost/shared_array.hpp"
+#include <vector>
 
 #include "dcm/tag.h"
-#include "dcm/vr.h"
 
 namespace dcm {
 
-typedef boost::shared_array<char> Buffer;
+// TODO: char -> std::uint8
+using Buffer = std::vector<char>;
 
+class DataElement;
 class Visitor;
+
+std::ostream& operator<<(std::ostream& os, const DataElement& element);
 
 class DataElement {
 public:
-  DataElement(Tag tag, VR::Type vr_type, Endian endian);
+  DataElement(Tag tag, VR vr, Endian endian);
 
-  virtual ~DataElement() {
-  }
+  virtual ~DataElement() = default;
 
-  Tag tag() const {
-    return tag_;
-  }
+  virtual void Accept(Visitor& visitor);
 
-  // NOTE: VR is not allowed to change after construction.
-  VR::Type vr_type() const {
-    return vr_type_;
-  }
+  Tag tag() const { return tag_; }
 
-  // Get the value length.
-  std::size_t length() const {
-    return length_;
-  }
+  VR vr() const { return vr_; }
 
-  // NOTE: SetBuffer will also set length.
-  void set_length(std::size_t length) {
+  std::size_t length() const { return length_; }
+
+  // TODO: Only open to DataSet.
+  void set_length(std::size_t length) { length_ = length; }
+
+  // Get the value buffer.
+  const Buffer& buffer() const { return buffer_; }
+
+  // Set value buffer and length.
+  // The |buffer| will be moved to avoid copy cost.
+  // The |length| must be even (2, 4, 8, etc.).
+  // Always set buffer and length together to ensure data consistency.
+  // TODO: Remove |length| parameter.
+  void set_buffer(Buffer&& buffer, std::size_t length) {
+    assert(length % 2 == 0);
+    buffer_ = std::move(buffer);
     length_ = length;
   }
 
-  // Get the value buffer.
-  // NOTE: No set_buffer() is provided; see SetBuffer().
-  const Buffer& buffer() const {
-    return buffer_;
-  }
-
-  // Set value buffer and length together.
-  // The length must be even (2, 4, 8, etc.).
-  // Always set buffer and length together to ensure data consistency.
-  void SetBuffer(Buffer buffer, std::size_t length);
-
   // TODO: Add applicable VR types as comments.
   bool GetString(std::string* value) const;
+
+  void SetString(const std::string& value);
 
   bool GetWString(std::wstring* value) const;
 
@@ -75,9 +74,6 @@ public:
   // Print value to a string.
   void PrintValue(std::string* str) const;
 
-  // Visitor design pattern.
-  virtual void Accept(Visitor& visitor);
-
 protected:
   // Get number value.
   template <typename T>
@@ -88,8 +84,8 @@ protected:
   // Get number value.
   template <typename T>
   bool GetNumber(T* value, std::size_t length) const {
-    if (buffer_ && length_ == length) {
-      *value = *reinterpret_cast<T*>(buffer_.get());
+    if (length_ == length) {
+      *value = *reinterpret_cast<const T*>(&buffer_[0]);
       return true;
     }
     return false;
@@ -100,8 +96,11 @@ protected:
   void AdjustBytes64(void* value) const;
 
 protected:
+  // Tag key.
   Tag tag_;
-  VR::Type vr_type_;
+
+  // Value representation.
+  VR vr_;
 
   // Big endian or little endian.
   Endian endian_;
@@ -110,11 +109,9 @@ protected:
   // Undefined length for SQ element is 0xFFFFFFFF.
   std::size_t length_;
 
-  // Value buffer.
+  // Raw buffer (i.e., bytes) of the value.
   Buffer buffer_;
 };
-
-std::ostream& operator<<(std::ostream& os, const DataElement& element);
 
 }  // namespace dcm
 

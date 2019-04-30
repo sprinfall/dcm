@@ -1,12 +1,12 @@
 #include "dcm/data_set.h"
-#include <iostream>
+
 #include "dcm/visitor.h"
 
 namespace dcm {
 
 DataSet::DataSet(Tag tag, Endian endian)
-    : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian)
-    , explicit_vr_(true) {
+    : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian),
+      explicit_vr_(true) {
 
   // Undefined length makes more sense to a data set.
   length_ = kUndefinedLength;
@@ -34,7 +34,7 @@ const DataElement* DataSet::At(std::size_t index) const {
   if (index < elements_.size()) {
     return elements_[index];
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -48,7 +48,7 @@ const DataElement* DataSet::GetElement(Tag tag) const {
       return element;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void DataSet::Clear() {
@@ -61,28 +61,45 @@ void DataSet::Clear() {
   elements_.clear(); 
 }
 
-bool DataSet::GetBuffer(Tag tag,
-                        boost::shared_array<char>* buffer,
-                        std::size_t* length) const {
+std::size_t DataSet::GetLength(Tag tag) const {
   const DataElement* element = GetElement(tag);
-  if (element != NULL) {
-    *buffer = element->buffer();
-    *length = element->length();
-    return true;
+  if (element == nullptr) {
+    return kUndefinedLength;  // TODO
   }
-  return false;
+  return element->length();
 }
+
+//bool DataSet::GetBuffer(Tag tag, Buffer* buffer, std::size_t* length) const {
+//  const DataElement* element = GetElement(tag);
+//  if (element != nullptr) {
+//    *buffer = element->buffer();
+//    *length = element->length();
+//    return true;
+//  }
+//  return false;
+//}
 
 // type: Uint16, Int32, etc.
 #define GET_VALUE(type)\
 const DataElement* element = GetElement(tag);\
-if (element != NULL) {\
+if (element != nullptr) {\
   return element->Get##type(value);\
 }\
 return false;
 
 bool DataSet::GetString(Tag tag, std::string* value) const {
   GET_VALUE(String);
+}
+
+bool DataSet::SetString(Tag tag, const std::string& value) {
+  DataElement* element = GetElement(tag);
+  if (element == nullptr) {
+    // TODO: Insert a new element.
+    return false;
+  }
+
+  element->SetString(value);
+  return true;
 }
 
 bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
@@ -107,6 +124,15 @@ bool DataSet::GetFloat32(Tag tag, float32_t* value) const {
 
 bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
   GET_VALUE(Float64);
+}
+
+DataElement* DataSet::GetElement(Tag tag) {
+  for (DataElement* element : elements_) {
+    if (element->tag() == tag) {
+      return element;
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace dcm

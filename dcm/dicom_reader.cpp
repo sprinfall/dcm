@@ -26,7 +26,7 @@ static bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
   reader.UndoRead(6);  // Put it back.
 
   // Check to see if the 2 bytes following the tag field represents a valid VR.
-  if (VR::FromString(vr_str, NULL)) {
+  if (StringToVR(vr_str, nullptr)) {
     *explicit_vr = true;
   } else {
     *explicit_vr = false;
@@ -48,8 +48,8 @@ static bool CheckEndianType(Reader& reader, Endian* endian) {
   Tag tag_l(group, element);  // Little endian
   Tag tag_b = tag_l.SwapBytes();  // Big endian
 
-  const DataEntry* entry_l = DataDict::Instance()->FindEntry(tag_l);
-  const DataEntry* entry_b = DataDict::Instance()->FindEntry(tag_b);
+  const DataEntry* entry_l = DataDict::GetEntry(tag_l);
+  const DataEntry* entry_b = DataDict::GetEntry(tag_b);
 
   if (entry_l == NULL && entry_b == NULL) {
     if (element == 0) {
@@ -229,26 +229,26 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
       continue;
     }
 
-    VR::Type vr_type = VR::UNKNOWN;
+    VR vr = VR::UNKNOWN;
 
     if (explicit_vr_) {
       std::string vr_str;
       reader.ReadString(&vr_str, 2);
       read_length += 2;
 
-      if (!VR::FromString(vr_str, &vr_type)) {
-        std::cerr << vr_str << " isn't a valid VR!" << std::endl;
+      if (!StringToVR(vr_str, &vr)) {
+        std::cerr << vr_str << " is not a VR!" << std::endl;
         break;
       }
     } else {
       if (tag.element() == 0) {
         // Group Length (VR type is always UL).
-        vr_type = VR::UL;
+        vr = VR::UL;
       } else {
         // Query VR type from data dictionary.
-        const DataEntry* data_entry = DataDict::Instance()->FindEntry(tag);
+        const DataEntry* data_entry = DataDict::GetEntry(tag);
         if (data_entry != NULL) {
-          vr_type = data_entry->vr_type;
+          vr = data_entry->vr;
         } else {
           // TODO: How to handle private tags in implicit VR?
           std::cerr << "Error: Private tags in implicit VR." << std::endl;
@@ -276,7 +276,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
         // The 16 bits after VR Field are 0, but we can't conclude that they
         // are reserved since the value length might actually be 0.
         // Check the VR to confirm it.
-        if (Is16BitsFollowingVrReversed(vr_type)) {
+        if (Is16BitsFollowingVrReversed(vr)) {
           //std::cout << "2 bytes following VR are reserved." << std::endl;
 
           // This 2 bytes are reserved, read the 4-byte value length.
@@ -292,7 +292,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
       read_length += 4;
     }
 
-    if (vr_type == VR::SQ) {
+    if (vr == VR::SQ) {
       DataSet* data_set = new DataSet(tag, endian_);
       data_set->set_explicit_vr(explicit_vr_);
       data_set->set_length(vl32);
@@ -312,17 +312,20 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
         break;  // TODO: return -1 to indicate the error?
       }
 
-      Buffer buffer(new char[vl32]);
-      if (reader.ReadBytes(buffer.get(), vl32) != vl32) {
-        std::cerr << "Error: Failed to read value of size: " << vl32 << std::endl;
-        break;  // TODO: return -1 to indicate the error?
+      Buffer buffer(vl32);
+      if (vl32 > 0) {
+        if (reader.ReadBytes(&buffer[0], vl32) != vl32) {
+          std::cerr << "Error: Failed to read value of size: "
+                    << vl32 << std::endl;
+          break;  // TODO: return -1 to indicate the error?
+        }
       }
 
       read_length += vl32;
 
       if (handler_->OnElementStart(tag)) {
-        DataElement* element = new DataElement(tag, vr_type, endian_);
-        element->SetBuffer(buffer, vl32);
+        DataElement* element = new DataElement(tag, vr, endian_);
+        element->set_buffer(std::move(buffer), vl32);
 
         handler_->OnElementEnd(element);
       }

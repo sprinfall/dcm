@@ -19,9 +19,6 @@ extern const Tag kSeqEndTag;          // (0xFFFE, 0xE0DD)
 extern const Tag kSeqItemEndTag;      // (0xFFFE, 0xE00D)
 extern const Tag kSeqItemPrefixTag;   // (0xFFFE, 0xE000)
 
-// Usage Hint:
-//   Since the size of a tag is only 4-bytes, feel free to pass and
-//   return by value.
 class Tag {
 public:
   Tag() = default;
@@ -54,9 +51,7 @@ public:
     return group_ == 0 && element_ == 0;
   }
 
-  Tag SwapBytes() const {
-    return Tag(SwapUint16(group_), SwapUint16(element_));
-  }
+  Tag SwapBytes() const;
 
   // Convert to a 4-byte unsigned integer.
   // Group in high two bytes, element in low two bytes.

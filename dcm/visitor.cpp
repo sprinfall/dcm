@@ -39,7 +39,7 @@ void PrintVisitor::VisitDataSet(DataSet* data_set) {
 
 void WriteVisitor::VisitDataElement(DataElement* data_element) {
   Tag tag = data_element->tag();
-  VR::Type vr_type = data_element->vr_type();
+  VR vr = data_element->vr();
 
   // Tag
   writer_->WriteUint16(tag.group());
@@ -57,9 +57,9 @@ void WriteVisitor::VisitDataElement(DataElement* data_element) {
 
   // VR
   if (explicit_vr_ || tag.group() == 2) {
-    writer_->WriteString(VR::ToString(vr_type));
+    writer_->WriteString(VRToString(data_element->vr()));
 
-    if (Is16BitsFollowingVrReversed(vr_type)) {
+    if (Is16BitsFollowingVrReversed(data_element->vr())) {
       // 2 reversed bytes.
       writer_->WriteUint16(0);
       // 4 bytes value length.
@@ -74,10 +74,10 @@ void WriteVisitor::VisitDataElement(DataElement* data_element) {
     writer_->WriteUint32(length);
   }
 
-  if (vr_type != VR::SQ) {  // SQ is handled in VisitDataSet().
+  if (vr != VR::SQ) {  // SQ is handled in VisitDataSet().
     if (length > 0) {
       // TODO: Convert endian for numbers if necessary.
-      writer_->WriteBytes(data_element->buffer().get(), length);
+      writer_->WriteBytes(&(data_element->buffer()[0]), length);
     }
   }
 }

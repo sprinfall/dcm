@@ -8,13 +8,6 @@
 
 namespace dcm {
 
-class DataEntry {
-public:
-  std::uint32_t tag;
-  VR::Type vr_type;
-  std::string keyword;
-  std::string description;
-};
 
 }  // namespace dcm
 

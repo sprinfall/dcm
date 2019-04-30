@@ -9,7 +9,7 @@ class DataElement;
 class DataSet;
 class Writer;
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // Visitor interface.
 class Visitor {
@@ -21,7 +21,7 @@ public:
   virtual void VisitDataSet(DataSet* data_set) = 0;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // A visitor to print the data set recursively.
 // Usage:
@@ -41,15 +41,15 @@ private:
   int level_;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
-// A visitor to write the data set to file.
+// A visitor to write the data set.
 // Usage:
 //   WriteVisitor v("path/to/file");
 //   data_set.Accept(v);
 class WriteVisitor : public Visitor {
 public:
-  explicit WriteVisitor(Writer *writer) : writer_(writer) {}
+  explicit WriteVisitor(Writer* writer) : writer_(writer) {}
 
   ~WriteVisitor() override = default;
 

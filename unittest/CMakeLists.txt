@@ -1,6 +1,8 @@
 # Unit test
 
 set(UT_SRCS
+    tag_unittest.cpp
+    data_set_unittest.cpp
     charset_unittest.cpp
     dicom_reader_unittest.cpp
     main.cpp

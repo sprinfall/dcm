@@ -61,12 +61,15 @@ public:
   // Clear data elements, reset endian type, etc.
   void Clear();
 
+  // Get element value length.
+  std::size_t GetLength(Tag tag) const;
+
   // Get raw buffer (binary data).
-  bool GetBuffer(Tag tag,
-                 boost::shared_array<char>* buffer,
-                 std::size_t* length) const;
+  //bool GetBuffer(Tag tag, Buffer* buffer, std::size_t* length) const;
 
   bool GetString(Tag tag, std::string* value) const;
+
+  bool SetString(Tag tag, const std::string& value);
 
   bool GetUint16(Tag tag, std::uint16_t* value) const;
   bool GetUint32(Tag tag, std::uint32_t* value) const;
@@ -76,6 +79,9 @@ public:
 
   bool GetFloat32(Tag tag, float32_t* value) const;
   bool GetFloat64(Tag tag, float64_t* value) const;
+
+private:
+  DataElement* GetElement(Tag tag);
 
 private:
   bool explicit_vr_;

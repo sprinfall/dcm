@@ -1,9 +1,6 @@
 // NOTE: This file was automatically generated.
-#include "dcm/tag_table.h"
 
-namespace dcm {
-
-const DataEntry g_tag_table[] = {
+const DataEntry g_data_dict[] = {
   { 0x00020000, VR::UL, "FileMetaInformationGroupLength", "File Meta Information Group Length" },
   { 0x00020001, VR::OB, "FileMetaInformationVersion", "File Meta Information Version" },
   { 0x00020002, VR::UI, "MediaStorageSOPClassUID", "Media Storage SOP Class UID" },
@@ -3623,6 +3620,4 @@ const DataEntry g_tag_table[] = {
   { 0xFFFCFFFC, VR::OB, "DataSetTrailingPadding", "Data Set Trailing Padding" },
 };
 
-const std::size_t TAG_COUNT = 3617;
-
-}  // namespace dcm
+const std::size_t DATA_DICT_SIZE = 3617;

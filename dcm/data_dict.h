@@ -3,22 +3,24 @@
 
 // Data dictionary singleton.
 
-#include "dcm/data_entry.h"
-#include "dcm/singleton_base.h"
+#include "dcm/defs.h"
 #include "dcm/tag.h"
 
 namespace dcm {
 
-class DataDict : public SingletonBase<DataDict> {
+class DataEntry {
 public:
-  ~DataDict() = default;
+  std::uint32_t tag;
+  VR vr;
+  const char* keyword;
+  const char* description;
+};
 
-  const DataEntry* FindEntry(Tag tag) const;
+class DataDict {
+  DataDict() = delete;
 
-private:
-  DataDict() = default;
-
-  friend class SingletonBase<DataDict>;
+public:
+  static const DataEntry* GetEntry(Tag tag);
 };
 
 }  // namespace dcm

@@ -5,6 +5,7 @@
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
 #include "dcm/read_handler.h"
+#include "dcm/util.h"
 
 static std::string EndianToString(dcm::Endian endian) {
   if (endian == dcm::kLittleEndian) {

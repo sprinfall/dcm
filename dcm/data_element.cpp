@@ -4,36 +4,79 @@
 #include <sstream>
 
 #include "dcm/visitor.h"
+#include "dcm/util.h"
 
 namespace dcm {
+
+// -----------------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& os, const DataElement& element) {
+  os << element.tag() << "\t" << VRToString(element.vr());
+
+  if (element.vr() == VR::SQ) {
+    os << "*";
+  }
+
+  os << "\t";
+
+  if (element.length() != kUndefinedLength) {
+    os << element.length();
+  } else {
+    os << "-1";
+  }
+
+  os << "\t";
+  element.PrintValue(os);
+
+  return os;
+}
+
+// -----------------------------------------------------------------------------
 
 // NOTE:
 // In order to be consistent with the initial state of buffer, |length_| is
 // initialized as 0 instead of kUndefinedLength.
-DataElement::DataElement(Tag tag, VR::Type vr_type, Endian endian)
-    : tag_(tag)
-    , vr_type_(vr_type)
-    , endian_(endian)
-    , length_(0) {
+DataElement::DataElement(Tag tag, VR vr, Endian endian)
+    : tag_(tag), vr_(vr), endian_(endian), length_(0) {
 }
 
-void DataElement::SetBuffer(Buffer buffer, std::size_t length) {
-  buffer_ = buffer;
-  length_ = length;
+void DataElement::Accept(Visitor& visitor) {
+  visitor.VisitDataElement(this);
 }
 
 // TODO: Check VR.
 bool DataElement::GetString(std::string* value) const {
-  if (buffer_ && length_ > 0) {
-    if (buffer_[length_ - 1] == ' ') {
-      // Remove the padding space.
-      value->assign(buffer_.get(), length_ - 1);
-    } else {
-      value->assign(buffer_.get(), length_);
-    }
+  if (buffer_.empty()) {
+    *value = "";
     return true;
   }
-  return false;
+
+  if (buffer_.back() == ' ') {  // Padding space
+    value->assign(&buffer_[0], buffer_.size() - 1);
+  } else {
+    value->assign(&buffer_[0], buffer_.size());
+  }
+  return true;
+}
+
+// TODO: Check VR.
+void DataElement::SetString(const std::string& value) {
+  bool padding = (value.size() % 2 == 1);
+
+  length_ = value.size();
+  if (padding) {
+    length_ += 1;
+  }
+
+  buffer_.resize(length_);
+
+  if (length_ > 0) {
+    std::memcpy(&buffer_[0], value.data(), value.size());
+  }
+
+  if (padding) {
+    buffer_[length_ - 1] = ' ';
+  }
 }
 
 bool DataElement::GetUint16(std::uint16_t* value) const {
@@ -85,12 +128,9 @@ bool DataElement::GetFloat64(float64_t* value) const {
   return false;
 }
 
-void DataElement::Accept(Visitor& visitor) {
-  visitor.VisitDataElement(this);
-}
-
+// TODO: Format/Indentation
 void DataElement::PrintValue(std::ostream& os) const {
-  switch (vr_type_) {
+  switch (vr_) {
     case VR::AT:  // Attribute Tag
       // Ordered pair of 16-bit (2-byte) unsigned integers that is the value
       // of a Data Element Tag.
@@ -198,27 +238,6 @@ void DataElement::AdjustBytes64(void* value) const {
   if (endian_ != PlatformEndian()) {
     Swap64(&value);
   }
-}
-
-std::ostream& operator<<(std::ostream& os, const DataElement& element) {
-  os << element.tag() << "\t" << VR::ToString(element.vr_type());
-
-  if (element.vr_type() == VR::SQ) {
-    os << "*";
-  }
-
-  os << "\t";
-
-  if (element.length() != kUndefinedLength) {
-    os << element.length();
-  } else {
-    os << "-1";
-  }
-
-  os << "\t";
-  element.PrintValue(os);
-
-  return os;
 }
 
 }  // namespace dcm

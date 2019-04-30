@@ -1,10 +1,8 @@
-# Dump tag_table.cpp from dict.txt.
+# Dump data_dict.inl from dict.txt.
 
 def dump_dict_cpp(fi, fo):
-    fo.write('// NOTE: This file was automatically generated.\n')
-    fo.write('#include "dcmlite/tag_table.h"\n\n')
-    fo.write('namespace dcmlite {\n\n')
-    fo.write('const DataEntry g_tag_table[] = {\n')
+    fo.write('// NOTE: This file was automatically generated.\n\n')
+    fo.write('const DataEntry g_data_dict[] = {\n')
 
     count = 0
 
@@ -27,9 +25,8 @@ def dump_dict_cpp(fi, fo):
 
     fo.write('};\n\n')
 
-    fo.write('const std::size_t TAG_COUNT = {};\n\n'.format(count))
-    fo.write('}  // namespace dcmlite\n')
+    fo.write('const std::size_t DATA_DICT_SIZE = {};\n'.format(count))
 
 
-with open("dict.txt", 'r') as fi, open('tag_table.cpp', 'w') as fo:
+with open("dict.txt", 'r') as fi, open('data_dict.inl', 'w') as fo:
     dump_dict_cpp(fi, fo)
