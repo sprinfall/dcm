@@ -3,7 +3,11 @@
 
 #include <cstdint>
 
+#include "boost/filesystem/path.hpp"
+
 namespace dcm {
+
+using Path = boost::filesystem::path;
 
 enum Endian {
   kLittleEndian,

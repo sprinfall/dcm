@@ -9,7 +9,7 @@
 
 namespace dcm {
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 DumpReadHandler::DumpReadHandler()
     : level_(0) {
@@ -43,7 +43,7 @@ void DumpReadHandler::OnSeqElementEnd(DataSet* data_set) {
   delete data_set;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 FullReadHandler::FullReadHandler(DataSet* data_set)
     : data_set_(data_set) {
@@ -73,7 +73,7 @@ void FullReadHandler::OnSeqElementEnd(DataSet* /*data_set*/) {
   data_set_stack_.pop_back();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 TagsReadHandler::TagsReadHandler(DataSet* data_set)
     : data_set_(data_set) {

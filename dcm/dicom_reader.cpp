@@ -2,18 +2,21 @@
 
 #include <iostream>
 
+#include "boost/filesystem/fstream.hpp"
+
 #include "dcm/data_dict.h"
-#include "dcm/data_element.h"
 #include "dcm/data_set.h"
-#include "dcm/file_reader.h"
+#include "dcm/reader.h"
 #include "dcm/read_handler.h"
 #include "dcm/util.h"
 
 namespace dcm {
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
-static bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
+namespace {
+
+bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
   // Skip the 4 tag bytes.
   reader.Seek(4, std::ios::cur);
 
@@ -35,7 +38,7 @@ static bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
   return true;
 }
 
-static bool CheckEndianType(Reader& reader, Endian* endian) {
+bool CheckEndianType(Reader& reader, Endian* endian) {
   std::uint8_t tag_bytes[4] = { 0 };
   if (!reader.ReadBytes(&tag_bytes, 4)) {
     return false;
@@ -84,19 +87,22 @@ static bool CheckEndianType(Reader& reader, Endian* endian) {
   return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+}  // namespace
+
+// -----------------------------------------------------------------------------
 
 DicomReader::DicomReader(ReadHandler* handler)
-    : handler_(handler)
-    , endian_(kLittleEndian)
-    , explicit_vr_(true) {
+    : handler_(handler), endian_(kLittleEndian), explicit_vr_(true) {
 }
 
-bool DicomReader::ReadFile(const boost::filesystem::path& path) {
-  FileReader reader(path);
-  if (!reader.IsOk()) {
+bool DicomReader::ReadFile(const Path& path) {
+  boost::filesystem::ifstream stream(path, std::ios::binary);
+  if (stream.bad()) {
     return false;
   }
+
+  Reader reader(&stream);
+
   return DoRead(reader);
 }
 

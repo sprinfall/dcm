@@ -11,7 +11,7 @@ namespace dcm {
 class DataElement;
 class DataSet;
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // An interface for parsing DICOM files in a SAX (Simple API for XML) style.
 class ReadHandler {
@@ -45,7 +45,7 @@ protected:
   bool should_stop_;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // A read handler to print each data element.
 class DumpReadHandler : public ReadHandler {
@@ -63,7 +63,7 @@ private:
   int level_;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // A read handler to insert all data elements into a given data set.
 class FullReadHandler : public ReadHandler {
@@ -91,7 +91,7 @@ private:
   std::vector<DataSet*> data_set_stack_;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 // A read handler to read data elements only for the specific tags.
 // It avoids loading the full data set, so it's very fast.

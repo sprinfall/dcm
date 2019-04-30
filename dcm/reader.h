@@ -10,7 +10,7 @@ namespace dcm {
 
 class Reader {
 public:
-  Reader() : istream_(nullptr) {}
+  Reader(std::istream* istream = nullptr) : istream_(istream) {}
 
   void Init(std::istream* istream) {
     istream_ = istream;

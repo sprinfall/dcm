@@ -1,6 +1,7 @@
 #ifndef DCM_FILE_WRITER_H_
 #define DCM_FILE_WRITER_H_
 
+#include "dcm/defs.h"
 #include "dcm/writer.h"
 
 #include "boost/filesystem/fstream.hpp"
@@ -9,8 +10,6 @@ namespace dcm {
 
 class FileWriter : public Writer {
 public:
-  using Path = boost::filesystem::path;
-
   FileWriter(const Path& path) : stream_(path, std::ios::binary) {
     Writer::Init(&stream_);
   }

@@ -1,11 +1,7 @@
 #ifndef DCM_DICOM_READER_H_
 #define DCM_DICOM_READER_H_
 
-#include <cstdint>
 #include <string>
-#include <vector>
-
-#include "boost/filesystem/path.hpp"
 
 #include "dcm/defs.h"
 
@@ -25,8 +21,7 @@ public:
   ~DicomReader() = default;
 
   // Read a DICOM file.
-  // TODO: Change parameter to std::istream. Add a new class DicomFileReader.
-  bool ReadFile(const boost::filesystem::path& path);
+  bool ReadFile(const Path& path);
 
 private:
   bool DoRead(Reader& reader);

@@ -9,6 +9,8 @@
 
 namespace dcm {
 
+// -----------------------------------------------------------------------------
+
 PrintVisitor::PrintVisitor(std::ostream& os)
     : os_(os), level_(-1) {
 }
@@ -35,7 +37,7 @@ void PrintVisitor::VisitDataSet(DataSet* data_set) {
   --level_;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 void WriteVisitor::VisitDataElement(DataElement* data_element) {
   Tag tag = data_element->tag();
