@@ -60,12 +60,12 @@ void FullReadHandler::OnExplicitVR(bool explicit_vr) {
 
 void FullReadHandler::OnElementEnd(DataElement* data_element) {
   assert(!data_set_stack_.empty());
-  data_set_stack_.back()->AddElement(data_element);
+  data_set_stack_.back()->AppendElement(data_element);
 }
 
 void FullReadHandler::OnSeqElementStart(DataSet* data_set) {
   assert(!data_set_stack_.empty());
-  data_set_stack_.back()->AddElement(data_set);
+  data_set_stack_.back()->AppendElement(data_set);
   data_set_stack_.push_back(data_set);
 }
 
@@ -120,12 +120,12 @@ bool TagsReadHandler::OnElementStart(Tag tag) {
 
 void TagsReadHandler::OnElementEnd(DataElement* data_element) {
   assert(!data_set_stack_.empty());
-  data_set_stack_.back()->AddElement(data_element);
+  data_set_stack_.back()->AppendElement(data_element);
 }
 
 void TagsReadHandler::OnSeqElementStart(DataSet* data_set) {
   assert(!data_set_stack_.empty());
-  data_set_stack_.back()->AddElement(data_set);
+  data_set_stack_.back()->AppendElement(data_set);
   data_set_stack_.push_back(data_set);
 }
 

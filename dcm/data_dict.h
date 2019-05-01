@@ -21,6 +21,10 @@ class DataDict {
 
 public:
   static const DataEntry* GetEntry(Tag tag);
+
+  // Get the VR of the tag.
+  // Return VR::UNKNOWN if the tag doesn't exist in the dictionary.
+  static VR GetVR(Tag tag);
 };
 
 }  // namespace dcm

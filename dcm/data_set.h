@@ -18,7 +18,7 @@ public:
   // NOTE:
   // The data set will be nested (SQ) if the tag is not empty.
   // The VR (UNKNOWN or SQ) is determined by if the tag is empty or not.
-  DataSet(Tag tag = Tag(), Endian endian = kLittleEndian);
+  DataSet(Tag tag = Tag(), Endian endian = Endian::Little());
 
   virtual ~DataSet();
 
@@ -54,39 +54,39 @@ public:
   // Return NULL if out of index (
   const DataElement* At(std::size_t index) const;
 
-  void AddElement(DataElement* element);
-
   const DataElement* GetElement(Tag tag) const;
+
+  // Return false if element->tag() <= the last element.
+  bool AppendElement(DataElement* element);
+
+  bool InsertElement(DataElement* element);
 
   // Clear data elements, reset endian type, etc.
   void Clear();
 
   // Get element value length.
-  std::size_t GetLength(Tag tag) const;
-
-  // Get raw buffer (binary data).
-  //bool GetBuffer(Tag tag, Buffer* buffer, std::size_t* length) const;
+  std::size_t GetValueLength(Tag tag) const;
 
   bool GetString(Tag tag, std::string* value) const;
 
   bool SetString(Tag tag, const std::string& value);
 
-  bool GetUint16(Tag tag, std::uint16_t* value) const;
-  bool GetUint32(Tag tag, std::uint32_t* value) const;
-
   bool GetInt16(Tag tag, std::int16_t* value) const;
+  bool GetUint16(Tag tag, std::uint16_t* value) const;
+
   bool GetInt32(Tag tag, std::int32_t* value) const;
+  bool GetUint32(Tag tag, std::uint32_t* value) const;
 
   bool GetFloat32(Tag tag, float32_t* value) const;
   bool GetFloat64(Tag tag, float64_t* value) const;
 
 private:
-  DataElement* GetElement(Tag tag);
+  DataElement* DoGetElement(Tag tag/*, bool create = false*/);
 
 private:
   bool explicit_vr_;
 
-  // Child elements.
+  // Child elements sorted by tag.
   std::vector<DataElement*> elements_;
 };
 

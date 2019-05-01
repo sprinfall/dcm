@@ -28,4 +28,9 @@ const DataEntry* DataDict::GetEntry(Tag tag) {
   return nullptr;
 }
 
+VR DataDict::GetVR(Tag tag) {
+  const DataEntry* entry = DataDict::GetEntry(tag);
+  return (entry != nullptr ? entry->vr : VR::UNKNOWN);
+}
+
 }  // namespace dcm

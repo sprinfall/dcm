@@ -20,7 +20,10 @@ std::ostream& operator<<(std::ostream& os, const DataElement& element);
 
 class DataElement {
 public:
-  DataElement(Tag tag, VR vr, Endian endian);
+  DataElement(Tag tag, VR vr, Endian endian = Endian::Little());
+
+  // VR will be queried from the data dictionary.
+  DataElement(Tag tag, Endian endian = Endian::Little());
 
   virtual ~DataElement() = default;
 
@@ -52,7 +55,7 @@ public:
   // TODO: Add applicable VR types as comments.
   bool GetString(std::string* value) const;
 
-  void SetString(const std::string& value);
+  bool SetString(const std::string& value);
 
   bool GetWString(std::wstring* value) const;
 
@@ -99,14 +102,15 @@ protected:
   // Tag key.
   Tag tag_;
 
-  // Value representation.
+  // Value Representation.
   VR vr_;
 
-  // Big endian or little endian.
+  // Little or big endian.
   Endian endian_;
 
   // Value length.
   // Undefined length for SQ element is 0xFFFFFFFF.
+  // TODO: Move to DataSet.
   std::size_t length_;
 
   // Raw buffer (i.e., bytes) of the value.

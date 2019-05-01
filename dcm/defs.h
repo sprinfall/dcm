@@ -7,17 +7,50 @@
 
 namespace dcm {
 
-using Path = boost::filesystem::path;
+// -----------------------------------------------------------------------------
 
-enum Endian {
-  kLittleEndian,
-  kBigEndian,
-};
+using float32_t = float;
+using float64_t = double;
+
+using Path = boost::filesystem::path;
 
 const std::uint32_t kUndefinedLength = 0xFFFFFFFF;
 
-typedef float   float32_t;
-typedef double  float64_t;
+// -----------------------------------------------------------------------------
+
+class Endian {
+public:
+  Endian() = default;
+
+  Endian(const Endian&) = default;
+  Endian& operator=(const Endian&) = default;
+
+  static Endian Little() { return Endian('l'); }
+  static Endian Big() { return Endian('b'); }
+
+  bool little() const { return value_ == 'l'; }
+  bool big() const { return value_ == 'b'; }
+
+  const char* name() const {
+    return value_ == 'l' ? "little" : "big";
+  }
+
+private:
+  Endian(char value) : value_(value) {}
+
+private:
+  char value_ = 'l';  // 'l' or 'b'.
+};
+
+inline bool operator==(Endian lhs, Endian rhs) {
+  return lhs.little() == rhs.little();
+}
+
+inline bool operator!=(Endian lhs, Endian rhs) {
+  return !(lhs == rhs);
+}
+
+// -----------------------------------------------------------------------------
 
 // Value Representation.
 // See: PS 3.5 Section 6.2 - Value Representation (VR).

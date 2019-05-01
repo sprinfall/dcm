@@ -59,27 +59,27 @@ bool CheckEndianType(Reader& reader, Endian* endian) {
       // Group Length tag not in data dictionary, check the group number.
       // For the first tag, group number is more probable of 0008 than 0800.
       if (tag_l.group() > 0xff && tag_b.group() <= 0xff) {
-        *endian = kBigEndian;
+        *endian = Endian::Big();
       } else {
-        *endian = kLittleEndian;
+        *endian = Endian::Little();
       }
     } else {
       // Both tags show an error, an invalid tag is encountered.
       // Assume that it's Little Endian.
-      *endian = kLittleEndian;
+      *endian = Endian::Little();
     }
   } else {
     if (entry_l == NULL) {
-      *endian = kBigEndian;
+      *endian = Endian::Big();
     } else if (entry_b == NULL) {
-      *endian = kLittleEndian;
+      *endian = Endian::Little();
     } else {
       // Both tags are valid, check the group number.
       // For the first tag, group number is more probable of 0008 than 0800.
       if (tag_l.group() > 0xff && tag_b.group() <= 0xff) {
-        *endian = kBigEndian;
+        *endian = Endian::Big();
       } else {
-        *endian = kLittleEndian;
+        *endian = Endian::Little();
       }
     }
   }
@@ -92,7 +92,7 @@ bool CheckEndianType(Reader& reader, Endian* endian) {
 // -----------------------------------------------------------------------------
 
 DicomReader::DicomReader(ReadHandler* handler)
-    : handler_(handler), endian_(kLittleEndian), explicit_vr_(true) {
+    : handler_(handler), explicit_vr_(true) {
 }
 
 bool DicomReader::ReadFile(const Path& path) {
