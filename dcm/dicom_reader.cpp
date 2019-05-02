@@ -10,6 +10,8 @@
 #include "dcm/read_handler.h"
 #include "dcm/util.h"
 
+namespace bfs = boost::filesystem;
+
 namespace dcm {
 
 // -----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ bool CheckEndianType(Reader& reader, Endian* endian) {
   const DataEntry* entry_l = DataDict::GetEntry(tag_l);
   const DataEntry* entry_b = DataDict::GetEntry(tag_b);
 
-  if (entry_l == NULL && entry_b == NULL) {
+  if (entry_l == nullptr && entry_b == nullptr) {
     if (element == 0) {
       // Group Length tag not in data dictionary, check the group number.
       // For the first tag, group number is more probable of 0008 than 0800.
@@ -69,9 +71,9 @@ bool CheckEndianType(Reader& reader, Endian* endian) {
       *endian = Endian::Little();
     }
   } else {
-    if (entry_l == NULL) {
+    if (entry_l == nullptr) {
       *endian = Endian::Big();
-    } else if (entry_b == NULL) {
+    } else if (entry_b == nullptr) {
       *endian = Endian::Little();
     } else {
       // Both tags are valid, check the group number.
@@ -96,13 +98,12 @@ DicomReader::DicomReader(ReadHandler* handler)
 }
 
 bool DicomReader::ReadFile(const Path& path) {
-  boost::filesystem::ifstream stream(path, std::ios::binary);
+  bfs::ifstream stream(path, std::ios::binary);
   if (stream.bad()) {
     return false;
   }
 
   Reader reader(&stream);
-
   return DoRead(reader);
 }
 
@@ -120,14 +121,11 @@ bool DicomReader::DoRead(Reader& reader) {
     reader.UndoRead(132);
   }
 
-  // NOTE:
-  // The 0002 group will always be Little Endian even if the DICOM file
-  // is Big Endian. So don't check endian type right now.
+  // Group 0x0002 is always little endian, so don't check endian type now.
   if (!CheckVrExplicity(reader, &explicit_vr_)) {
     return false;
   }
 
-  // Tell read handler.
   handler_->OnExplicitVR(explicit_vr_);
 
   Read(reader, kUndefinedLength, true);
@@ -138,7 +136,6 @@ bool DicomReader::DoRead(Reader& reader) {
 std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
                                 bool check_endian) {
   std::uint32_t read_length = 0;
-
   bool endian_checked = false;
 
   Tag tag;
@@ -148,34 +145,32 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
       break;  // Handler required to stop reading.
     }
 
+    // ISSUE:
+    // Reading tag depends on the default endian type. If a DICOM file is big
+    // endian and without group 0x0002, this doesn't work.
     if (!ReadTag(reader, &tag)) {
       break;
     }
 
     read_length += 4;
 
-    if (check_endian) {
-      // The 0002 group will always be Little Endian even if the DICOM file
-      // is Big Endian.
-      if (!endian_checked && tag.group() != 2) {
+    // TODO: Check Transfer Syntax UID (0x00020010).
+
+    if (check_endian && !endian_checked) {
+      // Group 0x0002 is always little endian.
+      if (tag.group() != 0x0002) {
         reader.UndoRead(4);  // Undo read tag.
 
         CheckEndianType(reader, &endian_);
 
-        // Tell read handler the endian type.
         handler_->OnEndian(endian_);
 
-        // Some DICOM files, VR is explicit in 0x0002 group while implicit
-        // in others. E.g., CS7600 generated DICOM files.
+        // Sometimes, VR is explicit in group 0x0002 while implicit in others.
+        // E.g., CS7600 generated DICOM files.
         // TODO: Add explicit_vr_0002_?
         CheckVrExplicity(reader, &explicit_vr_);
 
-        // Tell read handler.
         handler_->OnExplicitVR(explicit_vr_);
-
-        // TODO: Check Transfer Syntax UID tag.
-        //std::string ts;
-        //GetString(Tag(0x0002, 0x0010), &ts);
 
         endian_checked = true;
         continue;
@@ -184,157 +179,30 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
 
     // End of sequence itself.
     if (tag == kSeqEndTag) {
-      // Skip the 4-byte zero length of this sequence delimitation item.
-      //std::cout << "Sequence delimitation item." << std::endl;
-      reader.Seek(4, SEEK_CUR);
-      read_length += 4;
-
-      if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
-      }
-
+      ReadSeqEndTag(reader, tag, read_length);
       break;
     }
 
     // End of sequence item.
     if (tag == kSeqItemEndTag) {
-      // Skip the 4-byte zero length of this item delimitation item.
-      //std::cout << "Item delimitation item." << std::endl;
-      reader.Seek(4, SEEK_CUR);
-      read_length += 4;
-
-      if (handler_->OnElementStart(tag)) {
-        handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
-      }
-
+      ReadSeqItemEndTag(reader, tag, read_length);
       continue;
     }
 
     if (tag == kSeqItemPrefixTag) {
-      std::uint32_t item_length = 0;
-      ReadUint32(reader, &item_length);
-      read_length += 4;
-
-      if (handler_->OnElementStart(tag)) {
-        DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
-        element->set_length(item_length);
-        handler_->OnElementEnd(element);
-      }
-
-      // NOTE: Ignore item_length because:
-      //   if (item_length == kUndefinedLength) {
-      //     There will be Item Delimitation tag later.
-      //   } else {
-      //     if (length == kUndefinedLength) {
-      //       There will be Sequence Delimitation tag later.
-      //     } else {
-      //       Will end when !(read_length < length).
-      //     }
-      //   }
-
+      ReadSeqItemPrefixTag(reader, tag, read_length);
       continue;
     }
 
     VR vr = VR::UNKNOWN;
-
-    if (explicit_vr_) {
-      std::string vr_str;
-      reader.ReadString(&vr_str, 2);
-      read_length += 2;
-
-      if (!StringToVR(vr_str, &vr)) {
-        std::cerr << vr_str << " is not a VR!" << std::endl;
-        break;
-      }
-    } else {
-      if (tag.element() == 0) {
-        // Group Length (VR type is always UL).
-        vr = VR::UL;
-      } else {
-        // Query VR type from data dictionary.
-        const DataEntry* data_entry = DataDict::GetEntry(tag);
-        if (data_entry != NULL) {
-          vr = data_entry->vr;
-        } else {
-          // TODO: How to handle private tags in implicit VR?
-          std::cerr << "Error: Private tags in implicit VR." << std::endl;
-          break;
-        }
-      }
+    if (!ReadVR(reader, tag, read_length, &vr)) {
+      break;
     }
 
-    // Value length.
-    std::uint32_t vl32 = 0;
+    std::uint32_t vl32 = ReadValueLength(reader, vr, read_length);
 
-    if (explicit_vr_) {
-      // For VRs of OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits
-      // following the two character VR Field are reserved for use by later
-      // versions of the DICOM Standard.
-      // See PS 3.5 Section 7.1.2 - Data Element Structure with Explicit VR.
-
-      std::uint16_t vl16 = 0;
-      ReadUint16(reader, &vl16);
-      read_length += 2;
-
-      if (vl16 != 0) {
-        vl32 = vl16;
-      } else {
-        // The 16 bits after VR Field are 0, but we can't conclude that they
-        // are reserved since the value length might actually be 0.
-        // Check the VR to confirm it.
-        if (Is16BitsFollowingVrReversed(vr)) {
-          //std::cout << "2 bytes following VR are reserved." << std::endl;
-
-          // This 2 bytes are reserved, read the 4-byte value length.
-          ReadUint32(reader, &vl32);
-          read_length += 4;
-        } else {
-          // Value length is 0.
-          vl32 = 0;
-        }
-      }
-    } else {  // Implicit VR
-      ReadUint32(reader, &vl32);
-      read_length += 4;
-    }
-
-    if (vr == VR::SQ) {
-      DataSet* data_set = new DataSet(tag, endian_);
-      data_set->set_explicit_vr(explicit_vr_);
-      data_set->set_length(vl32);
-
-      handler_->OnSeqElementStart(data_set);
-
-      if (vl32 > 0) {
-        read_length += Read(reader, vl32, /*check_endian*/false);
-      }
-
-      handler_->OnSeqElementEnd(data_set);
-
-    } else {
-      if (vl32 == kUndefinedLength) {
-        // Non-SQ element with undefined length.
-        std::cerr << "Error: Non-SQ element with undefined length." << std::endl;
-        break;  // TODO: return -1 to indicate the error?
-      }
-
-      Buffer buffer(vl32);
-      if (vl32 > 0) {
-        if (reader.ReadBytes(&buffer[0], vl32) != vl32) {
-          std::cerr << "Error: Failed to read value of size: "
-                    << vl32 << std::endl;
-          break;  // TODO: return -1 to indicate the error?
-        }
-      }
-
-      read_length += vl32;
-
-      if (handler_->OnElementStart(tag)) {
-        DataElement* element = new DataElement(tag, vr, endian_);
-        element->set_buffer(std::move(buffer), vl32);
-
-        handler_->OnElementEnd(element);
-      }
+    if (!ReadValue(reader, tag, vr, vl32, read_length)) {
+      break;
     }
   }
 
@@ -385,6 +253,179 @@ void DicomReader::AdjustBytesUint32(std::uint32_t& value) const {
   if (endian_ != PlatformEndian()) {
     value = SwapUint32(value);
   }
+}
+
+void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
+                                std::uint32_t& read_length) {
+  //std::cout << "Sequence delimitation item." << std::endl;
+
+  // Skip the 4-byte zero length of this sequence delimitation item.
+  reader.Seek(4, SEEK_CUR);
+  read_length += 4;
+
+  if (handler_->OnElementStart(tag)) {
+    handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
+  }
+}
+
+void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
+                                    std::uint32_t& read_length) {
+  //std::cout << "Item delimitation item." << std::endl;
+
+  // Skip the 4-byte zero length of this item delimitation item.
+  reader.Seek(4, SEEK_CUR);
+  read_length += 4;
+
+  if (handler_->OnElementStart(tag)) {
+    handler_->OnElementEnd(new DataElement(tag, VR::UNKNOWN, endian_));
+  }
+}
+
+void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
+                                       std::uint32_t& read_length) {
+  std::uint32_t item_length = 0;
+  ReadUint32(reader, &item_length);
+  read_length += 4;
+
+  if (handler_->OnElementStart(tag)) {
+    DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+    element->set_length(item_length);
+
+    handler_->OnElementEnd(element);
+  }
+
+  // NOTE: Ignore `item_length` because:
+  //   if (item_length == kUndefinedLength) {
+  //     There will be Item Delimitation tag later.
+  //   } else {
+  //     if (length == kUndefinedLength) {
+  //       There will be Sequence Delimitation tag later.
+  //     } else {
+  //       Will end when !(read_length < length).
+  //     }
+  //   }
+}
+
+bool DicomReader::ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length,
+                         VR* vr) {
+  if (explicit_vr_) {
+    std::string vr_str;
+    reader.ReadString(&vr_str, 2);
+    read_length += 2;
+
+    if (!StringToVR(vr_str, vr)) {
+      std::cerr << vr_str << " is not a VR!" << std::endl;
+      return false;
+    }
+  } else {
+    if (tag.element() == 0) {
+      // Group Length (VR type is always UL).
+      *vr = VR::UL;
+    } else {
+      // Query VR type from data dictionary.
+      *vr = DataDict::GetVR(tag);
+
+      // TODO: Private tags in implicit VR?
+      if (*vr == VR::UNKNOWN) {
+        std::cerr << "Error: Private tags in implicit VR." << std::endl;
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
+                                           std::uint32_t& read_length) {
+  std::uint32_t vl32 = 0;
+
+  if (explicit_vr_) {
+    // For VRs of OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits
+    // following the two character VR Field are reserved for use by later
+    // versions of the DICOM Standard.
+    // See: PS 3.5 Section 7.1.2 - Data Element Structure with Explicit VR
+
+    std::uint16_t vl16 = 0;
+    ReadUint16(reader, &vl16);
+    read_length += 2;
+
+    if (vl16 != 0) {
+      vl32 = vl16;
+    } else {
+      // The 16 bits after VR Field are 0, but we can't conclude that they
+      // are reserved since the value length might actually be 0.
+      // Check the VR to confirm it.
+      if (Is16BitsFollowingVrReversed(vr)) {
+        //std::cout << "2 bytes following VR are reserved." << std::endl;
+
+        // This 2 bytes are reserved, read the 4-byte value length.
+        ReadUint32(reader, &vl32);
+        read_length += 4;
+      } else {
+        // Value length is 0.
+        vl32 = 0;
+      }
+    }
+  } else {  // Implicit VR
+    ReadUint32(reader, &vl32);
+    read_length += 4;
+  }
+
+  return vl32;
+}
+
+bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
+                            std::uint32_t& read_length) {
+  if (vr == VR::SQ) {
+    DataSet* data_set = new DataSet(tag, endian_);
+    data_set->set_explicit_vr(explicit_vr_);
+    data_set->set_length(vl32);
+
+    handler_->OnSeqElementStart(data_set);
+
+    if (vl32 > 0) {
+      read_length += Read(reader, vl32, /*check_endian*/false);
+    }
+
+    handler_->OnSeqElementEnd(data_set);
+
+  } else {
+    if (vl32 == kUndefinedLength) {
+      // Non-SQ element with undefined length.
+      std::cerr << "Error: Non-SQ element with undefined length." << std::endl;
+      return false;
+    }
+
+    read_length += vl32;
+
+    if (handler_->OnElementStart(tag)) {
+      DataElement* element = new DataElement(tag, vr, endian_);
+
+      if (vl32 > 0) {
+        Buffer buffer(vl32);
+
+        if (reader.ReadBytes(&buffer[0], vl32) != vl32) {
+          std::cerr << "Error: Failed to read value of size: "
+            << vl32 << std::endl;
+          delete element;
+          return false;
+        }
+
+        element->set_buffer(std::move(buffer), vl32);
+      }
+
+      handler_->OnElementEnd(element);
+
+    } else {
+      // Just skip the buffer.
+      if (vl32 > 0) {
+        reader.Seek(vl32, std::ios::cur);
+      }
+    }
+  }
+
+  return true;
 }
 
 }  // namespace dcm

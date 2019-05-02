@@ -11,7 +11,7 @@ namespace dcm {
 // -----------------------------------------------------------------------------
 
 // DICOM charsets enum type.
-enum Charset {
+enum class Charset {
   UNKNOWN = -1,
   ISO_IR_6,
   ISO_IR_100,

@@ -26,40 +26,40 @@ const CharsetInfo& CharsetDict::GetInfo(Charset charset) const {
 }
 
 void CharsetDict::Init() {
-  Register(ISO_IR_6, "ISO_IR 6", "", "ISO-IR-6", 1252);
-  Register(ISO_IR_100, "ISO_IR 100", "", "ISO-IR-100", 1252);
-  Register(ISO_IR_101, "ISO_IR 101", "", "ISO-IR-101", 28592);
-  Register(ISO_IR_109, "ISO_IR 109", "", "ISO-IR-109", 28593);
-  Register(ISO_IR_110, "ISO_IR 110", "", "ISO-IR-110", 28594);
-  Register(ISO_IR_144, "ISO_IR 144", "", "ISO-IR-144", 28595);
-  Register(ISO_IR_127, "ISO_IR 127", "", "ISO-IR-127", 28596);
-  Register(ISO_IR_126, "ISO_IR 126", "", "ISO-IR-126", 28597);
-  Register(ISO_IR_138, "ISO_IR 138", "", "ISO-IR-138", 28598);
-  Register(ISO_IR_148, "ISO_IR 148", "", "ISO-IR-148", 28599);
-  Register(ISO_IR_149, "ISO_IR 149", "", "ISO-IR-149", 949);
-  Register(ISO_IR_13, "ISO_IR 13", "", "ISO-IR-13", 50930);
-  Register(ISO_IR_14, "ISO_IR 14", "", "ISO-IR-14", 932);
-  Register(ISO_IR_166, "ISO_IR 166", "", "ISO-IR-166", 874);
-  Register(ISO_IR_87, "ISO_IR 87", "", "ISO-IR-87", 20932);
-  Register(ISO_IR_159, "ISO_IR 159", "", "ISO-IR-159", 20932);
-  Register(ISO_2022_IR_6, "ISO 2022 IR 6", "\x1b\x28\x42", "ISO-IR-6", 1252);
-  Register(ISO_2022_IR_100, "ISO 2022 IR 100", "\x1b\x2d\x41", "ISO-IR-100", 1252);
-  Register(ISO_2022_IR_101, "ISO 2022 IR 101", "\x1b\x2d\x42", "ISO-IR-101", 28592);
-  Register(ISO_2022_IR_109, "ISO 2022 IR 109", "\x1b\x2d\x43", "ISO-IR-109", 28593);
-  Register(ISO_2022_IR_110, "ISO 2022 IR 110", "\x1b\x2d\x44", "ISO-IR-110", 28594);
-  Register(ISO_2022_IR_144, "ISO 2022 IR 144", "\x1b\x2d\x4c", "ISO-IR-144", 28595);
-  Register(ISO_2022_IR_127, "ISO 2022 IR 127", "\x1b\x2d\x47", "ISO-IR-127", 28596);
-  Register(ISO_2022_IR_126, "ISO 2022 IR 126", "\x1b\x2d\x46", "ISO-IR-126", 28597);
-  Register(ISO_2022_IR_138, "ISO 2022 IR 138", "\x1b\x2d\x48", "ISO-IR-138", 28598);
-  Register(ISO_2022_IR_148, "ISO 2022 IR 148", "\x1b\x2d\x4d", "ISO-IR-148", 28599);
-  Register(ISO_2022_IR_149, "ISO 2022 IR 149", "\x1b\x24\x29\x43", "ISO-IR-149", 949);
-  Register(ISO_2022_IR_13, "ISO 2022 IR 13", "\x1b\x29\x49", "ISO-IR-13", 50930);
-  Register(ISO_2022_IR_14, "ISO 2022 IR 14", "\x1b\x28\x4a", "ISO-IR-14", 932);
-  Register(ISO_2022_IR_166, "ISO 2022 IR 166", "\x1b\x2d\x54", "ISO-IR-166", 874);
-  Register(ISO_2022_IR_87, "ISO 2022 IR 87", "\x1b\x24\x42", "ISO-IR-87", 20932);
-  Register(ISO_2022_IR_159, "ISO 2022 IR 159", "\x1b\x24\x28\x44", "ISO-IR-159", 20932);
-  Register(ISO_IR_192, "ISO_IR 192", "", "UTF-8", 65001);
-  Register(GB18030, "GB18030", "", "GB18030", 54936);
+  Register(Charset::ISO_IR_6, "ISO_IR 6", "", "ISO-IR-6", 1252);
+  Register(Charset::ISO_IR_100, "ISO_IR 100", "", "ISO-IR-100", 1252);
+  Register(Charset::ISO_IR_101, "ISO_IR 101", "", "ISO-IR-101", 28592);
+  Register(Charset::ISO_IR_109, "ISO_IR 109", "", "ISO-IR-109", 28593);
+  Register(Charset::ISO_IR_110, "ISO_IR 110", "", "ISO-IR-110", 28594);
+  Register(Charset::ISO_IR_144, "ISO_IR 144", "", "ISO-IR-144", 28595);
+  Register(Charset::ISO_IR_127, "ISO_IR 127", "", "ISO-IR-127", 28596);
+  Register(Charset::ISO_IR_126, "ISO_IR 126", "", "ISO-IR-126", 28597);
+  Register(Charset::ISO_IR_138, "ISO_IR 138", "", "ISO-IR-138", 28598);
+  Register(Charset::ISO_IR_148, "ISO_IR 148", "", "ISO-IR-148", 28599);
+  Register(Charset::ISO_IR_149, "ISO_IR 149", "", "ISO-IR-149", 949);
+  Register(Charset::ISO_IR_13, "ISO_IR 13", "", "ISO-IR-13", 50930);
+  Register(Charset::ISO_IR_14, "ISO_IR 14", "", "ISO-IR-14", 932);
+  Register(Charset::ISO_IR_166, "ISO_IR 166", "", "ISO-IR-166", 874);
+  Register(Charset::ISO_IR_87, "ISO_IR 87", "", "ISO-IR-87", 20932);
+  Register(Charset::ISO_IR_159, "ISO_IR 159", "", "ISO-IR-159", 20932);
+  Register(Charset::ISO_2022_IR_6, "ISO 2022 IR 6", "\x1b\x28\x42", "ISO-IR-6", 1252);
+  Register(Charset::ISO_2022_IR_100, "ISO 2022 IR 100", "\x1b\x2d\x41", "ISO-IR-100", 1252);
+  Register(Charset::ISO_2022_IR_101, "ISO 2022 IR 101", "\x1b\x2d\x42", "ISO-IR-101", 28592);
+  Register(Charset::ISO_2022_IR_109, "ISO 2022 IR 109", "\x1b\x2d\x43", "ISO-IR-109", 28593);
+  Register(Charset::ISO_2022_IR_110, "ISO 2022 IR 110", "\x1b\x2d\x44", "ISO-IR-110", 28594);
+  Register(Charset::ISO_2022_IR_144, "ISO 2022 IR 144", "\x1b\x2d\x4c", "ISO-IR-144", 28595);
+  Register(Charset::ISO_2022_IR_127, "ISO 2022 IR 127", "\x1b\x2d\x47", "ISO-IR-127", 28596);
+  Register(Charset::ISO_2022_IR_126, "ISO 2022 IR 126", "\x1b\x2d\x46", "ISO-IR-126", 28597);
+  Register(Charset::ISO_2022_IR_138, "ISO 2022 IR 138", "\x1b\x2d\x48", "ISO-IR-138", 28598);
+  Register(Charset::ISO_2022_IR_148, "ISO 2022 IR 148", "\x1b\x2d\x4d", "ISO-IR-148", 28599);
+  Register(Charset::ISO_2022_IR_149, "ISO 2022 IR 149", "\x1b\x24\x29\x43", "ISO-IR-149", 949);
+  Register(Charset::ISO_2022_IR_13, "ISO 2022 IR 13", "\x1b\x29\x49", "ISO-IR-13", 50930);
+  Register(Charset::ISO_2022_IR_14, "ISO 2022 IR 14", "\x1b\x28\x4a", "ISO-IR-14", 932);
+  Register(Charset::ISO_2022_IR_166, "ISO 2022 IR 166", "\x1b\x2d\x54", "ISO-IR-166", 874);
+  Register(Charset::ISO_2022_IR_87, "ISO 2022 IR 87", "\x1b\x24\x42", "ISO-IR-87", 20932);
+  Register(Charset::ISO_2022_IR_159, "ISO 2022 IR 159", "\x1b\x24\x28\x44", "ISO-IR-159", 20932);
+  Register(Charset::ISO_IR_192, "ISO_IR 192", "", "UTF-8", 65001);
+  Register(Charset::GB18030, "GB18030", "", "GB18030", 54936);
 }
 
 void CharsetDict::Register(Charset type,
@@ -126,7 +126,7 @@ static std::string WC2MB(const std::wstring& input, DWORD code_page) {
 // -----------------------------------------------------------------------------
 
 std::string Utf8ToBytes(const std::string& utf8_data, Charset charset) {
-  if (charset == ISO_IR_192) {
+  if (charset == Charset::ISO_IR_192) {
     return utf8_data;
   }
 
@@ -140,7 +140,7 @@ std::string Utf8ToBytes(const std::string& utf8_data, Charset charset) {
 }
 
 std::string BytesToUtf8(const std::string& bytes, Charset charset) {
-  if (charset == ISO_IR_192) {
+  if (charset == Charset::ISO_IR_192) {
     return bytes;
   }
 

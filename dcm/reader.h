@@ -32,7 +32,7 @@ public:
   }
 
   void UndoRead(std::size_t byte_count) {
-    return Seek(-(long)byte_count, SEEK_CUR);
+    return Seek(-(long)byte_count, std::ios::cur);
   }
 
   bool ReadUint8(std::uint8_t* value) {

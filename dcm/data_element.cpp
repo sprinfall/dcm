@@ -33,16 +33,20 @@ inline bool IsDigit(char ch) {
   return std::isdigit(static_cast<unsigned char>(ch)) != 0;
 }
 
+// -----------------------------------------------------------------------------
+
+// Application Entity
 bool CheckAE(const std::string& value) {
   // Max: 16
 
-  if (value.size() > 16) {
+  if (value.empty() || value.size() > 16) {
     return false;
   }
 
   return true;
 }
 
+// Age String
 bool CheckAS(const std::string& value) {
   // Fix: 4
   // Format: nnnD, nnnW, nnnM, nnnY.
@@ -66,6 +70,7 @@ bool CheckAS(const std::string& value) {
   return true;
 }
 
+// Code String
 bool CheckCS(const std::string& value) {
   // Max: 16
   // Uppercase characters, 0-9, SPACE, underscore (_).
@@ -88,6 +93,45 @@ bool CheckCS(const std::string& value) {
   return true;
 }
 
+// Integer String
+bool CheckIS(const std::string& value) {
+  // Max: 12
+  // A string of characters representing an Integer in base-10 (decimal), shall
+  // contain only the characters 0 - 9, with an optional leading "+"or "-".
+
+  if (value.size() > 12) {
+    return false;
+  }
+
+  std::size_t i = 0;
+
+  if (value.size() > 1) {
+    if (value[0] == '+' || value[0] == '-') {
+      ++i;
+    }
+  }
+
+  for (; i < value.size(); ++i) {
+    if (!IsDigit(value[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// Long String
+bool CheckLO(const std::string& value) {
+  // Max: 64
+
+  if (value.size() > 64) {
+    return false;
+  }
+
+  return true;
+}
+
+// Long Text
 bool CheckLT(const std::string& value) {
   // Max: 10240
 
@@ -97,6 +141,10 @@ bool CheckLT(const std::string& value) {
 
   return true;
 }
+
+}  // namespace
+
+// -----------------------------------------------------------------------------
 
 bool CheckStringValue(VR vr, const std::string& value) {
   switch (vr) {
@@ -109,6 +157,12 @@ bool CheckStringValue(VR vr, const std::string& value) {
     case VR::CS:
       return CheckCS(value);
 
+    case VR::IS:
+      return CheckIS(value);
+
+    case VR::LO:
+      return CheckLO(value);
+
     case VR::LT:
       return CheckLT(value);
 
@@ -118,8 +172,6 @@ bool CheckStringValue(VR vr, const std::string& value) {
 
   return false;
 }
-
-}  // namespace
 
 // -----------------------------------------------------------------------------
 
@@ -158,7 +210,7 @@ DataElement::DataElement(Tag tag, Endian endian)
   vr_ = DataDict::GetVR(tag);
 }
 
-void DataElement::Accept(Visitor& visitor) {
+void DataElement::Accept(Visitor& visitor) const {
   visitor.VisitDataElement(this);
 }
 

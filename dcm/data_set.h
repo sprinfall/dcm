@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "dcm/charset.h"
 #include "dcm/defs.h"
 #include "dcm/data_element.h"
 
@@ -15,37 +16,25 @@ class Visitor;
 
 class DataSet : public DataElement {
 public:
-  // NOTE:
   // The data set will be nested (SQ) if the tag is not empty.
   // The VR (UNKNOWN or SQ) is determined by if the tag is empty or not.
-  DataSet(Tag tag = Tag(), Endian endian = Endian::Little());
+  DataSet(Tag tag = Tag(), Endian endian = Endian::Little(),
+          Charset charset = Charset::ISO_IR_6);  // TODO: default charset
 
-  virtual ~DataSet();
+  ~DataSet() override;
 
-  // TODO: const?
-  virtual void Accept(Visitor& visitor) override;
+  void Accept(Visitor& visitor) const override;
 
-  Endian endian() const {
-    return endian_;
-  }
-  void set_endian(Endian endian) {
-    endian_ = endian;
-  }
+  Endian endian() const { return endian_; }
+  void set_endian(Endian endian) { endian_ = endian; }
 
-  bool explicit_vr() const {
-    return explicit_vr_;
-  }
-  void set_explicit_vr(bool explicit_vr) {
-    explicit_vr_ = explicit_vr;
-  }
+  Charset charset() const { return charset_; }
+  void set_charset(Charset charset) { charset_ = charset; }
 
-  // Get the number of child elements.
-  std::size_t GetSize() const {
-    return elements_.size();
-  }
+  bool explicit_vr() const { return explicit_vr_; }
+  void set_explicit_vr(bool explicit_vr) { explicit_vr_ = explicit_vr; }
 
-  // Get the element at the given index.
-  DataElement* operator[](std::size_t index);
+  std::size_t size() const { return elements_.size(); }
 
   // Get the element at the given index.
   const DataElement* operator[](std::size_t index) const;
@@ -84,9 +73,11 @@ private:
   DataElement* DoGetElement(Tag tag/*, bool create = false*/);
 
 private:
+  Charset charset_;
+
   bool explicit_vr_;
 
-  // Child elements sorted by tag.
+  // Sorted child elements.
   std::vector<DataElement*> elements_;
 };
 

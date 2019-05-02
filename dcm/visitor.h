@@ -14,11 +14,10 @@ class Writer;
 // Visitor interface.
 class Visitor {
 public:
-  virtual ~Visitor() {
-  }
+  virtual ~Visitor() = default;
 
-  virtual void VisitDataElement(DataElement* data_element) = 0;
-  virtual void VisitDataSet(DataSet* data_set) = 0;
+  virtual void VisitDataElement(const DataElement* data_element) = 0;
+  virtual void VisitDataSet(const DataSet* data_set) = 0;
 };
 
 // -----------------------------------------------------------------------------
@@ -33,8 +32,8 @@ public:
 
   ~PrintVisitor() override = default;
 
-  void VisitDataElement(DataElement* data_element) override;
-  void VisitDataSet(DataSet* data_set) override;
+  void VisitDataElement(const DataElement* data_element) override;
+  void VisitDataSet(const DataSet* data_set) override;
 
 private:
   std::ostream& os_;
@@ -53,8 +52,8 @@ public:
 
   ~WriteVisitor() override = default;
 
-  void VisitDataElement(DataElement* data_element) override;
-  void VisitDataSet(DataSet* data_set) override;
+  void VisitDataElement(const DataElement* data_element) override;
+  void VisitDataSet(const DataSet* data_set) override;
 
 private:
   Writer* writer_;

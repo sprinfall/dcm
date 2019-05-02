@@ -41,10 +41,23 @@ private:
   void AdjustBytesUint16(std::uint16_t& value) const;
   void AdjustBytesUint32(std::uint32_t& value) const;
 
+  void ReadSeqEndTag(Reader& reader, Tag tag, std::uint32_t& read_length);
+  void ReadSeqItemEndTag(Reader& reader, Tag tag, std::uint32_t& read_length);
+  void ReadSeqItemPrefixTag(Reader& reader, Tag tag,
+                            std::uint32_t& read_length);
+
+  bool ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length, VR* vr);
+
+  std::uint32_t ReadValueLength(Reader& reader, VR vr,
+                                std::uint32_t& read_length);
+
+  bool ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
+                 std::uint32_t& read_length);
+
 private:
   ReadHandler* handler_;
 
-  // Endian type of DICOM file.
+  // Little or big endian.
   Endian endian_;
 
   // Explicit or implicit VR.

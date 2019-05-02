@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#include "dcm/writer.h"
 #include "dcm/data_element.h"
 #include "dcm/data_set.h"
 #include "dcm/util.h"
+#include "dcm/writer.h"
 
 namespace dcm {
 
@@ -15,21 +15,21 @@ PrintVisitor::PrintVisitor(std::ostream& os)
     : os_(os), level_(-1) {
 }
 
-void PrintVisitor::VisitDataElement(DataElement* data_element) {
+void PrintVisitor::VisitDataElement(const DataElement* data_element) {
   if (level_ > 0) {
     os_ << std::string(level_, '\t');
   }
   os_ << *data_element << std::endl;
 }
 
-void PrintVisitor::VisitDataSet(DataSet* data_set) {
+void PrintVisitor::VisitDataSet(const DataSet* data_set) {
   // Visit the data set as a data element.
   VisitDataElement(data_set);
 
   ++level_;
 
   // Visit the child data elements one by one.
-  std::size_t size = data_set->GetSize();
+  std::size_t size = data_set->size();
   for (std::size_t i = 0; i < size; ++i) {
     (*data_set)[i]->Accept(*this);
   }
@@ -39,7 +39,7 @@ void PrintVisitor::VisitDataSet(DataSet* data_set) {
 
 // -----------------------------------------------------------------------------
 
-void WriteVisitor::VisitDataElement(DataElement* data_element) {
+void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   Tag tag = data_element->tag();
   VR vr = data_element->vr();
 
@@ -84,7 +84,7 @@ void WriteVisitor::VisitDataElement(DataElement* data_element) {
   }
 }
 
-void WriteVisitor::VisitDataSet(DataSet* data_set) {
+void WriteVisitor::VisitDataSet(const DataSet* data_set) {
   explicit_vr_ = data_set->explicit_vr();
 
   // level_ starts from 0.
@@ -109,7 +109,7 @@ void WriteVisitor::VisitDataSet(DataSet* data_set) {
   ++level_;
 
   // Visit the child data elements one by one.
-  std::size_t size = data_set->GetSize();
+  std::size_t size = data_set->size();
   for (std::size_t i = 0; i < size; ++i) {
     (*data_set)[i]->Accept(*this);
   }

@@ -9,13 +9,13 @@ extern std::string g_data_dir;
 TEST(DataSetTest, AppendElement) {
   dcm::DataSet data_set;
 
-  EXPECT_EQ(0, data_set.GetSize());
+  EXPECT_EQ(0, data_set.size());
 
   data_set.AppendElement(new dcm::DataElement(0x00080005));
   data_set.AppendElement(new dcm::DataElement(0x00080008));
   data_set.AppendElement(new dcm::DataElement(0x00100010));
 
-  EXPECT_EQ(3, data_set.GetSize());
+  EXPECT_EQ(3, data_set.size());
 
   EXPECT_EQ(0x00080005, data_set[0]->tag());
   EXPECT_EQ(0x00080008, data_set[1]->tag());
@@ -23,7 +23,7 @@ TEST(DataSetTest, AppendElement) {
 
   dcm::DataElement* element = new dcm::DataElement(0x00020001);
   EXPECT_FALSE(data_set.AppendElement(element));
-  EXPECT_EQ(3, data_set.GetSize());
+  EXPECT_EQ(3, data_set.size());
 }
 
 TEST(DataSetTest, InsertElement) {
@@ -33,7 +33,7 @@ TEST(DataSetTest, InsertElement) {
   data_set.InsertElement(new dcm::DataElement(0x00080008));
   data_set.InsertElement(new dcm::DataElement(0x00100010));
 
-  EXPECT_EQ(3, data_set.GetSize());
+  EXPECT_EQ(3, data_set.size());
 
   EXPECT_EQ(0x00080005, data_set[0]->tag());
   EXPECT_EQ(0x00080008, data_set[1]->tag());
@@ -47,7 +47,7 @@ TEST(DataSetTest, InsertElement2) {
   data_set.InsertElement(new dcm::DataElement(0x00100010));
   data_set.InsertElement(new dcm::DataElement(0x00080005));
 
-  EXPECT_EQ(3, data_set.GetSize());
+  EXPECT_EQ(3, data_set.size());
 
   EXPECT_EQ(0x00080005, data_set[0]->tag());
   EXPECT_EQ(0x00080008, data_set[1]->tag());
@@ -67,7 +67,7 @@ TEST(DataSetTest, InsertElement3) {
   ok = data_set.InsertElement(new dcm::DataElement(0x00080008));
   EXPECT_FALSE(ok);
 
-  EXPECT_EQ(1, data_set.GetSize());
+  EXPECT_EQ(1, data_set.size());
 
   EXPECT_EQ(0x00080008, data_set[0]->tag());
 }
@@ -148,7 +148,7 @@ TEST(DataSetTest, SetString_NoExist) {
   bool ok = data_set.SetString(kSourceAETitleTag, kAETitle);
   EXPECT_TRUE(ok);
 
-  EXPECT_EQ(1, data_set.GetSize());
+  EXPECT_EQ(1, data_set.size());
 
   std::string ae_title;
   data_set.GetString(kSourceAETitleTag, &ae_title);
@@ -164,5 +164,5 @@ TEST(DataSetTest, SetString_InvalidValue) {
   bool ok = data_set.SetString(kSourceAETitleTag, kAETitle);
   EXPECT_FALSE(ok);
 
-  EXPECT_EQ(0, data_set.GetSize());
+  EXPECT_EQ(0, data_set.size());
 }

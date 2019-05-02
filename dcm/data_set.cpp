@@ -18,9 +18,9 @@ bool Less(DataElement* lhs, DataElement* rhs) {
 
 // -----------------------------------------------------------------------------
 
-DataSet::DataSet(Tag tag, Endian endian)
+DataSet::DataSet(Tag tag, Endian endian, Charset charset)
     : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian),
-      explicit_vr_(true) {
+      charset_(charset), explicit_vr_(true) {
 
   // Undefined length makes more sense to a data set.
   length_ = kUndefinedLength;
@@ -30,13 +30,8 @@ DataSet::~DataSet() {
   Clear();
 }
 
-void DataSet::Accept(Visitor& visitor) {
+void DataSet::Accept(Visitor& visitor) const {
   visitor.VisitDataSet(this);
-}
-
-DataElement* DataSet::operator[](std::size_t index) {
-  assert(index < elements_.size());
-  return elements_[index];
 }
 
 const DataElement* DataSet::operator[](std::size_t index) const {
@@ -102,7 +97,6 @@ bool DataSet::GetString(Tag tag, std::string* value) const {
   GET_VALUE(String);
 }
 
-// TODO: trim value?
 bool DataSet::SetString(Tag tag, const std::string& value) {
   DataElement* element = DoGetElement(tag);
   if (element != nullptr) {
@@ -111,13 +105,12 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
 
   element = new DataElement(tag, endian_);
 
-  if (!element->SetString(value)) {
+  if (element->SetString(value)) {
+    return InsertElement(element);
+  } else {
     delete element;
     return false;
   }
-
-  InsertElement(element);
-  return true;
 }
 
 bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
@@ -145,8 +138,8 @@ bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
 }
 
 DataElement* DataSet::DoGetElement(Tag tag/*, bool create*/) {
-  std::size_t j = 0;  // begin
-  std::size_t k = elements_.size();  // end
+  std::size_t j = 0;
+  std::size_t k = elements_.size();
   std::size_t i = 0;
 
   while (j < k) {

@@ -16,33 +16,28 @@ class DataSet;
 // An interface for parsing DICOM files in a SAX (Simple API for XML) style.
 class ReadHandler {
 public:
-  virtual ~ReadHandler() {
-  }
+  virtual ~ReadHandler() = default;
 
-  bool should_stop() const {
-    return should_stop_;
-  }
+  bool should_stop() const { return should_stop_; }
 
   virtual void OnEndian(Endian endian) {}
   virtual void OnExplicitVR(bool explicit_vr) {}
 
-  // About the return value:
-  // - true: OnElementEnd will be called with a new allocated data element;
-  // - false: OnElementEnd won't be called (this element will be skipped).
+  // The return value indicates whether OnElementEnd will be called.
   virtual bool OnElementStart(Tag tag) = 0;
 
+  // The data element was newly allocated and should be deleted by read handler.
   virtual void OnElementEnd(DataElement* data_element) = 0;
 
   virtual void OnSeqElementStart(DataSet* data_set) = 0;
   virtual void OnSeqElementEnd(DataSet* data_set) = 0;
 
 protected:
-  ReadHandler() : should_stop_(false) {
-  }
+  ReadHandler() = default;
 
 protected:
   // Set this flag to stop the read process.
-  bool should_stop_;
+  bool should_stop_ = false;
 };
 
 // -----------------------------------------------------------------------------

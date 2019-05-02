@@ -13,6 +13,8 @@ namespace dcm {
 // TODO: char -> std::uint8
 using Buffer = std::vector<char>;
 
+bool CheckStringValue(VR vr, const std::string& value);
+
 class DataElement;
 class Visitor;
 
@@ -27,7 +29,7 @@ public:
 
   virtual ~DataElement() = default;
 
-  virtual void Accept(Visitor& visitor);
+  virtual void Accept(Visitor& visitor) const;
 
   Tag tag() const { return tag_; }
 
