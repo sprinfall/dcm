@@ -175,29 +175,6 @@ bool CheckStringValue(VR vr, const std::string& value) {
 
 // -----------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& os, const DataElement& element) {
-  os << element.tag() << "\t" << VRToString(element.vr());
-
-  if (element.vr() == VR::SQ) {
-    os << "*";
-  }
-
-  os << "\t";
-
-  if (element.length() != kUndefinedLength) {
-    os << element.length();
-  } else {
-    os << "-1";
-  }
-
-  os << "\t";
-  element.PrintValue(os);
-
-  return os;
-}
-
-// -----------------------------------------------------------------------------
-
 // NOTE:
 // In order to be consistent with the initial state of buffer, |length_| is
 // initialized as 0 instead of kUndefinedLength.
@@ -217,15 +194,17 @@ void DataElement::Accept(Visitor& visitor) const {
 // TODO: Check VR.
 bool DataElement::GetString(std::string* value) const {
   if (buffer_.empty()) {
-    *value = "";
+    value->clear();
     return true;
   }
 
+  // TODO
   if (buffer_.back() == ' ') {  // Padding space
     value->assign(&buffer_[0], buffer_.size() - 1);
   } else {
     value->assign(&buffer_[0], buffer_.size());
   }
+
   return true;
 }
 
@@ -303,7 +282,22 @@ bool DataElement::GetFloat64(float64_t* value) const {
   return false;
 }
 
-// TODO: Format/Indentation
+void DataElement::Print(std::ostream& os) const {
+  tag_.Print(os);
+
+  os << "\t" << VRToString(vr_) << "\t";
+
+  if (length_ != kUndefinedLength) {
+    os << length_;
+  } else {
+    os << "-1";
+  }
+
+  os << "\t";
+
+  PrintValue(os);
+}
+
 void DataElement::PrintValue(std::ostream& os) const {
   switch (vr_) {
     case VR::AT:  // Attribute Tag

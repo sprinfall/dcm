@@ -11,19 +11,17 @@
 
 namespace dcm {
 
-class Reader;
 class Visitor;
 
-class DataSet : public DataElement {
+class DataSet {
 public:
-  // The data set will be nested (SQ) if the tag is not empty.
-  // The VR (UNKNOWN or SQ) is determined by if the tag is empty or not.
-  DataSet(Tag tag = Tag(), Endian endian = Endian::Little(),
-          Charset charset = Charset::ISO_IR_6);  // TODO: default charset
+  // TODO: default charset
+  DataSet(Endian endian = Endian::Little(),
+          Charset charset = Charset::ISO_IR_6);
 
-  ~DataSet() override;
+  ~DataSet();
 
-  void Accept(Visitor& visitor) const override;
+  void Accept(Visitor& visitor) const;
 
   Endian endian() const { return endian_; }
   void set_endian(Endian endian) { endian_ = endian; }
@@ -45,8 +43,7 @@ public:
 
   const DataElement* GetElement(Tag tag) const;
 
-  // Return false if element->tag() <= the last element.
-  bool AppendElement(DataElement* element);
+  void AppendElement(DataElement* element);
 
   bool InsertElement(DataElement* element);
 
@@ -73,9 +70,12 @@ private:
   DataElement* DoGetElement(Tag tag/*, bool create = false*/);
 
 private:
-  Charset charset_;
+  // Little or big endian.
+  Endian endian_;
 
   bool explicit_vr_;
+
+  Charset charset_;
 
   // Sorted child elements.
   std::vector<DataElement*> elements_;

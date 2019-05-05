@@ -5,6 +5,8 @@
 
 #include "boost/filesystem/path.hpp"
 
+#include "dcm/config.h"
+
 namespace dcm {
 
 // -----------------------------------------------------------------------------

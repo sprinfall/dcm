@@ -18,12 +18,8 @@ bool Less(DataElement* lhs, DataElement* rhs) {
 
 // -----------------------------------------------------------------------------
 
-DataSet::DataSet(Tag tag, Endian endian, Charset charset)
-    : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian),
-      charset_(charset), explicit_vr_(true) {
-
-  // Undefined length makes more sense to a data set.
-  length_ = kUndefinedLength;
+DataSet::DataSet(Endian endian, Charset charset)
+    : endian_(endian), charset_(charset), explicit_vr_(true) {
 }  
 
 DataSet::~DataSet() {
@@ -32,6 +28,11 @@ DataSet::~DataSet() {
 
 void DataSet::Accept(Visitor& visitor) const {
   visitor.VisitDataSet(this);
+
+  // NOTE:
+  // The visitor is responsible for tranversing the child elements.
+  // The drawback is that we end up duplicating the tranversal code in each
+  // concrete visitor. (See Design Patterns, P.339)
 }
 
 const DataElement* DataSet::operator[](std::size_t index) const {
@@ -50,12 +51,10 @@ const DataElement* DataSet::GetElement(Tag tag) const {
   return const_cast<DataSet*>(this)->DoGetElement(tag);
 }
 
-bool DataSet::AppendElement(DataElement* element) {
-  if (elements_.empty() || element->tag() > elements_.back()->tag()) {
-    elements_.push_back(element);
-    return true;
-  }
-  return false;
+void DataSet::AppendElement(DataElement* element) {
+  // NOTE: Don't check if new element's tag > the last element because the last
+  // element might be kSeqItemPrefixTag (0xFFFE0000).
+  elements_.push_back(element);
 }
 
 bool DataSet::InsertElement(DataElement* element) {

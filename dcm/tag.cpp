@@ -1,6 +1,5 @@
 #include "dcm/tag.h"
 
-#include <istream>
 #include <iomanip>
 
 #include "dcm/util.h"
@@ -11,24 +10,29 @@ const Tag kSeqEndTag(0xFFFE, 0xE0DD);
 const Tag kSeqItemEndTag(0xFFFE, 0xE00D);
 const Tag kSeqItemPrefixTag(0xFFFE, 0xE000);
 
-std::ostream& operator<<(std::ostream& os, Tag tag) {
-  using namespace std;
-
-  ios::fmtflags old_flags = os.flags(ios::right | ios::hex | ios::uppercase);
-
-  os << "(";
-  os << setfill('0') << setw(4) << tag.group();
-  os << ", ";
-  os << setfill('0') << setw(4) << tag.element();
-  os << ")";
-
-  os.flags(old_flags);
-
-  return os;
-}
-
 Tag Tag::SwapBytes() const {
   return Tag(SwapUint16(group_), SwapUint16(element_));
+}
+
+void Tag::Print(std::ostream& os, bool uppercase, bool as_uint32,
+                const char* separator) const {
+  std::ios::fmtflags old_flags = os.flags(std::ios::right | std::ios::hex);
+
+  if (uppercase) {
+    os.setf(std::ios::uppercase);
+  }
+
+  os << std::setfill('0');
+
+  if (as_uint32) {
+    os << std::setw(8) << ToUint32();
+  } else {
+    os << std::setw(4) << group_;
+    os << separator;
+    os << std::setw(4) << element_;
+  }
+
+  os.flags(old_flags);
 }
 
 }  // namespace dcm

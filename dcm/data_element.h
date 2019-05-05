@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <vector>
 
+#include "dcm/defs.h"
 #include "dcm/tag.h"
 
 namespace dcm {
@@ -15,10 +16,7 @@ using Buffer = std::vector<char>;
 
 bool CheckStringValue(VR vr, const std::string& value);
 
-class DataElement;
 class Visitor;
-
-std::ostream& operator<<(std::ostream& os, const DataElement& element);
 
 class DataElement {
 public:
@@ -72,6 +70,9 @@ public:
   bool GetFloat32(float32_t* value) const;
 
   bool GetFloat64(float64_t* value) const;
+
+  // Print data element to an output stream.
+  void Print(std::ostream& os) const;
 
   // Print value to an output stream.
   void PrintValue(std::ostream& os) const;

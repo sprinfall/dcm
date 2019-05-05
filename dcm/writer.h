@@ -10,7 +10,7 @@ namespace dcm {
 
 class Writer {
 public:
-  Writer() : ostream_(nullptr) {}
+  Writer(std::ostream* ostream = nullptr) : ostream_(ostream) {}
 
   void Init(std::ostream* ostream) {
     ostream_ = ostream;

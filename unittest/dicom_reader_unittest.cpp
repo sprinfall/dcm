@@ -2,7 +2,7 @@
 
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
-#include "dcm/read_handler.h"
+#include "dcm/full_read_handler.h"
 
 extern std::string g_data_dir;
 

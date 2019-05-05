@@ -1,14 +1,11 @@
-#include <iomanip>
 #include <iostream>
-#include <string>
 
-#include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
-#include "dcm/read_handler.h"
-#include "dcm/util.h"
+#include "dcm/dump_read_handler.h"
+#include "dcm/logger.h"
 
-static void DumpDicomFile(const dcm::Path& path) {
-  dcm::DumpReadHandler read_handler;
+void DumpDicomFile(const dcm::Path& path) {
+  dcm::DumpReadHandler read_handler(std::cout);
   dcm::DicomReader reader(&read_handler);
 
   if (!reader.ReadFile(path)) {
@@ -22,6 +19,8 @@ int main(int argc, char* argv[]) {
     std::cout << "  " << argv[0] << " <file path>" << std::endl;
     return 1;
   }
+
+  //DCM_LOG_INIT("", dcm::LOG_CONSOLE);
 
   DumpDicomFile(argv[1]);
 

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "dcm/defs.h"
+#include "dcm/tag.h"
 
 namespace dcm {
 
@@ -11,9 +12,7 @@ class DataElement;
 class DataSet;
 class Reader;
 class ReadHandler;
-class Tag;
 
-// DICOM reader reads data set from a DICOM file.
 class DicomReader {
 public:
   explicit DicomReader(ReadHandler* handler);

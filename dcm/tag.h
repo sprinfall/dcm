@@ -59,6 +59,9 @@ public:
     return (group_ << 16) + element_;
   }
 
+  void Print(std::ostream& os, bool uppercase = true, bool as_uint32 = false,
+             const char* separator = ",") const;
+
 private:
   std::uint16_t group_;
   std::uint16_t element_;
@@ -87,8 +90,6 @@ inline bool operator<=(Tag lhs, Tag rhs) {
 inline bool operator>=(Tag lhs, Tag rhs) {
   return lhs.ToUint32() >= rhs.ToUint32();
 }
-
-std::ostream& operator<<(std::ostream& os, Tag tag);
 
 }  // namespace dcm
 

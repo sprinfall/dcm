@@ -2,7 +2,7 @@
 
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
-#include "dcm/read_handler.h"
+#include "dcm/full_read_handler.h"
 
 extern std::string g_data_dir;
 
@@ -20,10 +20,6 @@ TEST(DataSetTest, AppendElement) {
   EXPECT_EQ(0x00080005, data_set[0]->tag());
   EXPECT_EQ(0x00080008, data_set[1]->tag());
   EXPECT_EQ(0x00100010, data_set[2]->tag());
-
-  dcm::DataElement* element = new dcm::DataElement(0x00020001);
-  EXPECT_FALSE(data_set.AppendElement(element));
-  EXPECT_EQ(3, data_set.size());
 }
 
 TEST(DataSetTest, InsertElement) {
