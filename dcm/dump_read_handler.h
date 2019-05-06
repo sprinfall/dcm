@@ -18,10 +18,10 @@ public:
   void OnElementEnd(DataElement* data_element) override;
 
   void OnSequenceStart(DataSequence* data_sequence) override;
-  void OnSequenceEnd() override;
+  void OnSequenceEnd(DataElement* data_element = nullptr) override;
 
   void OnSequenceItemStart(DataElement* data_element) override;
-  void OnSequenceItemEnd() override;
+  void OnSequenceItemEnd(DataElement* data_element = nullptr) override;
 
 private:
   void PrintIndent();

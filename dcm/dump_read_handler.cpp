@@ -37,10 +37,23 @@ void DumpReadHandler::OnSequenceStart(DataSequence* data_sequence) {
   ++level_;
 }
 
-void DumpReadHandler::OnSequenceEnd() {
+void DumpReadHandler::OnSequenceEnd(DataElement* data_element) {
   LOG_INFO("OnSequenceEnd");
 
-  --level_;
+  if (data_element != nullptr) {
+    // Sequence delimitation tag read.
+    assert(data_element->tag() == kSeqEndTag);
+
+    PrintIndent();
+
+    data_element->Print(os_);
+    os_ << std::endl;
+
+    delete data_element;
+  } else {
+    // Sequence ended.
+    --level_;
+  }
 }
 
 void DumpReadHandler::OnSequenceItemStart(DataElement* data_element) {
@@ -55,10 +68,23 @@ void DumpReadHandler::OnSequenceItemStart(DataElement* data_element) {
   ++level_;
 }
 
-void DumpReadHandler::OnSequenceItemEnd() {
+void DumpReadHandler::OnSequenceItemEnd(DataElement* data_element) {
   LOG_INFO("OnSequenceItemEnd");
 
-  --level_;
+  if (data_element != nullptr) {
+    // Sequence item delimitation tag read.
+    assert(data_element->tag() == kSeqItemEndTag);
+
+    PrintIndent();
+
+    data_element->Print(os_);
+    os_ << std::endl;
+
+    delete data_element;
+  } else {
+    // Sequence item ended.
+    --level_;
+  }
 }
 
 void DumpReadHandler::PrintIndent() {

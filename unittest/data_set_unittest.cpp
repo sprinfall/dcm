@@ -86,7 +86,7 @@ TEST(DataSetTest, GetElement) {
 TEST(DataSetTest, SetString) {
   boost::filesystem::path path(g_data_dir);
   path /= "cs";
-  path /= "H2.ceph";
+  path /= "ceph_explicit_le.dcm";
 
   dcm::DataSet data_set;
   dcm::FullReadHandler read_handler(&data_set);
@@ -95,7 +95,7 @@ TEST(DataSetTest, SetString) {
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
 
-  const dcm::Tag kCommentsTag(0x00204000);
+  const dcm::Tag kCommentsTag = 0x00204000;
 
   {
     std::string comments(10, 'a');
@@ -136,8 +136,8 @@ TEST(DataSetTest, SetString) {
 }
 
 TEST(DataSetTest, SetString_NoExist) {
-  const dcm::Tag kSourceAETitleTag(0x00020016);
-  const std::string kAETitle("MYSTORESCU");
+  const dcm::Tag kSourceAETitleTag = 0x00020016;
+  const std::string kAETitle = "MYSTORESCU";
 
   dcm::DataSet data_set;
 
@@ -152,8 +152,8 @@ TEST(DataSetTest, SetString_NoExist) {
 }
 
 TEST(DataSetTest, SetString_InvalidValue) {
-  const dcm::Tag kSourceAETitleTag(0x00020016);
-  const std::string kAETitle("MYSTORESCU_MORETHAN_MAX_LENGTH_16");
+  const dcm::Tag kSourceAETitleTag = 0x00020016;
+  const std::string kAETitle = "MYSTORESCU_MORETHAN_MAX_LENGTH_16";
 
   dcm::DataSet data_set;
 

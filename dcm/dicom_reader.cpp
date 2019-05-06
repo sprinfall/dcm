@@ -271,10 +271,8 @@ void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  if (handler_->OnElementStart(tag)) {
-    DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
-    handler_->OnElementEnd(element);
-  }
+  DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+  handler_->OnSequenceEnd(element);
 }
 
 void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
@@ -285,10 +283,8 @@ void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  if (handler_->OnElementStart(tag)) {
-    DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
-    handler_->OnElementEnd(element);
-  }
+  DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+  handler_->OnSequenceItemEnd(element);
 }
 
 void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,

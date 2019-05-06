@@ -25,18 +25,6 @@ bool FullReadHandler::OnElementStart(Tag /*tag*/) {
 }
 
 void FullReadHandler::OnElementEnd(DataElement* data_element) {
-  if (data_element->tag() == kSeqItemEndTag) {
-    assert(!sequence_stack_.empty());
-    sequence_stack_.top()->EndItem(data_element);
-    return;
-  }
-  
-  if (data_element->tag() == kSeqEndTag) {
-    assert(!sequence_stack_.empty());
-    sequence_stack_.top()->set_delimitated(true);
-    return;
-  }
-
   // Add the data element to its parent data set.
   AppendElement(data_element);
 }
@@ -50,10 +38,20 @@ void FullReadHandler::OnSequenceStart(DataSequence* data_sequence) {
   sequence_stack_.push(data_sequence);
 }
 
-void FullReadHandler::OnSequenceEnd() {
-  LOG_INFO("OnSequenceEnd");
+void FullReadHandler::OnSequenceEnd(DataElement* data_element) {
+  if (data_element != nullptr) {
+    LOG_INFO("Sequence delimitation tag read.");
 
-  sequence_stack_.pop();
+    assert(data_element->tag() == kSeqEndTag);
+    assert(!sequence_stack_.empty());
+
+    sequence_stack_.top()->set_delimitation(data_element);
+
+  } else {
+    LOG_INFO("Sequence ended.");
+
+    sequence_stack_.pop();
+  }
 }
 
 void FullReadHandler::OnSequenceItemStart(DataElement* data_element) {
@@ -65,17 +63,25 @@ void FullReadHandler::OnSequenceItemStart(DataElement* data_element) {
   sequence_stack_.top()->NewItem(data_element);
 }
 
-void FullReadHandler::OnSequenceItemEnd() {
-  LOG_INFO("OnSequenceItemEnd");
+void FullReadHandler::OnSequenceItemEnd(DataElement* data_element) {
+  if (data_element != nullptr) {
+    LOG_INFO("Sequence item delimitation tag read.");
 
-  // Do nothing.
+    assert(data_element->tag() == kSeqItemEndTag);
+    assert(!sequence_stack_.empty());
+
+    sequence_stack_.top()->EndItem(data_element);
+
+  } else {
+    LOG_INFO("Sequence item ended.");
+  }
 }
 
 void FullReadHandler::AppendElement(DataElement* data_element) {
   if (sequence_stack_.empty()) {
     data_set_->Append(data_element);
   } else {
-    sequence_stack_.top()->LastDataSet()->Append(data_element);
+    sequence_stack_.top()->AppendToLastItem(data_element);
   }
 }
 

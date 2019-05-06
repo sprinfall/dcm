@@ -52,9 +52,9 @@ public:
   bool SetString(Tag tag, const std::string& value);
 
   bool GetInt16(Tag tag, std::int16_t* value) const;
-  bool GetUint16(Tag tag, std::uint16_t* value) const;
-
   bool GetInt32(Tag tag, std::int32_t* value) const;
+
+  bool GetUint16(Tag tag, std::uint16_t* value) const;
   bool GetUint32(Tag tag, std::uint32_t* value) const;
 
   bool GetFloat32(Tag tag, float32_t* value) const;

@@ -40,6 +40,10 @@ void PrintVisitor::VisitDataSequence(const DataSequence* data_sequence) {
     }
   }
 
+  if (data_sequence->delimitation() != nullptr) {
+    VisitDataElement(data_sequence->delimitation());
+  }
+
   --level_;
 }
 

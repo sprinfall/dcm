@@ -385,10 +385,10 @@ void DataElement::PrintValue(std::ostream& os) const {
   }
 }
 
-void DataElement::PrintValue(std::string* str) const {
+std::string DataElement::PrintValue() const {
   std::stringstream ss;
   PrintValue(ss);
-  *str = ss.str();
+  return ss.str();
 }
 
 void DataElement::AdjustBytes16(void* value) const {

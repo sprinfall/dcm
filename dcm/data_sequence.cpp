@@ -7,7 +7,7 @@ namespace dcm {
 
 DataSequence::DataSequence(Tag tag, Endian endian)
     : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, endian),
-      delimitated_(false) {
+      delimitation_(nullptr) {
   // Undefined length, instead of 0, makes more sense to a sequence.
   length_ = kUndefinedLength;
 }
@@ -36,11 +36,12 @@ void DataSequence::EndItem(DataElement* delimitation) {
   items_.back().delimitation = delimitation;
 }
 
-DataSet* DataSequence::LastDataSet() {
+bool DataSequence::AppendToLastItem(DataElement* data_element) {
   if (items_.empty()) {
-    return nullptr;
+    return false;
   }
-  return items_.back().data_set;
+  items_.back().data_set->Append(data_element);
+  return true;
 }
 
 }  // namespace dcm

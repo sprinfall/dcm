@@ -78,7 +78,7 @@ public:
   void PrintValue(std::ostream& os) const;
 
   // Print value to a string.
-  void PrintValue(std::string* str) const;
+  std::string PrintValue() const;
 
 protected:
   // Get number value.

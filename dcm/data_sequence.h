@@ -40,26 +40,31 @@ public:
     return items_[index];
   }
 
-  bool delimitated() const { return delimitated_; }
-  void set_delimitated(bool delimitated) { delimitated_ = delimitated; }
+  const DataElement* delimitation() const { return delimitation_; }
+
+  void set_delimitation(DataElement* delimitation) {
+    delimitation_ = delimitation;
+  }
 
   // Start a new item.
   void NewItem(DataElement* prefix);
 
-  // End the current item with a delimitation.
+  // End the last item with a delimitation.
   // This call is optional. If the prefix has a value length other than -1,
   // a sequence item normally doesn't have any delimitation.
   void EndItem(DataElement* delimitation);
 
-  // Get the last item's data set.
-  DataSet* LastDataSet();
+  // Append the data element to the last item's data set.
+  bool AppendToLastItem(DataElement* data_element);
 
 private:
   // Sequence items.
   std::vector<Item> items_;
 
-  // With (fffe,e0dd) ending the sequence or not.
-  bool delimitated_;
+  // Sequence delimitation/end tag (fffe,e0dd).
+  // If the sequence tag has a value length other than -1, the delimiation
+  // normally is absent.
+  DataElement* delimitation_;
 };
 
 }  // namespace dcm

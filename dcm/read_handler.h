@@ -27,10 +27,10 @@ public:
   virtual void OnElementEnd(DataElement* data_element) = 0;
 
   virtual void OnSequenceStart(DataSequence* data_sequence) = 0;
-  virtual void OnSequenceEnd() = 0;
+  virtual void OnSequenceEnd(DataElement* data_element = nullptr) = 0;
 
   virtual void OnSequenceItemStart(DataElement* data_element) = 0;
-  virtual void OnSequenceItemEnd() = 0;
+  virtual void OnSequenceItemEnd(DataElement* data_element = nullptr) = 0;
 
 protected:
   ReadHandler() = default;

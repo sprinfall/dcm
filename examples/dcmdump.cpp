@@ -15,6 +15,8 @@ void DumpDicomFile(const dcm::Path& path) {
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
+    std::cout << "Dump a DICOM file without firstly loading the whole data set "
+                 "into memory." << std::endl;
     std::cout << "Usage:" << std::endl;
     std::cout << "  " << argv[0] << " <file path>" << std::endl;
     return 1;
