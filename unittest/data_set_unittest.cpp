@@ -6,14 +6,14 @@
 
 extern std::string g_data_dir;
 
-TEST(DataSetTest, AppendElement) {
+TEST(DataSetTest, Append) {
   dcm::DataSet data_set;
 
   EXPECT_EQ(0, data_set.size());
 
-  data_set.AppendElement(new dcm::DataElement(0x00080005));
-  data_set.AppendElement(new dcm::DataElement(0x00080008));
-  data_set.AppendElement(new dcm::DataElement(0x00100010));
+  data_set.Append(new dcm::DataElement(0x00080005));
+  data_set.Append(new dcm::DataElement(0x00080008));
+  data_set.Append(new dcm::DataElement(0x00100010));
 
   EXPECT_EQ(3, data_set.size());
 
@@ -22,12 +22,12 @@ TEST(DataSetTest, AppendElement) {
   EXPECT_EQ(0x00100010, data_set[2]->tag());
 }
 
-TEST(DataSetTest, InsertElement) {
+TEST(DataSetTest, InsertOrdered) {
   dcm::DataSet data_set;
 
-  data_set.InsertElement(new dcm::DataElement(0x00080005));
-  data_set.InsertElement(new dcm::DataElement(0x00080008));
-  data_set.InsertElement(new dcm::DataElement(0x00100010));
+  data_set.Insert(new dcm::DataElement(0x00080005));
+  data_set.Insert(new dcm::DataElement(0x00080008));
+  data_set.Insert(new dcm::DataElement(0x00100010));
 
   EXPECT_EQ(3, data_set.size());
 
@@ -36,12 +36,12 @@ TEST(DataSetTest, InsertElement) {
   EXPECT_EQ(0x00100010, data_set[2]->tag());
 }
 
-TEST(DataSetTest, InsertElement2) {
+TEST(DataSetTest, InsertUnordered) {
   dcm::DataSet data_set;
 
-  data_set.InsertElement(new dcm::DataElement(0x00080008));
-  data_set.InsertElement(new dcm::DataElement(0x00100010));
-  data_set.InsertElement(new dcm::DataElement(0x00080005));
+  data_set.Insert(new dcm::DataElement(0x00080008));
+  data_set.Insert(new dcm::DataElement(0x00100010));
+  data_set.Insert(new dcm::DataElement(0x00080005));
 
   EXPECT_EQ(3, data_set.size());
 
@@ -50,17 +50,17 @@ TEST(DataSetTest, InsertElement2) {
   EXPECT_EQ(0x00100010, data_set[2]->tag());
 }
 
-TEST(DataSetTest, InsertElement3) {
+TEST(DataSetTest, InsertDuplicated) {
   dcm::DataSet data_set;
   bool ok = false;
 
-  ok = data_set.InsertElement(new dcm::DataElement(0x00080008));
+  ok = data_set.Insert(new dcm::DataElement(0x00080008));
   EXPECT_TRUE(ok);
 
-  ok = data_set.InsertElement(new dcm::DataElement(0x00080008));
+  ok = data_set.Insert(new dcm::DataElement(0x00080008));
   EXPECT_FALSE(ok);
 
-  ok = data_set.InsertElement(new dcm::DataElement(0x00080008));
+  ok = data_set.Insert(new dcm::DataElement(0x00080008));
   EXPECT_FALSE(ok);
 
   EXPECT_EQ(1, data_set.size());
@@ -71,16 +71,16 @@ TEST(DataSetTest, InsertElement3) {
 TEST(DataSetTest, GetElement) {
   dcm::DataSet data_set;
 
-  EXPECT_TRUE(data_set.GetElement(0x00080008) == nullptr);
+  EXPECT_TRUE(data_set.Get(0x00080008) == nullptr);
 
-  data_set.AppendElement(new dcm::DataElement(0x00080005));
-  data_set.AppendElement(new dcm::DataElement(0x00080008));
-  data_set.AppendElement(new dcm::DataElement(0x00100010));
+  data_set.Append(new dcm::DataElement(0x00080005));
+  data_set.Append(new dcm::DataElement(0x00080008));
+  data_set.Append(new dcm::DataElement(0x00100010));
 
-  EXPECT_TRUE(data_set.GetElement(0x00080008) != nullptr);
-  EXPECT_TRUE(data_set.GetElement(0x00080005) != nullptr);
-  EXPECT_TRUE(data_set.GetElement(0x00100010) != nullptr);
-  EXPECT_TRUE(data_set.GetElement(0x00020001) == nullptr);
+  EXPECT_TRUE(data_set.Get(0x00080008) != nullptr);
+  EXPECT_TRUE(data_set.Get(0x00080005) != nullptr);
+  EXPECT_TRUE(data_set.Get(0x00100010) != nullptr);
+  EXPECT_TRUE(data_set.Get(0x00020001) == nullptr);
 }
 
 TEST(DataSetTest, SetString) {
@@ -103,7 +103,7 @@ TEST(DataSetTest, SetString) {
     ok = data_set.SetString(kCommentsTag, comments);
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(10, data_set.GetValueLength(kCommentsTag));
+    EXPECT_EQ(10, data_set.Get(kCommentsTag)->length());
 
     std::string value;
     EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));
@@ -116,7 +116,7 @@ TEST(DataSetTest, SetString) {
     ok = data_set.SetString(kCommentsTag, comments);
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(12, data_set.GetValueLength(kCommentsTag));
+    EXPECT_EQ(12, data_set.Get(kCommentsTag)->length());
 
     std::string value;
     EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));
@@ -127,7 +127,7 @@ TEST(DataSetTest, SetString) {
     ok = data_set.SetString(kCommentsTag, "");
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(0, data_set.GetValueLength(kCommentsTag));
+    EXPECT_EQ(0, data_set.Get(kCommentsTag)->length());
 
     std::string value;
     EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));

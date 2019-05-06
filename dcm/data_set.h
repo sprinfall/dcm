@@ -37,21 +37,15 @@ public:
   // Get the element at the given index.
   const DataElement* operator[](std::size_t index) const;
 
-  // Get the element at the given index.
-  // Return NULL if out of index (
-  const DataElement* At(std::size_t index) const;
+  // Get the element with the given tag.
+  const DataElement* Get(Tag tag) const;
 
-  const DataElement* GetElement(Tag tag) const;
+  bool Append(DataElement* element);
 
-  void AppendElement(DataElement* element);
-
-  bool InsertElement(DataElement* element);
+  bool Insert(DataElement* element);
 
   // Clear data elements, reset endian type, etc.
   void Clear();
-
-  // Get element value length.
-  std::size_t GetValueLength(Tag tag) const;
 
   bool GetString(Tag tag, std::string* value) const;
 
@@ -67,18 +61,21 @@ public:
   bool GetFloat64(Tag tag, float64_t* value) const;
 
 private:
-  DataElement* DoGetElement(Tag tag/*, bool create = false*/);
+  using Elements = std::vector<DataElement*>;
+
+  // A wrapper of std::lower_bound.
+  Elements::iterator LowerBound(Tag tag);
+
+  DataElement* Find(Tag tag);
 
 private:
-  // Little or big endian.
   Endian endian_;
 
   bool explicit_vr_;
 
   Charset charset_;
 
-  // Sorted child elements.
-  std::vector<DataElement*> elements_;
+  Elements elements_;
 };
 
 }  // namespace dcm

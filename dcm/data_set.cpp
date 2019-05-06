@@ -1,22 +1,10 @@
 #include "dcm/data_set.h"
 
-#include <algorithm>
+#include <algorithm>  // for lower_bound
 
 #include "dcm/visitor.h"
 
 namespace dcm {
-
-// -----------------------------------------------------------------------------
-
-namespace {
-
-bool Less(DataElement* lhs, DataElement* rhs) {
-  return lhs->tag() < rhs->tag();
-};
-
-}  // namespace
-
-// -----------------------------------------------------------------------------
 
 DataSet::DataSet(Endian endian, Charset charset)
     : endian_(endian), charset_(charset), explicit_vr_(true) {
@@ -40,27 +28,22 @@ const DataElement* DataSet::operator[](std::size_t index) const {
   return elements_[index];
 }
 
-const DataElement* DataSet::At(std::size_t index) const {
-  if (index < elements_.size()) {
-    return elements_[index];
+const DataElement* DataSet::Get(Tag tag) const {
+  return const_cast<DataSet*>(this)->Find(tag);
+}
+
+bool DataSet::Append(DataElement* element) {
+  if (elements_.empty() || element->tag() > elements_.back()->tag()) {
+    elements_.push_back(element);
+    return true;
   }
-  return nullptr;
+  return false;
 }
 
-const DataElement* DataSet::GetElement(Tag tag) const {
-  return const_cast<DataSet*>(this)->DoGetElement(tag);
-}
-
-void DataSet::AppendElement(DataElement* element) {
-  // NOTE: Don't check if new element's tag > the last element because the last
-  // element might be kSeqItemPrefixTag (0xFFFE0000).
-  elements_.push_back(element);
-}
-
-bool DataSet::InsertElement(DataElement* element) {
-  auto it = std::lower_bound(elements_.begin(), elements_.end(), element, Less);
+bool DataSet::Insert(DataElement* element) {
+  auto it = LowerBound(element->tag());
   if (it != elements_.end() && (*it)->tag() == element->tag()) {
-    return false;  // The tag already exists.
+    return false;
   }
   elements_.insert(it, element);
   return true;
@@ -76,28 +59,16 @@ void DataSet::Clear() {
   elements_.clear(); 
 }
 
-std::size_t DataSet::GetValueLength(Tag tag) const {
-  const DataElement* element = GetElement(tag);
-  if (element == nullptr) {
-    return kUndefinedLength;  // TODO
-  }
-  return element->length();
-}
-
-// type: Uint16, Int32, etc.
-#define GET_VALUE(type)\
-const DataElement* element = GetElement(tag);\
-if (element != nullptr) {\
-  return element->Get##type(value);\
-}\
-return false;
-
 bool DataSet::GetString(Tag tag, std::string* value) const {
-  GET_VALUE(String);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetString(value);
+  }
+  return false;
 }
 
 bool DataSet::SetString(Tag tag, const std::string& value) {
-  DataElement* element = DoGetElement(tag);
+  DataElement* element = Find(tag);
   if (element != nullptr) {
     return element->SetString(value);
   }
@@ -105,7 +76,7 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
   element = new DataElement(tag, endian_);
 
   if (element->SetString(value)) {
-    return InsertElement(element);
+    return Insert(element);
   } else {
     delete element;
     return false;
@@ -113,52 +84,66 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
 }
 
 bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
-  GET_VALUE(Int16);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetInt16(value);
+  }
+  return false;
 }
 
 bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
-  GET_VALUE(Uint16);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetUint16(value);
+  }
+  return false;
 }
 
 bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
-  GET_VALUE(Int32);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetInt32(value);
+  }
+  return false;
 }
 
 bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
-  GET_VALUE(Uint32);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetUint32(value);
+  }
+  return false;
 }
 
 bool DataSet::GetFloat32(Tag tag, float32_t* value) const {
-  GET_VALUE(Float32);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetFloat32(value);
+  }
+  return false;
 }
 
 bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
-  GET_VALUE(Float64);
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetFloat64(value);
+  }
+  return false;
 }
 
-DataElement* DataSet::DoGetElement(Tag tag/*, bool create*/) {
-  std::size_t j = 0;
-  std::size_t k = elements_.size();
-  std::size_t i = 0;
+DataSet::Elements::iterator DataSet::LowerBound(Tag tag) {
+  auto less = [](DataElement* lhs, Tag tag) {
+    return lhs->tag() < tag;
+  };
 
-  while (j < k) {
-    i = j + (k - j) / 2;
+  return std::lower_bound(elements_.begin(), elements_.end(), tag, less);
+}
 
-    if (tag < elements_[i]->tag()) {
-      k = i;
-    } else if (tag > elements_[i]->tag()) {
-      j = i + 1;
-    } else {
-      return elements_[i];
-    }
+DataElement* DataSet::Find(Tag tag) {
+  auto it = LowerBound(tag);
+  if (it != elements_.end() && (*it)->tag() == tag) {
+    return *it;
   }
-
-  //if (create) {
-  //  DataElement* element = new DataElement(tag, endian_);
-  //  elements_.insert(elements_.begin() + i, element);
-  //  return element;
-  //}
-
   return nullptr;
 }
 

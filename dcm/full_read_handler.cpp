@@ -73,9 +73,9 @@ void FullReadHandler::OnSequenceItemEnd() {
 
 void FullReadHandler::AppendElement(DataElement* data_element) {
   if (sequence_stack_.empty()) {
-    data_set_->AppendElement(data_element);
+    data_set_->Append(data_element);
   } else {
-    sequence_stack_.top()->LastDataSet()->AppendElement(data_element);
+    sequence_stack_.top()->LastDataSet()->Append(data_element);
   }
 }
 
