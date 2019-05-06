@@ -9,8 +9,8 @@ namespace dcm {
 
 // -----------------------------------------------------------------------------
 
-// Get the endian type of the current platform.
-Endian PlatformEndian();
+// The endian type of this OS.
+extern const Endian kOSEndian;
 
 // -----------------------------------------------------------------------------
 

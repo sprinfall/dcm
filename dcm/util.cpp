@@ -15,12 +15,7 @@ static union {
 
 #define ENDIANNESS ((char)endian_test.mylong)
 
-Endian PlatformEndian() {
-  static Endian s_endian =
-      (ENDIANNESS == 'l') ? Endian::Little() : Endian::Big();
-
-  return s_endian;
-}
+const Endian kOSEndian = (ENDIANNESS == 'l') ? Endian::Little() : Endian::Big();
 
 // -----------------------------------------------------------------------------
 

@@ -191,14 +191,12 @@ void DataElement::Accept(Visitor& visitor) const {
   visitor.VisitDataElement(this);
 }
 
-// TODO: Check VR.
 bool DataElement::GetString(std::string* value) const {
   if (buffer_.empty()) {
     value->clear();
     return true;
   }
 
-  // TODO
   if (buffer_.back() == ' ') {  // Padding space
     value->assign(&buffer_[0], buffer_.size() - 1);
   } else {
@@ -392,19 +390,19 @@ std::string DataElement::PrintValue() const {
 }
 
 void DataElement::AdjustBytes16(void* value) const {
-  if (endian_ != PlatformEndian()) {
+  if (endian_ != kOSEndian) {
     Swap16(&value);
   }
 }
 
 void DataElement::AdjustBytes32(void* value) const {
-  if (endian_ != PlatformEndian()) {
+  if (endian_ != kOSEndian) {
     Swap32(&value);
   }
 }
 
 void DataElement::AdjustBytes64(void* value) const {
-  if (endian_ != PlatformEndian()) {
+  if (endian_ != kOSEndian) {
     Swap64(&value);
   }
 }

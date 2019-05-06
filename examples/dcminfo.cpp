@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
   std::string file_path = argv[1];
 
-  PrintKV("Platform Endian", dcm::PlatformEndian().name());
+  PrintKV("OS Endian", dcm::kOSEndian.name());
   PrintKV("DICOM File", file_path);
 
   std::cout << std::endl;

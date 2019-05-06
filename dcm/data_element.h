@@ -11,7 +11,6 @@
 
 namespace dcm {
 
-// TODO: char -> std::uint8
 using Buffer = std::vector<char>;
 
 bool CheckStringValue(VR vr, const std::string& value);
@@ -34,8 +33,6 @@ public:
   VR vr() const { return vr_; }
 
   std::size_t length() const { return length_; }
-
-  // TODO: Only open to DataSet.
   void set_length(std::size_t length) { length_ = length; }
 
   // Get the value buffer.
@@ -43,13 +40,11 @@ public:
 
   // Set value buffer and length.
   // The |buffer| will be moved to avoid copy cost.
-  // The |length| must be even (2, 4, 8, etc.).
-  // Always set buffer and length together to ensure data consistency.
-  // TODO: Remove |length| parameter.
-  void set_buffer(Buffer&& buffer, std::size_t length) {
-    assert(length % 2 == 0);
+  // The size of the buffer must be even (2, 4, 8, etc.).
+  void set_buffer(Buffer&& buffer) {
+    assert(buffer.size() % 2 == 0);
     buffer_ = std::move(buffer);
-    length_ = length;
+    length_ = buffer.size();
   }
 
   // TODO: Add applicable VR types as comments.

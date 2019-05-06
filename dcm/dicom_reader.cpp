@@ -252,13 +252,13 @@ bool DicomReader::ReadUint32(Reader& reader, std::uint32_t* value) {
 }
 
 void DicomReader::AdjustBytesUint16(std::uint16_t& value) const {
-  if (endian_ != PlatformEndian()) {
+  if (endian_ != kOSEndian) {
     value = SwapUint16(value);
   }
 }
 
 void DicomReader::AdjustBytesUint32(std::uint32_t& value) const {
-  if (endian_ != PlatformEndian()) {
+  if (endian_ != kOSEndian) {
     value = SwapUint32(value);
   }
 }
@@ -380,19 +380,6 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
 bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
                             std::uint32_t& read_length) {
   if (vr == VR::SQ) {
-    //DataSet* data_set = new DataSet(tag, endian_);
-
-    //data_set->set_explicit_vr(explicit_vr_);
-    //data_set->set_length(vl32);
-
-    //handler_->OnSequenceStart(data_set);
-
-    //if (vl32 > 0) {
-    //  read_length += Read(reader, vl32, /*check_endian*/false);
-    //}
-
-    //handler_->OnSequenceEnd(data_set);
-
     DataSequence* data_sequence = new DataSequence(tag, endian_);
     data_sequence->set_length(vl32);
 
@@ -424,7 +411,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
           return false;
         }
 
-        element->set_buffer(std::move(buffer), vl32);
+        element->set_buffer(std::move(buffer));
       }
 
       handler_->OnElementEnd(element);
