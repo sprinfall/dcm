@@ -5,9 +5,9 @@
 #include "dcm/data_dict.h"
 #include "dcm/data_sequence.h"
 #include "dcm/data_set.h"
+#include "dcm/full_read_handler.h"
 #include "dcm/logger.h"
 #include "dcm/reader.h"
-#include "dcm/read_handler.h"
 #include "dcm/util.h"
 
 namespace bfs = boost::filesystem;
@@ -98,7 +98,18 @@ bool CheckEndian(Reader& reader, Endian* endian) {
 // -----------------------------------------------------------------------------
 
 DicomReader::DicomReader(ReadHandler* handler)
-    : handler_(handler), explicit_vr_(true) {
+    : handler_(handler), own_handler_(false), explicit_vr_(true) {
+}
+
+DicomReader::DicomReader(DataSet* data_set)
+    : handler_(new FullReadHandler(data_set)), own_handler_(true),
+      explicit_vr_(true) {
+}
+
+DicomReader::~DicomReader() {
+  if (own_handler_) {
+    delete handler_;
+  }
 }
 
 bool DicomReader::ReadFile(const Path& path) {
@@ -411,7 +422,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
           return false;
         }
 
-        element->set_buffer(std::move(buffer));
+        element->SetBuffer(std::move(buffer));
       }
 
       handler_->OnElementEnd(element);

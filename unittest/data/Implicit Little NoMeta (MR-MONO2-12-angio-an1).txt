@@ -1,0 +1,56 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Unknown Transfer Syntax
+
+# Dicom-Data-Set
+# Used TransferSyntax: Little Endian Implicit
+(0008,0000) UL 190                                      #   4, 1 GenericGroupLength
+(0008,0010) SH [ACR-NEMA 1.0]                           #  12, 1 RETIRED_RecognitionCode
+(0008,0020) DA [1997.06.09]                             #  10, 1 StudyDate
+(0008,0030) TM [10:19:38.290000]                        #  16, 1 StudyTime
+(0008,0040) US 0                                        #   2, 1 RETIRED_DataSetType
+(0008,0041) LO [FFE/M]                                  #   6, 1 RETIRED_DataSetSubtype
+(0008,0060) CS [MR]                                     #   2, 1 Modality
+(0008,0070) LO [Philips]                                #   8, 1 Manufacturer
+(0008,0080) LO [MR-SENTERET]                            #  12, 1 InstitutionName
+(0008,1010) SH [242P02MR01]                             #  10, 1 StationName
+(0008,1030) LO [P 50+ANGIO]                             #  10, 1 StudyDescription
+(0008,1090) LO [T5]                                     #   2, 1 ManufacturerModelName
+(0010,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0018,0000) UL 158                                      #   4, 1 GenericGroupLength
+(0018,0020) CS [T1-TFE]                                 #   6, 1 ScanningSequence
+(0018,0050) DS [3.000000E+00]                           #  12, 1 SliceThickness
+(0018,0080) DS [1.610725E+01]                           #  12, 1 RepetitionTime
+(0018,0081) DS [7.760249E+00]                           #  12, 1 EchoTime
+(0018,0082) DS [0]                                      #   2, 1 InversionTime
+(0018,0083) DS [1]                                      #   2, 1 NumberOfAverages
+(0018,0084) DS [2.129306E+01]                           #  12, 1 ImagingFrequency
+(0018,0085) SH [1H]                                     #   2, 1 ImagedNucleus
+(0018,1020) LO [RTNAP]                                  #   6, 1 SoftwareVersions
+(0018,1250) SH [H]                                      #   2, 1 ReceiveCoilName
+(0018,1251) SH [H]                                      #   2, 1 TransmitCoilName
+(0020,0000) UL 54                                       #   4, 1 GenericGroupLength
+(0020,0011) IS [01]                                     #   2, 1 SeriesNumber
+(0020,0012) IS [4]                                      #   2, 1 AcquisitionNumber
+(0020,0013) IS [01160501010100]                         #  14, 1 InstanceNumber
+(0020,0020) CS [L\P]                                    #   4, 2 PatientOrientation
+(0028,0000) UL 162                                      #   4, 1 GenericGroupLength
+(0028,0005) US 2                                        #   2, 1 RETIRED_ImageDimensions
+(0028,0010) US 256                                      #   2, 1 Rows
+(0028,0011) US 256                                      #   2, 1 Columns
+(0028,0030) DS [0.859375\0.859375]                      #  18, 2 PixelSpacing
+(0028,0060) CS [NONE]                                   #   4, 1 RETIRED_CompressionCode
+(0028,0100) US 12                                       #   2, 1 BitsAllocated
+(0028,0101) US 12                                       #   2, 1 BitsStored
+(0028,0102) US 11                                       #   2, 1 HighBit
+(0028,0103) US 0                                        #   2, 1 PixelRepresentation
+(0028,0104) xs 0                                        #   2, 1 RETIRED_SmallestValidPixelValue
+(0028,0105) xs 4095                                     #   2, 1 RETIRED_LargestValidPixelValue
+(0028,0200) US 32736                                    #   2, 1 RETIRED_ImageLocation
+(0028,1050) DS [105]                                    #   4, 1 WindowCenter
+(0028,1051) DS [209]                                    #   4, 1 WindowWidth
+(7fe0,0000) UL 98312                                    #   4, 1 GenericGroupLength
+(7fe0,0010) OW 8003\0c01\00a0\5002\0400\0040\8009\0300\0060\800b\0200\0070\7009... # 98304, 1 PixelData

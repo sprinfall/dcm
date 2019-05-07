@@ -17,7 +17,9 @@ class DicomReader {
 public:
   explicit DicomReader(ReadHandler* handler);
 
-  ~DicomReader() = default;
+  explicit DicomReader(DataSet* data_set);
+
+  ~DicomReader();
 
   // Read a DICOM file.
   bool ReadFile(const Path& path);
@@ -56,10 +58,10 @@ private:
 private:
   ReadHandler* handler_;
 
-  // Little or big endian.
+  bool own_handler_;
+
   Endian endian_;
 
-  // Explicit or implicit VR.
   bool explicit_vr_;
 };
 

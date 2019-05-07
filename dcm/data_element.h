@@ -35,17 +35,12 @@ public:
   std::size_t length() const { return length_; }
   void set_length(std::size_t length) { length_ = length; }
 
-  // Get the value buffer.
+  // Get raw value buffer.
   const Buffer& buffer() const { return buffer_; }
 
-  // Set value buffer and length.
-  // The |buffer| will be moved to avoid copy cost.
-  // The size of the buffer must be even (2, 4, 8, etc.).
-  void set_buffer(Buffer&& buffer) {
-    assert(buffer.size() % 2 == 0);
-    buffer_ = std::move(buffer);
-    length_ = buffer.size();
-  }
+  // Set raw value buffer.
+  // The buffer size must be even: 2, 4, 8, ...
+  bool SetBuffer(Buffer&& buffer);
 
   // TODO: Add applicable VR types as comments.
   bool GetString(std::string* value) const;

@@ -191,17 +191,38 @@ void DataElement::Accept(Visitor& visitor) const {
   visitor.VisitDataElement(this);
 }
 
+bool DataElement::SetBuffer(Buffer&& buffer) {
+  if (buffer.size() % 2 != 0) {
+    return false;
+  }
+
+  // TODO: Redundent (only useful for SQ and SQ item prefix tags).
+  length_ = buffer.size();
+
+  buffer_ = std::move(buffer);
+
+  return true;
+}
+
 bool DataElement::GetString(std::string* value) const {
   if (buffer_.empty()) {
     value->clear();
     return true;
   }
 
-  if (buffer_.back() == ' ') {  // Padding space
-    value->assign(&buffer_[0], buffer_.size() - 1);
-  } else {
-    value->assign(&buffer_[0], buffer_.size());
+  std::size_t size = buffer_.size();
+
+  if (buffer_.back() == ' ') {
+    // Remove padding space.
+    --size;
   }
+
+  if (size > 0 && buffer_[size - 1] == '\0') {
+    // Some strings end with a redundent '\0', remove it.
+    --size;
+  }
+
+  value->assign(&buffer_[0], size);
 
   return true;
 }
@@ -391,19 +412,19 @@ std::string DataElement::PrintValue() const {
 
 void DataElement::AdjustBytes16(void* value) const {
   if (endian_ != kOSEndian) {
-    Swap16(&value);
+    Swap16(value);
   }
 }
 
 void DataElement::AdjustBytes32(void* value) const {
   if (endian_ != kOSEndian) {
-    Swap32(&value);
+    Swap32(value);
   }
 }
 
 void DataElement::AdjustBytes64(void* value) const {
   if (endian_ != kOSEndian) {
-    Swap64(&value);
+    Swap64(value);
   }
 }
 

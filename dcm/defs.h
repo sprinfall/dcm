@@ -20,6 +20,7 @@ const std::uint32_t kUndefinedLength = 0xFFFFFFFF;
 
 // -----------------------------------------------------------------------------
 
+// TODO: Rename to ByteOrder?
 class Endian {
 public:
   Endian() = default;
@@ -51,6 +52,9 @@ inline bool operator==(Endian lhs, Endian rhs) {
 inline bool operator!=(Endian lhs, Endian rhs) {
   return !(lhs == rhs);
 }
+
+// The endian type of this OS.
+extern const Endian kOSEndian;
 
 // -----------------------------------------------------------------------------
 
@@ -90,10 +94,60 @@ enum VR {
   UI = MAKE_VR_ENUM('U', 'I'),  // Unique Identifier (UID)
   UL = MAKE_VR_ENUM('U', 'L'),  // Unsigned Long
   UN = MAKE_VR_ENUM('U', 'N'),  // Unknown
-  UR = MAKE_VR_ENUM('U', 'R'),  // Universal Resource Identifier / Locator (URI/URL)
+  UR = MAKE_VR_ENUM('U', 'R'),  // Universal Resource Identifier
   US = MAKE_VR_ENUM('U', 'S'),  // Unsigned Short
   UT = MAKE_VR_ENUM('U', 'T'),  // Unlimited Text
 };
+
+// -----------------------------------------------------------------------------
+
+namespace transfer_syntax_uids {
+
+// NOTE: This is not the full list!
+
+// Implicit VR Little Endian
+// Default Transfer Syntax for DICOM
+const char* const kImplicitLittleEndian = "1.2.840.10008.1.2";
+
+// Explicit VR Little Endian
+const char* const kExplicitLittleEndian = "1.2.840.10008.1.2.1";
+
+// Deflated Explicit VR Little Endian
+const char* const kDeflatedExplicitLittleEndian = "1.2.840.10008.1.2.1.99";
+
+// Explicit VR Big Endian - RETIRED
+const char* const kExplicitBigEndian = "1.2.840.10008.1.2.2";
+
+// JPEG Baseline (Process 1)
+// Default Transfer Syntax for Lossy JPEG 8 Bit Image Compression
+const char* const kJpegBaselineProcess1 = "1.2.840.10008.1.2.4.50";
+
+// JPEG Extended (Process 2 & 4)
+// Default Transfer Syntax for Lossy JPEG 12 Bit Image Compression (Process
+// 4 only)
+const char* const kJpegExtendedProcess2_4 = "1.2.840.10008.1.2.4.51";
+
+// JPEG Lossless, Non-Hierarchical (Process 14)
+const char* const kJpegLosslessNHProcess14 = "1.2.840.10008.1.2.4.57";
+
+// JPEG Lossless, Non-Hierarchical, First-Order Prediction (Process 14
+// [Selection Value 1])
+// Default Transfer Syntax for Lossless JPEG Image Compression
+const char* const kJpegLosslessNHFOPProcess14SV1 = "1.2.840.10008.1.2.4.70";
+
+// JPEG-LS Lossless Image Compression
+const char* const kJpegLSLossless = "1.2.840.10008.1.2.4.80";
+
+// JPEG-LS Lossy (Near-Lossless) Image Compression
+const char* const kJpegLSLossy = "1.2.840.10008.1.2.4.81";
+
+// JPEG 2000 Image Compression (Lossless Only)
+const char* const kJpeg2000LosslessOnly = "1.2.840.10008.1.2.4.90";
+
+// JPEG 2000 Image Compression (Lossless or Lossy)
+const char* const kJpeg2000 = "1.2.840.10008.1.2.4.91";
+
+}  // transfer_syntax_uids
 
 }  // namespace dcm
 

@@ -1,0 +1,123 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Little Endian Explicit
+(0002,0000) UL 80                                       #   4, 1 FileMetaInformationGroupLength
+(0002,0001) OB 00\00                                    #   2, 1 FileMetaInformationVersion
+(0002,0002) UI (no value available)                     #   0, 0 MediaStorageSOPClassUID
+(0002,0003) UI (no value available)                     #   0, 0 MediaStorageSOPInstanceUID
+(0002,0010) UI =LittleEndianImplicit                    #  18, 1 TransferSyntaxUID
+(0002,0012) UI (no value available)                     #   0, 0 ImplementationClassUID
+(0002,0013) SH (no value available)                     #   0, 0 ImplementationVersionName
+(0002,0016) AE (no value available)                     #   0, 0 SourceApplicationEntityTitle
+
+# Dicom-Data-Set
+# Used TransferSyntax: Little Endian Implicit
+(0008,0000) UL 630                                      #   4, 1 GenericGroupLength
+(0008,0005) CS [ISO 2022 IR 6]                          #  14, 1 SpecificCharacterSet
+(0008,0008) CS [ORIGINAL\PRIMARY\\FOR PROCESSING]       #  32, 4 ImageType
+(0008,0016) UI =ComputedRadiographyImageStorage         #  26, 1 SOPClassUID
+(0008,0018) UI [1.2.840.114062.2.10.123.164.233.2017.3.3.11.26.26.78645844] #  58, 1 SOPInstanceUID
+(0008,0020) DA [20170303]                               #   8, 1 StudyDate
+(0008,0021) DA [20170303]                               #   8, 1 SeriesDate
+(0008,0022) DA [20170303]                               #   8, 1 AcquisitionDate
+(0008,0023) DA [20170303]                               #   8, 1 ContentDate
+(0008,0030) TM [112621]                                 #   6, 1 StudyTime
+(0008,0032) TM [112626]                                 #   6, 1 AcquisitionTime
+(0008,0033) TM [112626]                                 #   6, 1 ContentTime
+(0008,0050) SH (no value available)                     #   0, 0 AccessionNumber
+(0008,0060) CS [CR]                                     #   2, 1 Modality
+(0008,0068) CS [FOR PROCESSING]                         #  14, 1 PresentationIntentType
+(0008,0070) LO [Carestream Health]                      #  18, 1 Manufacturer
+(0008,0080) LO (no value available)                     #   0, 0 InstitutionName
+(0008,0090) PN (no value available)                     #   0, 0 ReferringPhysicianName
+(0008,1090) LO [CS 7600]                                #   8, 1 ManufacturerModelName
+(0008,2218) SQ (Sequence with undefined length #=1)     # u/l, 1 AnatomicRegionSequence
+  (fffe,e000) na (Item with undefined length #=3)         # u/l, 1 Item
+    (0008,0100) SH [T-11170]                                #   8, 1 CodeValue
+    (0008,0102) SH [SNM3]                                   #   4, 1 CodingSchemeDesignator
+    (0008,0104) LO [Maxilla]                                #   8, 1 CodeMeaning
+  (fffe,e00d) na (ItemDelimitationItem)                   #   0, 0 ItemDelimitationItem
+(fffe,e0dd) na (SequenceDelimitationItem)               #   0, 0 SequenceDelimitationItem
+(0008,2228) SQ (Sequence with undefined length #=2)     # u/l, 1 PrimaryAnatomicStructureSequence
+  (fffe,e000) na (Item with undefined length #=3)         # u/l, 1 Item
+    (0008,0100) SH [T-54210]                                #   8, 1 CodeValue
+    (0008,0102) SH [SNM3]                                   #   4, 1 CodingSchemeDesignator
+    (0008,0104) LO [Maxillary right third molar tooth]      #  34, 1 CodeMeaning
+  (fffe,e00d) na (ItemDelimitationItem)                   #   0, 0 ItemDelimitationItem
+  (fffe,e000) na (Item with undefined length #=3)         # u/l, 1 Item
+    (0008,0100) SH [T-54220]                                #   8, 1 CodeValue
+    (0008,0102) SH [SNM3]                                   #   4, 1 CodingSchemeDesignator
+    (0008,0104) LO [Maxillary right second molar tooth]     #  34, 1 CodeMeaning
+  (fffe,e00d) na (ItemDelimitationItem)                   #   0, 0 ItemDelimitationItem
+(fffe,e0dd) na (SequenceDelimitationItem)               #   0, 0 SequenceDelimitationItem
+(0010,0000) UL 54                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Gu^Adam]                                #   8, 1 PatientName
+(0010,0020) LO [P001]                                   #   4, 1 PatientID
+(0010,0030) DA [19950528]                               #   8, 1 PatientBirthDate
+(0010,0040) CS [O]                                      #   2, 1 PatientSex
+(0018,0000) UL 140                                      #   4, 1 GenericGroupLength
+(0018,0015) CS [JAW]                                    #   4, 1 BodyPartExamined
+(0018,0060) DS [0]                                      #   2, 1 KVP
+(0018,1020) LO [AcqCS7600]                              #  10, 1 SoftwareVersions
+(0018,1150) IS [0]                                      #   2, 1 ExposureTime
+(0018,1151) IS [0]                                      #   2, 1 XRayTubeCurrent
+(0018,1164) DS [0.019973\0.019973]                      #  18, 2 ImagerPixelSpacing
+(0018,1260) SH [CSH IO]                                 #   6, 1 PlateType
+(0018,1405) IS [3214]                                   #   4, 1 RelativeXRayExposure
+(0018,5100) CS (no value available)                     #   0, 0 PatientPosition
+(0018,5101) CS (no value available)                     #   0, 0 ViewPosition
+(0018,6000) DS [3214]                                   #   4, 1 Sensitivity
+(0020,0000) UL 228                                      #   4, 1 GenericGroupLength
+(0020,000d) UI [1.2.840.114062.2.10.123.164.233.2017.3.2.17.15.57.13215655.1] #  60, 1 StudyInstanceUID
+(0020,000e) UI [1.2.840.114062.2.10.123.164.233.2017.3.3.11.26.21.78640182.2] #  60, 1 SeriesInstanceUID
+(0020,0010) SH [00000846]                               #   8, 1 StudyID
+(0020,0011) IS [1]                                      #   2, 1 SeriesNumber
+(0020,0013) IS (no value available)                     #   0, 0 InstanceNumber
+(0020,0020) CS [L\F]                                    #   4, 2 PatientOrientation
+(0020,0062) CS [R]                                      #   2, 1 ImageLaterality
+(0020,4000) LT [Demo. Super High Resolution.]           #  28, 1 ImageComments
+(0027,0000) UL 440                                      #   4, 1 PrivateGroupLength
+(0027,0020) LO [PrivateCreator1]                        #  16, 1 PrivateCreator
+(0027,0080) LO [PrivateCreator2]                        #  16, 1 PrivateCreator
+(0027,0090) LO [PrivateCreator3]                        #  16, 1 PrivateCreator
+(0027,2032) ?? 44\65\6d\6f                              #   4, 1 Unknown Tag & Data
+(0027,8018) ?? 33\20                                    #   2, 1 Unknown Tag & Data
+(0027,8020) ?? 33\20                                    #   2, 1 Unknown Tag & Data
+(0027,8026) ?? 31\2e\30\2e\35\2e\30\20                  #   8, 1 Unknown Tag & Data
+(0027,8028) ?? 46\49\58\45\4f\4c\2b\50\56\43\2b\44\45\46\5f\45\4d\50\54\59\5f\49... #  98, 1 Unknown Tag & Data
+(0027,8032) ?? 30\2c\30\2c\30\2c\30\20                  #   8, 1 Unknown Tag & Data
+(0027,8034) ?? 30\2c\31\30\30\20                        #   6, 1 Unknown Tag & Data
+(0027,8038) ?? 53\48\52\20                              #   4, 1 Unknown Tag & Data
+(0027,8050) ?? 34\37\37\35\35\45\34\31\36\34\36\31\36\44 #  14, 1 Unknown Tag & Data
+(0027,8052) ?? 35\30\33\30\33\30\33\31                  #   8, 1 Unknown Tag & Data
+(0027,8054) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0027,8056) ?? 34\34\36\35\36\44\36\46\32\45\32\30\35\33\37\35\37\30\36\35\37\32... #  56, 1 Unknown Tag & Data
+(0027,8058) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0027,8060) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0027,8062) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0027,8064) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0027,9046) ?? 30\30                                    #   2, 1 Unknown Tag & Data
+(0027,90ec) ?? 30\3b\31\20                              #   4, 1 Unknown Tag & Data
+(0027,90ee) ?? (no value available)                     #   0, 1 Unknown Tag & Data
+(0028,0000) UL 214                                      #   4, 1 GenericGroupLength
+(0028,0002) US 1                                        #   2, 1 SamplesPerPixel
+(0028,0004) CS [MONOCHROME1]                            #  12, 1 PhotometricInterpretation
+(0028,0010) US 1527                                     #   2, 1 Rows
+(0028,0011) US 2022                                     #   2, 1 Columns
+(0028,0030) DS [0.019973\0.019973]                      #  18, 2 PixelSpacing
+(0028,0034) IS [1\1]                                    #   4, 2 PixelAspectRatio
+(0028,0100) US 16                                       #   2, 1 BitsAllocated
+(0028,0101) US 12                                       #   2, 1 BitsStored
+(0028,0102) US 11                                       #   2, 1 HighBit
+(0028,0103) US 0                                        #   2, 1 PixelRepresentation
+(0028,0106) US 210                                      #   2, 1 SmallestImagePixelValue
+(0028,0107) US 4000                                     #   2, 1 LargestImagePixelValue
+(0028,1050) DS [2048]                                   #   4, 1 WindowCenter
+(0028,1051) DS [4095]                                   #   4, 1 WindowWidth
+(0028,1052) DS [0.000000]                               #   8, 1 RescaleIntercept
+(0028,1053) DS [1.000000]                               #   8, 1 RescaleSlope
+(0028,1054) LO [US]                                     #   2, 1 RescaleType
+(7fe0,0000) UL 6175196                                  #   4, 1 GenericGroupLength
+(7fe0,0010) OW 0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0\0fa0... # 6175188, 1 PixelData

@@ -1,0 +1,93 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Unknown Transfer Syntax
+
+# Dicom-Data-Set
+# Used TransferSyntax: Little Endian Implicit
+(0008,0000) UL 534                                      #   4, 1 GenericGroupLength
+(0008,0008) CS [ORIGINAL\PRIMARY\UNDEFINED]             #  26, 3 ImageType
+(0008,0016) UI =MRImageStorage                          #  26, 1 SOPClassUID
+(0008,0018) UI [1.3.12.2.1107.5.8.1.123456789.199507271758050707765] #  52, 1 SOPInstanceUID
+(0008,0020) DA [1994.06.13]                             #  10, 1 StudyDate
+(0008,0022) DA [1994.06.13]                             #  10, 1 AcquisitionDate
+(0008,0023) DA [1994.06.13]                             #  10, 1 ContentDate
+(0008,0030) TM [15:32:26.392000]                        #  16, 1 StudyTime
+(0008,0032) TM [15:32:27.730000]                        #  16, 1 AcquisitionTime
+(0008,0033) TM [15:35:25]                               #   8, 1 ContentTime
+(0008,0040) US 0                                        #   2, 1 RETIRED_DataSetType
+(0008,0041) LO [IMA NONE]                               #   8, 1 RETIRED_DataSetSubtype
+(0008,0050) SH [SMS000013]                              #  10, 1 AccessionNumber
+(0008,0060) CS [MR]                                     #   2, 1 Modality
+(0008,0070) LO [SIEMENS]                                #   8, 1 Manufacturer
+(0008,0080) LO [Diag Radiology Grosshadern]             #  26, 1 InstitutionName
+(0008,0090) PN [Anonymized]                             #  10, 1 ReferringPhysicianName
+(0008,1010) SH [Diag Radiology Grosshadern]             #  26, 1 StationName
+(0008,1030) LO (no value available)                     #  52, 0 StudyDescription
+(0008,1080) LO (no value available)                     #  40, 0 AdmittingDiagnosesDescription
+(0008,1090) LO [MAGNETOM VISION]                        #  16, 1 ManufacturerModelName
+(0010,0000) UL 36                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0010,1005) PN [Anonymized]                             #  10, 1 PatientBirthName
+(0018,0000) UL 310                                      #   4, 1 GenericGroupLength
+(0018,0010) LO [NONE]                                   #   4, 1 ContrastBolusAgent
+(0018,0020) CS [RM]                                     #   2, 1 ScanningSequence
+(0018,0021) CS [NONE]                                   #   4, 1 SequenceVariant
+(0018,0022) CS [SP]                                     #   2, 1 ScanOptions
+(0018,0050) DS [005.000000E+00]                         #  14, 1 SliceThickness
+(0018,0080) DS [004.000000E+03]                         #  14, 1 RepetitionTime
+(0018,0081) DS [001.120000E+02]                         #  14, 1 EchoTime
+(0018,0082) DS [000.000000E+00]                         #  14, 1 InversionTime
+(0018,0083) DS [000003]                                 #   6, 1 NumberOfAverages
+(0018,0084) DS [006.360508E+01]                         #  14, 1 ImagingFrequency
+(0018,0085) SH [1H]                                     #   2, 1 ImagedNucleus
+(0018,0086) IS [000001]                                 #   6, 1 EchoNumbers
+(0018,0090) DS [000200]                                 #   6, 1 DataCollectionDiameter
+(0018,0091) IS [1]                                      #   2, 1 EchoTrainLength
+(0018,1000) LO [7003]                                   #   4, 1 DeviceSerialNumber
+(0018,1020) LO [VB11A]                                  #   6, 1 SoftwareVersions
+(0018,1200) DA [1994.05.10]                             #  10, 1 DateOfLastCalibration
+(0018,1201) TM [14:55:11]                               #   8, 1 TimeOfLastCalibration
+(0018,1250) SH [CP Body Array]                          #  14, 1 ReceiveCoilName
+(0018,5100) CS [HFS]                                    #   4, 1 PatientPosition
+(0020,0000) UL 670                                      #   4, 1 GenericGroupLength
+(0020,000d) UI [1.3.12.2.1107.5.8.1.123456789.199507271758050705910] #  52, 1 StudyInstanceUID
+(0020,000e) UI [1.3.12.2.1107.5.8.1.123456789.199507271758050706635] #  52, 1 SeriesInstanceUID
+(0020,0011) IS [0]                                      #   2, 1 SeriesNumber
+(0020,0012) IS [000001]                                 #   6, 1 AcquisitionNumber
+(0020,0013) IS [000013]                                 #   6, 1 InstanceNumber
+(0020,0020) CS [P   \F]                                 #   6, 2 PatientOrientation
+(0020,0030) DS [-01.330335E+01\-8.043130E+01\01.187875E+02] #  42, 3 RETIRED_ImagePosition
+(0020,0032) DS [-13.303350\-80.821920\119.178080]       #  32, 3 ImagePositionPatient
+(0020,0035) DS [000.000000E+00\01.000000E+00\-0.000000E+00\00.000000E+00\-0.000000... #  84, 6 RETIRED_ImageOrientation
+(0020,0037) DS [0.000000\1.000000\-0.000000\0.000000\-0.000000\-1.000000] #  56, 6 ImageOrientationPatient
+(0020,0050) DS [-00013]                                 #   6, 1 RETIRED_Location
+(0020,0052) UI [1.3.12.2.1107.5.8.1.123456789.199507271758050707090] #  52, 1 FrameOfReferenceUID
+(0020,0060) CS [NO]                                     #   2, 1 Laterality
+(0020,0070) LO [PLANAR]                                 #   6, 1 RETIRED_ImageGeometryType
+(0020,1001) IS [000001]                                 #   6, 1 RETIRED_AcquisitionsInSeries
+(0020,1020) LO [tobien waltraud \04.11.51 \000000]      #  34, 3 RETIRED_Reference
+(0020,5000) AT (0010,0010)                              #   4, 1 RETIRED_OriginalImageIdentification
+(0020,5002) LO [Patient Name (0010'H,0010'H)\Patient ID (0010'H,0020'H) \Image (00... #  78, 3 RETIRED_OriginalImageIdentificationNomenclature
+(0028,0000) UL 236                                      #   4, 1 GenericGroupLength
+(0028,0002) US 1                                        #   2, 1 SamplesPerPixel
+(0028,0004) CS [MONOCHROME2]                            #  12, 1 PhotometricInterpretation
+(0028,0005) US 2                                        #   2, 1 RETIRED_ImageDimensions
+(0028,0010) US 256                                      #   2, 1 Rows
+(0028,0011) US 256                                      #   2, 1 Columns
+(0028,0030) DS [0.78125\0.78125]                        #  16, 2 PixelSpacing
+(0028,0034) IS [200\200]                                #   8, 2 PixelAspectRatio
+(0028,0040) CS [RECT]                                   #   4, 1 RETIRED_ImageFormat
+(0028,0060) CS [NONE]                                   #   4, 1 RETIRED_CompressionCode
+(0028,0100) US 16                                       #   2, 1 BitsAllocated
+(0028,0101) US 12                                       #   2, 1 BitsStored
+(0028,0102) US 11                                       #   2, 1 HighBit
+(0028,0103) US 0                                        #   2, 1 PixelRepresentation
+(0028,0200) US 32736                                    #   2, 1 RETIRED_ImageLocation
+(0028,1050) DS [01048\001048]                           #  12, 2 WindowCenter
+(0028,1051) DS [1892\01892]                             #  10, 2 WindowWidth
+(0028,1052) DS [000000]                                 #   6, 1 RescaleIntercept
+(0028,1053) DS [01]                                     #   2, 1 RescaleSlope
+(7fe0,0000) UL 131080                                   #   4, 1 GenericGroupLength
+(7fe0,0010) OW 0000\0000\0000\0000\0000\0000\0000\0000\0000\0000\0000\0000\0000... # 131072, 1 PixelData

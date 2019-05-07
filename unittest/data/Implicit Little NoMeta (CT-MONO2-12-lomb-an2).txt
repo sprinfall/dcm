@@ -1,0 +1,76 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Unknown Transfer Syntax
+
+# Dicom-Data-Set
+# Used TransferSyntax: Little Endian Implicit
+(0008,0000) UL 366                                      #   4, 1 GenericGroupLength
+(0008,0010) SH [ACR-NEMA 2.0]                           #  12, 1 RETIRED_RecognitionCode
+(0008,0020) DA [1996.12.02]                             #  10, 1 StudyDate
+(0008,0022) DA [1996.12.02]                             #  10, 1 AcquisitionDate
+(0008,0023) DA [1996.12.02]                             #  10, 1 ContentDate
+(0008,0030) TM [16:32:39]                               #   8, 1 StudyTime
+(0008,0032) TM [16:38:46.783000]                        #  16, 1 AcquisitionTime
+(0008,0033) TM [16:38:46.783000]                        #  16, 1 ContentTime
+(0008,0040) US 0                                        #   2, 1 RETIRED_DataSetType
+(0008,0041) LO [IMA SEQ]                                #   8, 1 RETIRED_DataSetSubtype
+(0008,0060) CS [CT]                                     #   2, 1 Modality
+(0008,0070) LO [SIEMENS]                                #   8, 1 Manufacturer
+(0008,0080) LO [H.I.A. BEGIN]                           #  12, 1 InstitutionName
+(0008,0090) PN [Anonymized]                             #  10, 1 ReferringPhysicianName
+(0008,1010) SH [H.I.A. BEGIN]                           #  12, 1 StationName
+(0008,1030) LO [DR DARBOIS]                             #  10, 1 StudyDescription
+(0008,1050) PN [Anonymized]                             #  10, 1 PerformingPhysicianName
+(0008,1080) LO (no value available)                     #  40, 0 AdmittingDiagnosesDescription
+(0008,1090) LO [SOMATOM PLUS 4]                         #  14, 1 ManufacturerModelName
+(0010,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0018,0000) UL 356                                      #   4, 1 GenericGroupLength
+(0018,0010) LO [NONE]                                   #   4, 1 ContrastBolusAgent
+(0018,0020) CS [SEQ]                                    #   4, 1 ScanningSequence
+(0018,0050) DS [002.000000E+00]                         #  14, 1 SliceThickness
+(0018,0060) DS [000140]                                 #   6, 1 KVP
+(0018,0090) DS [000500]                                 #   6, 1 DataCollectionDiameter
+(0018,1000) LO [20028]                                  #   6, 1 DeviceSerialNumber
+(0018,1020) LO [VB20A]                                  #   6, 1 SoftwareVersions
+(0018,1110) DS [001005]                                 #   6, 1 DistanceSourceToDetector
+(0018,1111) DS [000570]                                 #   6, 1 DistanceSourceToPatient
+(0018,1120) DS [000.000000E+00]                         #  14, 1 GantryDetectorTilt
+(0018,1130) DS [001.250000E+02]                         #  14, 1 TableHeight
+(0018,1140) CS [CW]                                     #   2, 1 RotationDirection
+(0018,1150) IS [001500]                                 #   6, 1 ExposureTime
+(0018,1151) IS [000206]                                 #   6, 1 XRayTubeCurrent
+(0018,1152) IS [000309]                                 #   6, 1 Exposure
+(0018,1170) IS [002.880000E+01]                         #  14, 1 GeneratorPower
+(0018,1190) DS [009.000000E-01]                         #  14, 1 FocalSpots
+(0018,1200) DA [1996.12.02]                             #  10, 1 DateOfLastCalibration
+(0018,1201) TM [07:44:24.170000]                        #  16, 1 TimeOfLastCalibration
+(0018,1210) SH [59 convkernel.10.AB40]                  #  22, 1 ConvolutionKernel
+(0018,5100) CS [SUPINE]                                 #   6, 1 PatientPosition
+(0020,0000) UL 220                                      #   4, 1 GenericGroupLength
+(0020,0012) IS [000009]                                 #   6, 1 AcquisitionNumber
+(0020,0013) IS [000009]                                 #   6, 1 InstanceNumber
+(0020,0020) CS [L   \P]                                 #   6, 2 PatientOrientation
+(0020,0030) DS [-08.030762E+01\-1.113076E+02\05.200000E+01] #  42, 3 RETIRED_ImagePosition
+(0020,0035) DS [001.000000E+00\00.000000E+00\00.000000E+00\00.000000E+00\01.000000... #  84, 6 RETIRED_ImageOrientation
+(0020,0050) DS [005.200000E+01]                         #  14, 1 RETIRED_Location
+(0020,0070) LO [PLANAR]                                 #   6, 1 RETIRED_ImageGeometryType
+(0028,0000) UL 202                                      #   4, 1 GenericGroupLength
+(0028,0005) US 2                                        #   2, 1 RETIRED_ImageDimensions
+(0028,0010) US 512                                      #   2, 1 Rows
+(0028,0011) US 512                                      #   2, 1 Columns
+(0028,0030) DS [0.384766\0.384766]                      #  18, 2 PixelSpacing
+(0028,0040) CS [RECT]                                   #   4, 1 RETIRED_ImageFormat
+(0028,0100) US 16                                       #   2, 1 BitsAllocated
+(0028,0101) US 12                                       #   2, 1 BitsStored
+(0028,0102) US 11                                       #   2, 1 HighBit
+(0028,0103) US 0                                        #   2, 1 PixelRepresentation
+(0028,0200) US 32736                                    #   2, 1 RETIRED_ImageLocation
+(0028,1050) DS [000050\00200]                           #  12, 2 WindowCenter
+(0028,1051) DS [000300\02200]                           #  12, 2 WindowWidth
+(0028,1052) DS [-01.024000E+03]                         #  14, 1 RescaleIntercept
+(0028,1053) DS [001.000000E+00]                         #  14, 1 RescaleSlope
+(7fe0,0000) UL 524296                                   #   4, 1 GenericGroupLength
+(7fe0,0010) OW 03ba\03b1\03af\03a5\0394\038a\038c\0394\039b\03a2\03ae\03b6\03ae... # 524288, 1 PixelData

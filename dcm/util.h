@@ -9,11 +9,6 @@ namespace dcm {
 
 // -----------------------------------------------------------------------------
 
-// The endian type of this OS.
-extern const Endian kOSEndian;
-
-// -----------------------------------------------------------------------------
-
 std::uint16_t SwapUint16(std::uint16_t value);
 std::uint32_t SwapUint32(std::uint32_t value);
 

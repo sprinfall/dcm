@@ -1,0 +1,80 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Little Endian Explicit
+(0002,0000) UL 194                                      #   4, 1 FileMetaInformationGroupLength
+(0002,0001) OB 00\01                                    #   2, 1 FileMetaInformationVersion
+(0002,0002) UI =CTImageStorage                          #  26, 1 MediaStorageSOPClassUID
+(0002,0003) UI [2.16.840.1.113662.2.1.4519.41582.4105152.419990505.410523251] #  60, 1 MediaStorageSOPInstanceUID
+(0002,0010) UI =LittleEndianExplicit                    #  20, 1 TransferSyntaxUID
+(0002,0012) UI [2.16.840.1.113662.2.1.1]                #  24, 1 ImplementationClassUID
+(0002,0016) AE [PHOENIXSCP]                             #  10, 1 SourceApplicationEntityTitle
+
+# Dicom-Data-Set
+# Used TransferSyntax: Little Endian Explicit
+(0008,0000) UL 596                                      #   4, 1 GenericGroupLength
+(0008,0005) CS [ISO_IR 100]                             #  10, 1 SpecificCharacterSet
+(0008,0008) CS [ORIGINAL\PRIMARY\AXIAL]                 #  22, 3 ImageType
+(0008,0012) DA [1999.05.05]                             #  10, 1 InstanceCreationDate
+(0008,0013) TM [10:52:34.530000]                        #  16, 1 InstanceCreationTime
+(0008,0016) UI =CTImageStorage                          #  26, 1 SOPClassUID
+(0008,0018) UI [2.16.840.1.113662.2.1.4519.41582.4105152.419990505.410523251] #  60, 1 SOPInstanceUID
+(0008,0020) DA [1999.05.05]                             #  10, 1 StudyDate
+(0008,0021) DA [1999.05.05]                             #  10, 1 SeriesDate
+(0008,0022) DA [1999.05.05]                             #  10, 1 AcquisitionDate
+(0008,0023) DA [1999.05.05]                             #  10, 1 ContentDate
+(0008,0030) TM [10:52:34.530000]                        #  16, 1 StudyTime
+(0008,0031) TM [10:52:34.530000]                        #  16, 1 SeriesTime
+(0008,0032) TM [10:52:34.530000]                        #  16, 1 AcquisitionTime
+(0008,0033) TM [10:52:32.510000]                        #  16, 1 ContentTime
+(0008,0060) CS [CT]                                     #   2, 1 Modality
+(0008,0070) LO [Picker International, Inc.]             #  26, 1 Manufacturer
+(0008,0080) LO [105 HOSPITAL]                           #  12, 1 InstitutionName
+(0008,0090) PN [Anonymized]                             #  10, 1 ReferringPhysicianName
+(0008,1010) SH [Picker CT]                              #  10, 1 StationName
+(0008,1030) LO (no value available)                     #  60, 0 StudyDescription
+(0008,1050) PN [Anonymized]                             #  10, 1 PerformingPhysicianName
+(0008,1060) PN [Anonymized]                             #  10, 1 NameOfPhysiciansReadingStudy
+(0008,1070) PN [Anonymized]                             #  10, 1 OperatorsName
+(0008,1090) LO [PQ5000]                                 #   6, 1 ManufacturerModelName
+(0010,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0018,0000) UL 124                                      #   4, 1 GenericGroupLength
+(0018,0010) LO [C-]                                     #   2, 1 ContrastBolusAgent
+(0018,0050) DS [10.0]                                   #   4, 1 SliceThickness
+(0018,0060) DS [120]                                    #   4, 1 KVP
+(0018,1000) LO [519]                                    #   4, 1 DeviceSerialNumber
+(0018,1030) LO [ADULT BRAIN/U]                          #  14, 1 ProtocolName
+(0018,1120) DS [.0]                                     #   2, 1 GantryDetectorTilt
+(0018,1151) IS [250]                                    #   4, 1 XRayTubeCurrent
+(0018,1152) IS [526]                                    #   4, 1 Exposure
+(0018,1160) SH [0]                                      #   2, 1 FilterType
+(0018,5100) CS [HFS]                                    #   4, 1 PatientPosition
+(0020,0000) UL 366                                      #   4, 1 GenericGroupLength
+(0020,000d) UI [2.16.840.1.113662.2.1.1519.11582.1990505.1105152] #  48, 1 StudyInstanceUID
+(0020,000e) UI [2.16.840.1.113662.2.1.2519.21582.2990505.2105152.2381633.20] #  60, 1 SeriesInstanceUID
+(0020,0011) IS [3513]                                   #   4, 1 SeriesNumber
+(0020,0012) IS [3513]                                   #   4, 1 AcquisitionNumber
+(0020,0013) IS [8]                                      #   2, 1 InstanceNumber
+(0020,0020) CS [L\P]                                    #   4, 2 PatientOrientation
+(0020,0032) DS [-1.197656e02\-3.997656e02\-2.800000e02] #  38, 3 ImagePositionPatient
+(0020,0037) DS [1.000000e00\0.000000e00\0.000000e00\0.000000e00\1.000000e00\0.0000... #  72, 6 ImageOrientationPatient
+(0020,0052) UI [2.16.840.1.113662.2.1.3519.31582.3990505.3105152] #  48, 1 FrameOfReferenceUID
+(0020,1041) DS [280.00]                                 #   6, 1 SliceLocation
+(0028,0000) UL 154                                      #   4, 1 GenericGroupLength
+(0028,0002) US 1                                        #   2, 1 SamplesPerPixel
+(0028,0004) CS [MONOCHROME2]                            #  12, 1 PhotometricInterpretation
+(0028,0010) US 512                                      #   2, 1 Rows
+(0028,0011) US 512                                      #   2, 1 Columns
+(0028,0030) DS [0.46875\0.46875]                        #  16, 2 PixelSpacing
+(0028,0100) US 16                                       #   2, 1 BitsAllocated
+(0028,0101) US 16                                       #   2, 1 BitsStored
+(0028,0102) US 15                                       #   2, 1 HighBit
+(0028,0103) US 1                                        #   2, 1 PixelRepresentation
+(0028,1050) DS [50]                                     #   2, 1 WindowCenter
+(0028,1051) DS [75]                                     #   2, 1 WindowWidth
+(0028,1052) DS [0]                                      #   2, 1 RescaleIntercept
+(0028,1053) DS [1]                                      #   2, 1 RescaleSlope
+(7fe0,0000) UL 524300                                   #   4, 1 GenericGroupLength
+(7fe0,0010) OW fc18\fc88\fc8c\fc8d\fc8c\fc8a\fc8a\fc8a\fc89\fc8a\fc8b\fc8e\fc8f... # 524288, 1 PixelData

@@ -8,17 +8,6 @@ namespace dcm {
 
 // -----------------------------------------------------------------------------
 
-static union {
-  char c[4];
-  unsigned long mylong;
-} endian_test = { { 'l', '?', '?', 'b' } };
-
-#define ENDIANNESS ((char)endian_test.mylong)
-
-const Endian kOSEndian = (ENDIANNESS == 'l') ? Endian::Little() : Endian::Big();
-
-// -----------------------------------------------------------------------------
-
 std::uint16_t SwapUint16(std::uint16_t value) {
   return (((value & 0xFF00) >> 8) | ((value & 0x00FF) << 8));
 }

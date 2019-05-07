@@ -2,14 +2,12 @@
 
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
-#include "dcm/full_read_handler.h"
 #include "dcm/logger.h"
 #include "dcm/print_visitor.h"
 
 void DumpDicomFile(const dcm::Path& path) {
   dcm::DataSet data_set;
-  dcm::FullReadHandler read_handler(&data_set);
-  dcm::DicomReader reader(&read_handler);
+  dcm::DicomReader reader(&data_set);
 
   if (!reader.ReadFile(path)) {
     std::cerr << "Failed to read file." << std::endl;
