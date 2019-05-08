@@ -42,7 +42,7 @@ bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
   return true;
 }
 
-bool CheckEndian(Reader& reader, Endian* endian) {
+bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
   std::uint8_t tag_bytes[4] = { 0 };
   if (!reader.ReadBytes(&tag_bytes, 4)) {
     return false;
@@ -52,8 +52,8 @@ bool CheckEndian(Reader& reader, Endian* endian) {
 
   std::uint16_t group = (tag_bytes[0] & 0xff) + ((tag_bytes[1] & 0xff) << 8);
   std::uint16_t element = (tag_bytes[2] & 0xff) + ((tag_bytes[3] & 0xff) << 8);
-  Tag tag_l(group, element);  // Little endian
-  Tag tag_b = tag_l.SwapBytes();  // Big endian
+  Tag tag_l(group, element);  // Little Endian
+  Tag tag_b = tag_l.SwapBytes();  // Big Endian
 
   const DataEntry* entry_l = DataDict::GetEntry(tag_l);
   const DataEntry* entry_b = DataDict::GetEntry(tag_b);
@@ -63,32 +63,36 @@ bool CheckEndian(Reader& reader, Endian* endian) {
       // Group Length tag not in data dictionary, check the group number.
       // For the first tag, group number is more probable of 0008 than 0800.
       if (tag_l.group() > 0xff && tag_b.group() <= 0xff) {
-        *endian = Endian::Big();
+        *byte_order = ByteOrder::BE;
       } else {
-        *endian = Endian::Little();
+        *byte_order = ByteOrder::LE;
       }
     } else {
       // Both tags show an error, an invalid tag is encountered.
       // Assume that it's Little Endian.
-      *endian = Endian::Little();
+      *byte_order = ByteOrder::LE;
     }
   } else {
     if (entry_l == nullptr) {
-      *endian = Endian::Big();
+      *byte_order = ByteOrder::BE;
     } else if (entry_b == nullptr) {
-      *endian = Endian::Little();
+      *byte_order = ByteOrder::LE;
     } else {
       // Both tags are valid, check the group number.
       // For the first tag, group number is more probable of 0008 than 0800.
       if (tag_l.group() > 0xff && tag_b.group() <= 0xff) {
-        *endian = Endian::Big();
+        *byte_order = ByteOrder::BE;
       } else {
-        *endian = Endian::Little();
+        *byte_order = ByteOrder::LE;
       }
     }
   }
 
-  LOG_INFO("Endian checked: %s", endian->name());
+  if (*byte_order == ByteOrder::LE) {
+    LOG_INFO("Byte order checked: little endian.", );
+  } else {
+    LOG_INFO("Byte order checked: big endian.", );
+  }
 
   return true;
 }
@@ -97,12 +101,15 @@ bool CheckEndian(Reader& reader, Endian* endian) {
 
 // -----------------------------------------------------------------------------
 
-DicomReader::DicomReader(ReadHandler* handler)
-    : handler_(handler), own_handler_(false), explicit_vr_(true) {
-}
-
 DicomReader::DicomReader(DataSet* data_set)
     : handler_(new FullReadHandler(data_set)), own_handler_(true),
+      transfer_syntax_checked_(false),
+      explicit_vr_(true) {
+}
+
+DicomReader::DicomReader(ReadHandler* handler)
+    : handler_(handler), own_handler_(false),
+      transfer_syntax_checked_(false),
       explicit_vr_(true) {
 }
 
@@ -136,22 +143,17 @@ bool DicomReader::DoRead(Reader& reader) {
     reader.UndoRead(132);
   }
 
-  // Group 0x0002 is always little endian, so don't check endian type now.
-  if (!CheckVrExplicity(reader, &explicit_vr_)) {
-    return false;
-  }
+  // Group 0002 is always Explicit VR Little Endian.
+  byte_order_ = ByteOrder::LE;
+  explicit_vr_ = true;
 
-  handler_->OnExplicitVR(explicit_vr_);
-
-  Read(reader, kUndefinedLength, true);
+  Read(reader, kUndefinedLength);
 
   return true;
 }
 
-std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
-                                bool check_endian) {
+std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
   std::uint32_t read_length = 0;
-  bool endian_checked = false;
 
   Tag tag;
 
@@ -160,34 +162,25 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
       break;  // Handler required to stop reading.
     }
 
-    // ISSUE:
-    // Reading tag depends on the default endian type. If a DICOM file is big
-    // endian and without group 0x0002, this doesn't work.
     if (!ReadTag(reader, &tag)) {
       break;
     }
 
     read_length += 4;
 
-    // TODO: Check Transfer Syntax UID (0x00020010).
-
-    if (check_endian && !endian_checked) {
-      // Group 0x0002 is always little endian.
+    if (!transfer_syntax_checked_) {
       if (tag.group() != 0x0002) {
-        reader.UndoRead(4);  // Undo read tag.
+        // Undo read tag since the byte order might be wrong.
+        reader.UndoRead(4);
 
-        CheckEndian(reader, &endian_);
+        CheckTransferSyntax(reader);
 
-        handler_->OnEndian(endian_);
+        transfer_syntax_checked_ = true;
 
-        // Sometimes, VR is explicit in group 0x0002 while implicit in others.
-        // E.g., CS7600 generated DICOM files.
-        // TODO: Add explicit_vr_0002_?
-        CheckVrExplicity(reader, &explicit_vr_);
-
+        handler_->OnEndian(byte_order_);
         handler_->OnExplicitVR(explicit_vr_);
 
-        endian_checked = true;
+        // Go back to read the tag again.
         continue;
       }
     }
@@ -218,14 +211,54 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length,
       break;
     }
 
-    std::uint32_t vl32 = ReadValueLength(reader, vr, read_length);
+    std::uint32_t length = ReadValueLength(reader, vr, read_length);
 
-    if (!ReadValue(reader, tag, vr, vl32, read_length)) {
+    if (!ReadValue(reader, tag, vr, length, read_length)) {
       break;
     }
   }
 
   return read_length;
+}
+
+void DicomReader::CheckTransferSyntax(Reader& reader) {
+  if (!transfer_syntax_uid_.empty()) {
+    // Group 0002 and tag 0x00020010 exist.
+
+    LOG_INFO("Check transfer syntax by 0x00020010 (%s).",
+             transfer_syntax_uid_.c_str());
+
+    if (transfer_syntax_uid_ == transfer_syntax_uids::kImplicitLittleEndian) {
+      explicit_vr_ = false;
+      byte_order_ = ByteOrder::LE;
+    } else if (transfer_syntax_uid_ ==
+               transfer_syntax_uids::kExplicitLittleEndian) {
+      explicit_vr_ = true;
+      byte_order_ = ByteOrder::LE;
+    } else if (transfer_syntax_uid_ ==
+               transfer_syntax_uids::kDeflatedExplicitLittleEndian) {
+      explicit_vr_ = true;
+      byte_order_ = ByteOrder::LE;
+    } else if (transfer_syntax_uid_ ==
+               transfer_syntax_uids::kExplicitBigEndian) {
+      explicit_vr_ = true;
+      byte_order_ = ByteOrder::BE;
+    } else {
+      // Compressed pixel data transfer syntax are always Explicit VR Little
+      // Endian (so you can call JPEG baseline 1.2.840.10008.1.2.4.50 for
+      // example "explicit little endian jpeg baseline").
+      explicit_vr_ = true;
+      byte_order_ = ByteOrder::LE;
+    }
+
+    return;
+  }
+
+  LOG_INFO("Check transfer syntax by reading some bytes then figure out with "
+           "the help of VR and data dictionaries.");
+
+  CheckByteOrder(reader, &byte_order_);
+  CheckVrExplicity(reader, &explicit_vr_);
 }
 
 bool DicomReader::ReadTag(Reader& reader, Tag* tag) {
@@ -248,7 +281,9 @@ bool DicomReader::ReadTag(Reader& reader, Tag* tag) {
 
 bool DicomReader::ReadUint16(Reader& reader, std::uint16_t* value) {
   if (reader.ReadUint16(value)) {
-    AdjustBytesUint16(*value);
+    if (byte_order_ != kByteOrderOS) {
+      Swap16(value);
+    }
     return true;
   }
   return false;
@@ -256,22 +291,12 @@ bool DicomReader::ReadUint16(Reader& reader, std::uint16_t* value) {
 
 bool DicomReader::ReadUint32(Reader& reader, std::uint32_t* value) {
   if (reader.ReadUint32(value)) {
-    AdjustBytesUint32(*value);
+    if (byte_order_ != kByteOrderOS) {
+      Swap32(value);
+    }
     return true;
   }
   return false;
-}
-
-void DicomReader::AdjustBytesUint16(std::uint16_t& value) const {
-  if (endian_ != kOSEndian) {
-    value = SwapUint16(value);
-  }
-}
-
-void DicomReader::AdjustBytesUint32(std::uint32_t& value) const {
-  if (endian_ != kOSEndian) {
-    value = SwapUint32(value);
-  }
 }
 
 void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
@@ -282,7 +307,7 @@ void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
   handler_->OnSequenceEnd(element);
 }
 
@@ -294,7 +319,7 @@ void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
   handler_->OnSequenceItemEnd(element);
 }
 
@@ -304,17 +329,17 @@ void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
 
   std::uint32_t item_length = 0;
   ReadUint32(reader, &item_length);
+
   read_length += 4;
 
-  DataElement* element = new DataElement(tag, VR::UNKNOWN, endian_);
+  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
+
+  // If item length is undefined, this item will be ended with a delimitation.
   element->set_length(item_length);
 
   handler_->OnSequenceItemStart(element);
 
-  // If the `item_length` is undefined, this item will be ended with a
-  // delimitation tag.
-
-  read_length += Read(reader, item_length, false);
+  read_length += Read(reader, item_length);
 
   handler_->OnSequenceItemEnd();
 }
@@ -388,54 +413,81 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
   return vl32;
 }
 
-bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr, std::uint32_t vl32,
-                            std::uint32_t& read_length) {
+bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
+                            std::uint32_t length, std::uint32_t& read_length) {
   if (vr == VR::SQ) {
-    DataSequence* data_sequence = new DataSequence(tag, endian_);
-    data_sequence->set_length(vl32);
+    auto data_sequence = new DataSequence(tag, explicit_vr_, byte_order_);
+    data_sequence->set_length(length);
 
     handler_->OnSequenceStart(data_sequence);
 
-    if (vl32 > 0) {
-      read_length += Read(reader, vl32, false);
+    if (length > 0) {
+      read_length += Read(reader, length);
     }
 
     handler_->OnSequenceEnd();
 
   } else {
-    if (vl32 == kUndefinedLength) {
+    if (length == kUndefinedLength) {
       LOG_ERRO("Non-SQ element with undefined length.");
       return false;
     }
 
-    read_length += vl32;
-
     if (handler_->OnElementStart(tag)) {
-      DataElement* element = new DataElement(tag, vr, endian_);
-
-      if (vl32 > 0) {
-        Buffer buffer(vl32);
-
-        if (reader.ReadBytes(&buffer[0], vl32) != vl32) {
-          LOG_ERRO("Failed to read value of size: %u", vl32);
-          delete element;
-          return false;
-        }
-
-        element->SetBuffer(std::move(buffer));
+      DataElement* element = ReadElement(reader, tag, vr, length);
+      if (element == nullptr) {
+        return false;
       }
 
+      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxTag) {
+        element->GetString(&transfer_syntax_uid_);
+      }
+
+      // Call handler as the last step since it might delete the element.
       handler_->OnElementEnd(element);
 
     } else {
-      // Just skip the buffer.
-      if (vl32 > 0) {
-        reader.Seek(vl32, std::ios::cur);
+      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxTag) {
+        DataElement* element = ReadElement(reader, tag, vr, length);
+        if (element == nullptr) {
+          return false;
+        }
+
+        element->GetString(&transfer_syntax_uid_);
+        delete element;
+
+      } else {
+        // Just skip the buffer.
+        if (length > 0) {
+          // TODO: error
+          reader.Seek(length, std::ios::cur);
+        }
       }
     }
+
+    read_length += length;
   }
 
   return true;
+}
+
+DataElement* DicomReader::ReadElement(Reader& reader, Tag tag, VR vr,
+                                      std::uint32_t length) {
+  auto element = new DataElement(tag, vr, byte_order_);
+
+  if (length > 0) {
+    Buffer buffer(length);
+
+    if (reader.ReadBytes(&buffer[0], length) == length) {
+      element->SetBuffer(std::move(buffer));
+    } else {
+      LOG_ERRO("Failed to read value of size: %u", length);
+      delete element;
+      element = nullptr;
+    }
+  }
+
+  return element;
 }
 
 }  // namespace dcm

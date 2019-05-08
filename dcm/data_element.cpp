@@ -178,12 +178,12 @@ bool CheckStringValue(VR vr, const std::string& value) {
 // NOTE:
 // In order to be consistent with the initial state of buffer, |length_| is
 // initialized as 0 instead of kUndefinedLength.
-DataElement::DataElement(Tag tag, VR vr, Endian endian)
-    : tag_(tag), vr_(vr), endian_(endian), length_(0) {
+DataElement::DataElement(Tag tag, VR vr, ByteOrder byte_order)
+    : tag_(tag), vr_(vr), byte_order_(byte_order), length_(0) {
 }
 
-DataElement::DataElement(Tag tag, Endian endian)
-    : tag_(tag), endian_(endian), length_(0) {
+DataElement::DataElement(Tag tag, ByteOrder byte_order)
+    : tag_(tag), byte_order_(byte_order), length_(0) {
   vr_ = DataDict::GetVR(tag);
 }
 
@@ -411,19 +411,19 @@ std::string DataElement::PrintValue() const {
 }
 
 void DataElement::AdjustBytes16(void* value) const {
-  if (endian_ != kOSEndian) {
+  if (byte_order_ != kByteOrderOS) {
     Swap16(value);
   }
 }
 
 void DataElement::AdjustBytes32(void* value) const {
-  if (endian_ != kOSEndian) {
+  if (byte_order_ != kByteOrderOS) {
     Swap32(value);
   }
 }
 
 void DataElement::AdjustBytes64(void* value) const {
-  if (endian_ != kOSEndian) {
+  if (byte_order_ != kByteOrderOS) {
     Swap64(value);
   }
 }

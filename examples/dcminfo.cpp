@@ -5,7 +5,16 @@
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
 #include "dcm/full_read_handler.h"
+#include "dcm/logger.h"
 #include "dcm/util.h"
+
+static const char* ByteOrderStr(dcm::ByteOrder byte_order) {
+  if (byte_order == dcm::ByteOrder::LE) {
+    return "Little Endian";
+  } else {
+    return "Big Endian";
+  }
+}
 
 static void PrintKV(const char* key, const char* value) {
   std::cout << std::left << std::setfill(' ') << std::setw(24)
@@ -22,7 +31,7 @@ static void PrintKV(const char* key, bool value) {
     << key << ": " << std::boolalpha << value << std::endl;
 }
 
-// Print basic info (Endian type, explicit VR or not, etc.).
+// Print basic info (VR type, byte order, etc.).
 void InfoDicomFile(const dcm::Path& path) {
   dcm::DataSet data_set;
   dcm::FullReadHandler read_handler(&data_set);
@@ -33,8 +42,8 @@ void InfoDicomFile(const dcm::Path& path) {
     return;
   }
 
-  PrintKV("Endian", data_set.endian().name());
   PrintKV("Explicit VR", data_set.explicit_vr());
+  PrintKV("Byte Order", ByteOrderStr(data_set.byte_order()));
 
   std::string charset;
   data_set.GetString(0x00080005, &charset);
@@ -48,9 +57,11 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::string file_path = argv[1];
+  //DCM_LOG_INIT("", dcm::LOG_CONSOLE);
 
-  PrintKV("OS Endian", dcm::kOSEndian.name());
+  const char* file_path = argv[1];
+
+  PrintKV("Byte Order (OS)", ByteOrderStr(dcm::kByteOrderOS));
   PrintKV("DICOM File", file_path);
 
   std::cout << std::endl;

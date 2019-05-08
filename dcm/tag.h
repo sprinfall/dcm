@@ -13,12 +13,6 @@
 
 namespace dcm {
 
-class Tag;
-
-extern const Tag kSeqEndTag;          // (0xFFFE, 0xE0DD)
-extern const Tag kSeqItemEndTag;      // (0xFFFE, 0xE00D)
-extern const Tag kSeqItemPrefixTag;   // (0xFFFE, 0xE000)
-
 class Tag {
 public:
   Tag() = default;
@@ -90,6 +84,12 @@ inline bool operator<=(Tag lhs, Tag rhs) {
 inline bool operator>=(Tag lhs, Tag rhs) {
   return lhs.ToUint32() >= rhs.ToUint32();
 }
+
+// TODO: Move to another place.
+const Tag kTransferSyntaxTag = 0x00020010;
+const Tag kSeqEndTag = 0xFFFEE0DD;
+const Tag kSeqItemEndTag = 0xFFFEE00D;
+const Tag kSeqItemPrefixTag = 0xFFFEE000;
 
 }  // namespace dcm
 

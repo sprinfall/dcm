@@ -15,22 +15,22 @@ class Visitor;
 
 class DataSet {
 public:
-  // TODO: default charset
-  DataSet(Endian endian = Endian::Little(),
-          Charset charset = Charset::ISO_IR_6);
+  DataSet(bool explicit_vr = true,
+          ByteOrder byte_order = ByteOrder::LE,
+          Charset charset = Charset::ISO_IR_6);  // TODO: default charset
 
   ~DataSet();
 
   void Accept(Visitor& visitor) const;
 
-  Endian endian() const { return endian_; }
-  void set_endian(Endian endian) { endian_ = endian; }
+  bool explicit_vr() const { return explicit_vr_; }
+  void set_explicit_vr(bool explicit_vr) { explicit_vr_ = explicit_vr; }
+
+  ByteOrder byte_order() const { return byte_order_; }
+  void set_byte_order(ByteOrder byte_order) { byte_order_ = byte_order; }
 
   Charset charset() const { return charset_; }
   void set_charset(Charset charset) { charset_ = charset; }
-
-  bool explicit_vr() const { return explicit_vr_; }
-  void set_explicit_vr(bool explicit_vr) { explicit_vr_ = explicit_vr; }
 
   std::size_t size() const { return elements_.size(); }
 
@@ -44,7 +44,7 @@ public:
 
   bool Insert(DataElement* element);
 
-  // Clear data elements, reset endian type, etc.
+  // Reset transfer syntax, clear elements, etc.
   void Clear();
 
   bool GetString(Tag tag, std::string* value) const;
@@ -69,9 +69,9 @@ private:
   DataElement* Find(Tag tag);
 
 private:
-  Endian endian_;
-
   bool explicit_vr_;
+
+  ByteOrder byte_order_;
 
   Charset charset_;
 

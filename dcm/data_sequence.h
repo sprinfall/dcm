@@ -27,7 +27,7 @@ public:
   };
 
 public:
-  DataSequence(Tag tag = Tag(), Endian endian = Endian::Little());
+  DataSequence(Tag tag, bool explicit_vr, ByteOrder byte_order);
 
   ~DataSequence() override;
 
@@ -58,6 +58,8 @@ public:
   bool AppendToLastItem(DataElement* data_element);
 
 private:
+  bool explicit_vr_;
+
   // Sequence items.
   std::vector<Item> items_;
 

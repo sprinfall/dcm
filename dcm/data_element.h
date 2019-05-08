@@ -19,10 +19,10 @@ class Visitor;
 
 class DataElement {
 public:
-  DataElement(Tag tag, VR vr, Endian endian = Endian::Little());
+  DataElement(Tag tag, VR vr, ByteOrder byte_order = ByteOrder::LE);
 
   // VR will be queried from the data dictionary.
-  DataElement(Tag tag, Endian endian = Endian::Little());
+  DataElement(Tag tag, ByteOrder byte_order = ByteOrder::LE);
 
   virtual ~DataElement() = default;
 
@@ -98,12 +98,12 @@ protected:
   // Value Representation.
   VR vr_;
 
-  // Little or big endian.
-  Endian endian_;
+  // Little endian or big endian.
+  ByteOrder byte_order_;
 
   // Value length.
   // Undefined length for SQ element is 0xFFFFFFFF.
-  // TODO: Move to DataSet.
+  // Identical to the buffer size if the buffer is not empty.
   std::size_t length_;
 
   // Raw buffer (i.e., bytes) of the value.

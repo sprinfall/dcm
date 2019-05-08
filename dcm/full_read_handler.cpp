@@ -12,8 +12,8 @@ FullReadHandler::FullReadHandler(DataSet* data_set)
     : data_set_(data_set) {
 }
 
-void FullReadHandler::OnEndian(Endian endian) {
-  data_set_->set_endian(endian);
+void FullReadHandler::OnEndian(ByteOrder byte_order) {
+  data_set_->set_byte_order(byte_order);
 }
 
 void FullReadHandler::OnExplicitVR(bool explicit_vr) {

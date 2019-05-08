@@ -84,9 +84,9 @@ TEST(DataSetTest, GetElement) {
 }
 
 TEST(DataSetTest, SetString) {
-  boost::filesystem::path path(g_data_dir);
+  dcm::Path path(g_data_dir);
   path /= "cs";
-  path /= "ceph_explicit_le.dcm";
+  path /= "Explicit Little (Ceph).dcm";
 
   dcm::DataSet data_set;
   dcm::FullReadHandler read_handler(&data_set);

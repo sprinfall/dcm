@@ -17,7 +17,8 @@ public:
 
   bool should_stop() const { return should_stop_; }
 
-  virtual void OnEndian(Endian endian) {}
+  // TODO: Merge to one function (OnTransferSyntax)?
+  virtual void OnEndian(ByteOrder byte_order) {}
   virtual void OnExplicitVR(bool explicit_vr) {}
 
   // The return value indicates whether OnElementEnd will be called.

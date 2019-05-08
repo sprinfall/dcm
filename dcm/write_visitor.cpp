@@ -53,7 +53,7 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
 
   if (vr != VR::SQ) {  // SQ item has no value by itself.
     if (length > 0) {
-      // TODO: Convert endian for numbers if necessary.
+      // TODO: Convert byte order for numbers if necessary.
       writer_->WriteBytes(&(data_element->buffer()[0]), length);
     }
   }

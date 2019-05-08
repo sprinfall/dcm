@@ -6,10 +6,6 @@
 
 namespace dcm {
 
-const Tag kSeqEndTag(0xFFFE, 0xE0DD);
-const Tag kSeqItemEndTag(0xFFFE, 0xE00D);
-const Tag kSeqItemPrefixTag(0xFFFE, 0xE000);
-
 Tag Tag::SwapBytes() const {
   return Tag(SwapUint16(group_), SwapUint16(element_));
 }

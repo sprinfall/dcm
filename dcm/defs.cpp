@@ -5,10 +5,9 @@ namespace dcm {
 static union {
   char c[4];
   unsigned long mylong;
-} endian_test = { { 'l', '?', '?', 'b' } };
+} byte_order_test = { { 'l', '?', '?', 'b' } };
 
-#define ENDIANNESS ((char)endian_test.mylong)
-
-const Endian kOSEndian = (ENDIANNESS == 'l') ? Endian::Little() : Endian::Big();
+const ByteOrder kByteOrderOS =
+    ((char)byte_order_test.mylong == 'l') ? ByteOrder::LE : ByteOrder::BE;
 
 }  // namespace dcm

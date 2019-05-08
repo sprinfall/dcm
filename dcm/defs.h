@@ -20,41 +20,13 @@ const std::uint32_t kUndefinedLength = 0xFFFFFFFF;
 
 // -----------------------------------------------------------------------------
 
-// TODO: Rename to ByteOrder?
-class Endian {
-public:
-  Endian() = default;
-
-  Endian(const Endian&) = default;
-  Endian& operator=(const Endian&) = default;
-
-  static Endian Little() { return Endian('l'); }
-  static Endian Big() { return Endian('b'); }
-
-  bool little() const { return value_ == 'l'; }
-  bool big() const { return value_ == 'b'; }
-
-  const char* name() const {
-    return value_ == 'l' ? "little" : "big";
-  }
-
-private:
-  Endian(char value) : value_(value) {}
-
-private:
-  char value_ = 'l';  // 'l' or 'b'.
+enum class ByteOrder : char {
+  LE = 'l',
+  BE = 'b',
 };
 
-inline bool operator==(Endian lhs, Endian rhs) {
-  return lhs.little() == rhs.little();
-}
-
-inline bool operator!=(Endian lhs, Endian rhs) {
-  return !(lhs == rhs);
-}
-
-// The endian type of this OS.
-extern const Endian kOSEndian;
+// The byte order of this OS/platform.
+extern const ByteOrder kByteOrderOS;
 
 // -----------------------------------------------------------------------------
 

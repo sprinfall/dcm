@@ -20,17 +20,17 @@ std::uint32_t SwapUint32(std::uint32_t value) {
 }
 
 void Swap16(void* src) {
-  std::uint16_t* p = (std::uint16_t*)src;
+  std::uint16_t* p = static_cast<std::uint16_t*>(src);
   *p = SwapUint16(*p);
 }
 
 void Swap32(void* src) {
-  std::uint32_t* p = (std::uint32_t*)src;
+  std::uint32_t* p = static_cast<std::uint32_t*>(src);
   *p = SwapUint32(*p);
 }
 
 void Swap64(void* src) {
-  std::uint32_t* p = (std::uint32_t*)src;
+  std::uint32_t* p = static_cast<std::uint32_t*>(src);
   std::uint32_t c = p[0];
 
   p[0] = SwapUint32(p[1]);

@@ -6,9 +6,9 @@
 
 namespace dcm {
 
-DataSet::DataSet(Endian endian, Charset charset)
-    : endian_(endian), charset_(charset), explicit_vr_(true) {
-}  
+DataSet::DataSet(bool explicit_vr, ByteOrder byte_order, Charset charset)
+    : explicit_vr_(explicit_vr), byte_order_(byte_order), charset_(charset) {
+}
 
 DataSet::~DataSet() {
   Clear();
@@ -50,8 +50,8 @@ bool DataSet::Insert(DataElement* element) {
 }
 
 void DataSet::Clear() {
-  endian_ = Endian::Little();
   explicit_vr_ = true;
+  byte_order_ = ByteOrder::LE;
 
   for (DataElement* element : elements_) {
     delete element;
@@ -73,7 +73,7 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
     return element->SetString(value);
   }
 
-  element = new DataElement(tag, endian_);
+  element = new DataElement(tag, byte_order_);
 
   if (element->SetString(value)) {
     return Insert(element);
@@ -135,7 +135,6 @@ DataSet::Elements::iterator DataSet::LowerBound(Tag tag) {
   auto less = [](DataElement* lhs, Tag tag) {
     return lhs->tag() < tag;
   };
-
   return std::lower_bound(elements_.begin(), elements_.end(), tag, less);
 }
 

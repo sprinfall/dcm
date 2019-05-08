@@ -6,7 +6,7 @@
 extern std::string g_data_dir;
 
 TEST(DicomReaderTest, ImplicitLittleNoMeta) {
-  boost::filesystem::path path(g_data_dir);
+  dcm::Path path(g_data_dir);
   path /= "Implicit Little NoMeta (CR-MONO1-10-chest).dcm";
 
   dcm::DataSet data_set;
@@ -15,7 +15,7 @@ TEST(DicomReaderTest, ImplicitLittleNoMeta) {
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
 
-  EXPECT_EQ(dcm::Endian::Little(), data_set.endian());
+  EXPECT_EQ(dcm::ByteOrder::LE, data_set.byte_order());
   EXPECT_EQ(false, data_set.explicit_vr());
 
   std::uint32_t generic_group_length;
@@ -32,7 +32,7 @@ TEST(DicomReaderTest, ImplicitLittleNoMeta) {
 }
 
 TEST(DicomReaderTest, ExplicitBig) {
-  boost::filesystem::path path(g_data_dir);
+  dcm::Path path(g_data_dir);
   path /= "Explicit Big (US-RGB-8-epicard).dcm";
 
   dcm::DataSet data_set;
@@ -41,7 +41,7 @@ TEST(DicomReaderTest, ExplicitBig) {
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
 
-  EXPECT_EQ(dcm::Endian::Big(), data_set.endian());
+  EXPECT_EQ(dcm::ByteOrder::BE, data_set.byte_order());
   EXPECT_EQ(true, data_set.explicit_vr());
 
   std::uint32_t generic_group_length;
@@ -50,7 +50,8 @@ TEST(DicomReaderTest, ExplicitBig) {
 
   std::string sop_instance_uid;
   data_set.GetString(0x00080018, &sop_instance_uid);
-  EXPECT_EQ("1.2.840.1136190195280574824680000700.3.0.1.19970424140438", sop_instance_uid);
+  EXPECT_EQ("1.2.840.1136190195280574824680000700.3.0.1.19970424140438",
+            sop_instance_uid);
 
   auto element = data_set.Get(0x7fe00010);
   EXPECT_TRUE(element != nullptr);
@@ -58,9 +59,9 @@ TEST(DicomReaderTest, ExplicitBig) {
 }
 
 TEST(DicomReaderTest, ExplicitLittle_CS_Ceph) {
-  boost::filesystem::path path(g_data_dir);
+  dcm::Path path(g_data_dir);
   path /= "cs";
-  path /= "ceph_explicit_le.dcm";
+  path /= "Explicit Little (Ceph).dcm";
 
   dcm::DataSet data_set;
   dcm::DicomReader reader(&data_set);

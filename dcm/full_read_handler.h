@@ -15,7 +15,7 @@ public:
 
   virtual ~FullReadHandler() override = default;
 
-  void OnEndian(Endian endian) override;
+  void OnEndian(ByteOrder byte_order) override;
   void OnExplicitVR(bool explicit_vr) override;
 
   bool OnElementStart(Tag tag) override;
