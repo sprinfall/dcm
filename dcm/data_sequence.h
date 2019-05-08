@@ -57,6 +57,9 @@ public:
   // Append the data element to the last item's data set.
   bool AppendToLastItem(DataElement* data_element);
 
+  // Clear all items.
+  void Clear();
+
 private:
   bool explicit_vr_;
 

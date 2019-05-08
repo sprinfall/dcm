@@ -14,6 +14,7 @@ DataSequence::DataSequence(Tag tag, bool explicit_vr, ByteOrder byte_order)
 }
 
 DataSequence::~DataSequence() {
+  Clear();
 }
 
 void DataSequence::Accept(Visitor& visitor) const {
@@ -43,6 +44,19 @@ bool DataSequence::AppendToLastItem(DataElement* data_element) {
   }
   items_.back().data_set->Append(data_element);
   return true;
+}
+
+void DataSequence::Clear() {
+  explicit_vr_ = true;
+
+  for (auto& item: items_) {
+    delete item.prefix;
+    delete item.delimitation;
+    delete item.data_set;
+  }
+  items_.clear();
+
+  delete delimitation_;
 }
 
 }  // namespace dcm
