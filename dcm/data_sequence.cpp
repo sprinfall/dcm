@@ -6,7 +6,7 @@
 namespace dcm {
 
 DataSequence::DataSequence(Tag tag, bool explicit_vr, ByteOrder byte_order)
-    : DataElement(tag, tag.IsEmpty() ? VR::UNKNOWN : VR::SQ, byte_order),
+    : DataElement(tag, tag.empty() ? VR::UNKNOWN : VR::SQ, byte_order),
       explicit_vr_(explicit_vr),
       delimitation_(nullptr) {
   // Undefined length, instead of 0, makes more sense to a sequence.

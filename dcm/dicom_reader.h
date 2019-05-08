@@ -4,7 +4,6 @@
 #include <string>
 
 #include "dcm/defs.h"
-#include "dcm/tag.h"
 
 namespace dcm {
 

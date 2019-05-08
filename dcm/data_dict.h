@@ -4,7 +4,6 @@
 // Data dictionary singleton.
 
 #include "dcm/defs.h"
-#include "dcm/tag.h"
 
 namespace dcm {
 

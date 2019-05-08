@@ -73,6 +73,76 @@ enum VR {
 
 // -----------------------------------------------------------------------------
 
+class Tag {
+public:
+  Tag() = default;
+  Tag(const Tag& rhs) = default;
+  Tag& operator=(const Tag& rhs) = default;
+
+  Tag(std::uint16_t group, std::uint16_t element)
+      : group_(group), element_(element) {
+  }
+
+  Tag(std::uint32_t tag_key)
+      : group_((tag_key >> 16) & 0xFFFF), element_(tag_key & 0xFFFF) {
+  }
+
+  std::uint16_t group() const { return group_; }
+  void set_group(std::uint16_t group) { group_ = group; }
+
+  std::uint16_t element() const { return element_; }
+  void set_element(std::uint16_t element) { element_ = element; }
+
+  bool empty() const { return group_ == 0 && element_ == 0; }
+
+  Tag SwapBytes() const;
+
+  // Convert to a 4-byte unsigned integer.
+  std::uint32_t ToUint32() const {
+    return (group_ << 16) + element_;
+  }
+
+  void Print(std::ostream& os, bool uppercase = true, bool as_uint32 = false,
+             const char* separator = ",") const;
+
+private:
+  std::uint16_t group_;
+  std::uint16_t element_;
+};
+
+inline bool operator==(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() == rhs.ToUint32();
+}
+
+inline bool operator!=(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() != rhs.ToUint32();
+}
+
+inline bool operator<(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() < rhs.ToUint32();
+}
+
+inline bool operator>(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() > rhs.ToUint32();
+}
+
+inline bool operator<=(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() <= rhs.ToUint32();
+}
+
+inline bool operator>=(Tag lhs, Tag rhs) {
+  return lhs.ToUint32() >= rhs.ToUint32();
+}
+
+// A list of commonly used tags:
+
+const Tag kTransferSyntaxTag = 0x00020010;
+const Tag kSeqEndTag = 0xFFFEE0DD;
+const Tag kSeqItemEndTag = 0xFFFEE00D;
+const Tag kSeqItemPrefixTag = 0xFFFEE000;
+
+// -----------------------------------------------------------------------------
+
 namespace transfer_syntax_uids {
 
 // NOTE: This is not the full list!

@@ -2,7 +2,6 @@
 #define DCM_READER_HANDLER_H_
 
 #include "dcm/defs.h"
-#include "dcm/tag.h"
 
 namespace dcm {
 

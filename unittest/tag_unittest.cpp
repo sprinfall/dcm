@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "dcm/tag.h"
+#include "dcm/defs.h"
 
 TEST(TagTest, Constructor1) {
   dcm::Tag tag(0x0008, 0x0016);
