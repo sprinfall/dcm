@@ -5,11 +5,9 @@
 
 namespace dcm {
 
-DataSequence::DataSequence(Tag tag, bool explicit_vr, ByteOrder byte_order)
+DataSequence::DataSequence(Tag tag, VR::Type vr_type, ByteOrder byte_order)
     : DataElement(tag, tag.empty() ? VR::UNKNOWN : VR::SQ, byte_order),
-      explicit_vr_(explicit_vr),
-      delimitation_(nullptr) {
-  // Undefined length, instead of 0, makes more sense to a sequence.
+      vr_type_(vr_type), delimitation_(nullptr) {
   length_ = kUndefinedLength;
 }
 
@@ -27,7 +25,7 @@ void DataSequence::Accept(Visitor& visitor) const {
 }
 
 void DataSequence::NewItem(DataElement* prefix) {
-  auto data_set = new DataSet(explicit_vr_, byte_order_/* TODO: charset*/);
+  auto data_set = new DataSet(vr_type_, byte_order_/* TODO: charset*/);
 
   items_.push_back({ prefix, nullptr, data_set });
 }
@@ -47,7 +45,7 @@ bool DataSequence::AppendToLastItem(DataElement* data_element) {
 }
 
 void DataSequence::Clear() {
-  explicit_vr_ = true;
+  vr_type_ = VR::EXPLICIT;
 
   for (auto& item: items_) {
     delete item.prefix;

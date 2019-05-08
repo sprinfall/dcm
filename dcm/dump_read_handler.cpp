@@ -2,6 +2,8 @@
 
 #include <ostream>
 
+#include "boost/core/ignore_unused.hpp"
+
 #include "dcm/data_sequence.h"
 #include "dcm/data_set.h"
 #include "dcm/logger.h"
@@ -10,6 +12,11 @@ namespace dcm {
 
 DumpReadHandler::DumpReadHandler(std::ostream& os, const char* indent)
     : os_(os), indent_(indent), level_(0) {
+}
+
+void DumpReadHandler::OnTransferSyntax(VR::Type vr_type, ByteOrder byte_order) {
+  boost::ignore_unused(vr_type);
+  boost::ignore_unused(byte_order);
 }
 
 bool DumpReadHandler::OnElementStart(Tag tag) {

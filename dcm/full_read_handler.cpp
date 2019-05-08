@@ -12,12 +12,9 @@ FullReadHandler::FullReadHandler(DataSet* data_set)
     : data_set_(data_set) {
 }
 
-void FullReadHandler::OnEndian(ByteOrder byte_order) {
+void FullReadHandler::OnTransferSyntax(VR::Type vr_type, ByteOrder byte_order) {
+  data_set_->set_vr_type(vr_type);
   data_set_->set_byte_order(byte_order);
-}
-
-void FullReadHandler::OnExplicitVR(bool explicit_vr) {
-  data_set_->set_explicit_vr(explicit_vr);
 }
 
 bool FullReadHandler::OnElementStart(Tag /*tag*/) {

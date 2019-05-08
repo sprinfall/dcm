@@ -27,7 +27,7 @@ public:
   };
 
 public:
-  DataSequence(Tag tag, bool explicit_vr, ByteOrder byte_order);
+  DataSequence(Tag tag, VR::Type vr_type, ByteOrder byte_order);
 
   ~DataSequence() override;
 
@@ -61,7 +61,8 @@ public:
   void Clear();
 
 private:
-  bool explicit_vr_;
+  // Explicit or implicit VR.
+  VR::Type vr_type_;
 
   // Sequence items.
   std::vector<Item> items_;

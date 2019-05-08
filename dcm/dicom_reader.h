@@ -66,6 +66,7 @@ private:
 private:
   ReadHandler* handler_;
 
+  // If we own (need to delete) the handler or not.
   bool own_handler_;
 
   // Transfer Syntax UID read from 0x00020010.
@@ -74,10 +75,13 @@ private:
   // transfer syntax of the data set.
   std::string transfer_syntax_uid_;
 
+  // If the transfer syntax has been checked or not.
   bool transfer_syntax_checked_;
 
-  bool explicit_vr_;
+  // Explicit or implicit VR.
+  VR::Type vr_type_;
 
+  // Little endian or big endian.
   ByteOrder byte_order_;
 };
 

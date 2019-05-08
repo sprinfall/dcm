@@ -15,8 +15,7 @@ public:
 
   virtual ~FullReadHandler() override = default;
 
-  void OnEndian(ByteOrder byte_order) override;
-  void OnExplicitVR(bool explicit_vr) override;
+  void OnTransferSyntax(VR::Type vr_type, ByteOrder byte_order) override;
 
   bool OnElementStart(Tag tag) override;
   void OnElementEnd(DataElement* data_element) override;

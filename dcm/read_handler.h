@@ -16,9 +16,7 @@ public:
 
   bool should_stop() const { return should_stop_; }
 
-  // TODO: Merge to one function (OnTransferSyntax)?
-  virtual void OnEndian(ByteOrder byte_order) {}
-  virtual void OnExplicitVR(bool explicit_vr) {}
+  virtual void OnTransferSyntax(VR::Type vr_type, ByteOrder byte_order) = 0;
 
   // The return value indicates whether OnElementEnd will be called.
   virtual bool OnElementStart(Tag tag) = 0;

@@ -15,7 +15,7 @@ class Visitor;
 
 class DataSet {
 public:
-  DataSet(bool explicit_vr = true,
+  DataSet(VR::Type vr_type = VR::EXPLICIT,
           ByteOrder byte_order = ByteOrder::LE,
           Charset charset = Charset::ISO_IR_6);  // TODO: default charset
 
@@ -23,8 +23,8 @@ public:
 
   void Accept(Visitor& visitor) const;
 
-  bool explicit_vr() const { return explicit_vr_; }
-  void set_explicit_vr(bool explicit_vr) { explicit_vr_ = explicit_vr; }
+  VR::Type vr_type() const { return vr_type_; }
+  void set_vr_type(VR::Type vr_type) { vr_type_ = vr_type; }
 
   ByteOrder byte_order() const { return byte_order_; }
   void set_byte_order(ByteOrder byte_order) { byte_order_ = byte_order; }
@@ -69,10 +69,13 @@ private:
   DataElement* Find(Tag tag);
 
 private:
-  bool explicit_vr_;
+  // Explicit or implicit VR.
+  VR::Type vr_type_;
 
+  // Little endian or big endian.
   ByteOrder byte_order_;
 
+  // Character set.
   Charset charset_;
 
   Elements elements_;

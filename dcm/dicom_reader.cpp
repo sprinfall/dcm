@@ -18,7 +18,7 @@ namespace dcm {
 
 namespace {
 
-bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
+bool CheckVrType(Reader& reader, VR::Type* vr_type) {
   // Skip the 4 tag bytes.
   reader.Seek(4, std::ios::cur);
 
@@ -31,13 +31,13 @@ bool CheckVrExplicity(Reader& reader, bool* explicit_vr) {
   reader.UndoRead(6);  // Put it back.
 
   // Check to see if the 2 bytes following the tag field represents a valid VR.
-  if (StringToVR(vr_str, nullptr)) {
-    *explicit_vr = true;
+  if (VR::FromString(vr_str).IsUnknown()) {
+    *vr_type = VR::IMPLICIT;
+    LOG_INFO("VR type: Implicit.");
   } else {
-    *explicit_vr = false;
+    *vr_type = VR::EXPLICIT;
+    LOG_INFO("VR type: Explicit.");
   }
-
-  LOG_INFO("Explicit VR: %d.", *explicit_vr);
 
   return true;
 }
@@ -104,13 +104,13 @@ bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
 DicomReader::DicomReader(DataSet* data_set)
     : handler_(new FullReadHandler(data_set)), own_handler_(true),
       transfer_syntax_checked_(false),
-      explicit_vr_(true) {
+      vr_type_(VR::EXPLICIT) {
 }
 
 DicomReader::DicomReader(ReadHandler* handler)
     : handler_(handler), own_handler_(false),
       transfer_syntax_checked_(false),
-      explicit_vr_(true) {
+      vr_type_(VR::EXPLICIT) {
 }
 
 DicomReader::~DicomReader() {
@@ -144,8 +144,8 @@ bool DicomReader::DoRead(Reader& reader) {
   }
 
   // Group 0002 is always Explicit VR Little Endian.
+  vr_type_ = VR::EXPLICIT;
   byte_order_ = ByteOrder::LE;
-  explicit_vr_ = true;
 
   Read(reader, kUndefinedLength);
 
@@ -177,8 +177,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
 
         transfer_syntax_checked_ = true;
 
-        handler_->OnEndian(byte_order_);
-        handler_->OnExplicitVR(explicit_vr_);
+        handler_->OnTransferSyntax(vr_type_, byte_order_);
 
         // Go back to read the tag again.
         continue;
@@ -229,25 +228,25 @@ void DicomReader::CheckTransferSyntax(Reader& reader) {
              transfer_syntax_uid_.c_str());
 
     if (transfer_syntax_uid_ == transfer_syntax_uids::kImplicitLittleEndian) {
-      explicit_vr_ = false;
+      vr_type_ = VR::IMPLICIT;
       byte_order_ = ByteOrder::LE;
     } else if (transfer_syntax_uid_ ==
                transfer_syntax_uids::kExplicitLittleEndian) {
-      explicit_vr_ = true;
+      vr_type_ = VR::EXPLICIT;
       byte_order_ = ByteOrder::LE;
     } else if (transfer_syntax_uid_ ==
                transfer_syntax_uids::kDeflatedExplicitLittleEndian) {
-      explicit_vr_ = true;
+      vr_type_ = VR::EXPLICIT;
       byte_order_ = ByteOrder::LE;
     } else if (transfer_syntax_uid_ ==
                transfer_syntax_uids::kExplicitBigEndian) {
-      explicit_vr_ = true;
+      vr_type_ = VR::EXPLICIT;
       byte_order_ = ByteOrder::BE;
     } else {
       // Compressed pixel data transfer syntax are always Explicit VR Little
       // Endian (so you can call JPEG baseline 1.2.840.10008.1.2.4.50 for
       // example "explicit little endian jpeg baseline").
-      explicit_vr_ = true;
+      vr_type_ = VR::EXPLICIT;
       byte_order_ = ByteOrder::LE;
     }
 
@@ -257,8 +256,8 @@ void DicomReader::CheckTransferSyntax(Reader& reader) {
   LOG_INFO("Check transfer syntax by reading some bytes then figure out with "
            "the help of VR and data dictionaries.");
 
+  CheckVrType(reader, &vr_type_);
   CheckByteOrder(reader, &byte_order_);
-  CheckVrExplicity(reader, &explicit_vr_);
 }
 
 bool DicomReader::ReadTag(Reader& reader, Tag* tag) {
@@ -346,12 +345,13 @@ void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
 
 bool DicomReader::ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length,
                          VR* vr) {
-  if (explicit_vr_) {
+  if (vr_type_ == VR::EXPLICIT) {
     std::string vr_str;
     reader.ReadString(&vr_str, 2);
     read_length += 2;
 
-    if (!StringToVR(vr_str, vr)) {
+    *vr = VR::FromString(vr_str);
+    if (vr->IsUnknown()) {
       LOG_ERRO("%s is not a VR!", vr_str.c_str());
       return false;
     }
@@ -378,7 +378,7 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
                                            std::uint32_t& read_length) {
   std::uint32_t vl32 = 0;
 
-  if (explicit_vr_) {
+  if (vr_type_ == VR::EXPLICIT) {
     // For VRs of OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits
     // following the two character VR Field are reserved for use by later
     // versions of the DICOM Standard.
@@ -394,7 +394,7 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
       // The 16 bits after VR Field are 0, but we can't conclude that they
       // are reserved since the value length might actually be 0.
       // Check the VR to confirm it.
-      if (Is16BitsFollowingVrReversed(vr)) {
+      if (vr.Is16BitsFollowingReversed()) {
         LOG_INFO("2 bytes following VR are reserved.");
 
         // This 2 bytes are reserved, read the 4-byte value length.
@@ -416,7 +416,7 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
 bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
                             std::uint32_t length, std::uint32_t& read_length) {
   if (vr == VR::SQ) {
-    auto data_sequence = new DataSequence(tag, explicit_vr_, byte_order_);
+    auto data_sequence = new DataSequence(tag, vr_type_, byte_order_);
     data_sequence->set_length(length);
 
     handler_->OnSequenceStart(data_sequence);

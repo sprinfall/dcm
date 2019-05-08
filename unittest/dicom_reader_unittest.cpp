@@ -16,7 +16,7 @@ TEST(DicomReaderTest, ImplicitLittleNoMeta) {
   EXPECT_TRUE(ok);
 
   EXPECT_EQ(dcm::ByteOrder::LE, data_set.byte_order());
-  EXPECT_EQ(false, data_set.explicit_vr());
+  EXPECT_EQ(dcm::VR::IMPLICIT, data_set.vr_type());
 
   std::uint32_t generic_group_length;
   data_set.GetUint32(0x00080000, &generic_group_length);
@@ -42,7 +42,7 @@ TEST(DicomReaderTest, ExplicitBig) {
   EXPECT_TRUE(ok);
 
   EXPECT_EQ(dcm::ByteOrder::BE, data_set.byte_order());
-  EXPECT_EQ(true, data_set.explicit_vr());
+  EXPECT_EQ(dcm::VR::EXPLICIT, data_set.vr_type());
 
   std::uint32_t generic_group_length;
   data_set.GetUint32(0x00080000, &generic_group_length);

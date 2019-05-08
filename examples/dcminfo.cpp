@@ -42,7 +42,12 @@ void InfoDicomFile(const dcm::Path& path) {
     return;
   }
 
-  PrintKV("Explicit VR", data_set.explicit_vr());
+  if (data_set.vr_type() == dcm::VR::EXPLICIT) {
+    PrintKV("VR Type", "Explicit");
+  } else {
+    PrintKV("VR Type", "Implicit");
+  }
+
   PrintKV("Byte Order", ByteOrderStr(data_set.byte_order()));
 
   std::string charset;

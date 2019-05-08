@@ -147,7 +147,7 @@ bool CheckLT(const std::string& value) {
 // -----------------------------------------------------------------------------
 
 bool CheckStringValue(VR vr, const std::string& value) {
-  switch (vr) {
+  switch (vr.code()) {
     case VR::AE:
       return CheckAE(value);
 
@@ -304,7 +304,7 @@ bool DataElement::GetFloat64(float64_t* value) const {
 void DataElement::Print(std::ostream& os) const {
   tag_.Print(os);
 
-  os << "\t" << VRToString(vr_) << "\t";
+  os << "\t" << vr_.ToString() << "\t";
 
   if (length_ != kUndefinedLength) {
     os << length_;
@@ -318,7 +318,7 @@ void DataElement::Print(std::ostream& os) const {
 }
 
 void DataElement::PrintValue(std::ostream& os) const {
-  switch (vr_) {
+  switch (vr_.code()) {
     case VR::AT:  // Attribute Tag
       // Ordered pair of 16-bit (2-byte) unsigned integers that is the value
       // of a Data Element Tag.

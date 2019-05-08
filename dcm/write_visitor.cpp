@@ -33,10 +33,10 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   std::size_t length = data_element->length();
 
   // VR
-  if (explicit_vr_ || tag.group() == 2) {
-    writer_->WriteString(VRToString(data_element->vr()));
+  if (vr_type_ == VR::EXPLICIT || tag.group() == 2) {
+    writer_->WriteString(data_element->vr().ToString());
 
-    if (Is16BitsFollowingVrReversed(data_element->vr())) {
+    if (data_element->vr().Is16BitsFollowingReversed()) {
       // 2 reversed bytes.
       writer_->WriteUint16(0);
       // 4 bytes value length.
@@ -82,7 +82,7 @@ void WriteVisitor::VisitDataSequence(const DataSequence* data_sequence) {
 }
 
 void WriteVisitor::VisitDataSet(const DataSet* data_set) {
-  explicit_vr_ = data_set->explicit_vr();
+  vr_type_ = data_set->vr_type();
 
   // level_ starts from 0.
   if (level_ == 0) {

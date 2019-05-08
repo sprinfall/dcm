@@ -6,8 +6,8 @@
 
 namespace dcm {
 
-DataSet::DataSet(bool explicit_vr, ByteOrder byte_order, Charset charset)
-    : explicit_vr_(explicit_vr), byte_order_(byte_order), charset_(charset) {
+DataSet::DataSet(VR::Type vr_type, ByteOrder byte_order, Charset charset)
+    : vr_type_(vr_type), byte_order_(byte_order), charset_(charset) {
 }
 
 DataSet::~DataSet() {
@@ -50,7 +50,7 @@ bool DataSet::Insert(DataElement* element) {
 }
 
 void DataSet::Clear() {
-  explicit_vr_ = true;
+  vr_type_ = VR::EXPLICIT;
   byte_order_ = ByteOrder::LE;
 
   for (DataElement* element : elements_) {

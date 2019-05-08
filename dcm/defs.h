@@ -32,52 +32,93 @@ extern const ByteOrder kByteOrderOS;
 
 // Value Representation.
 // See: PS 3.5 Section 6.2 - Value Representation (VR).
-enum VR {
+class VR {
+public:
+  enum Type {
+    IMPLICIT,
+    EXPLICIT,
+  };
 
-#define MAKE_VR_ENUM(c0, c1) ((((int)c0) << 8) | (int)c1)
+  enum Code {
 
-  UNKNOWN = 0,
+#define MAKE_VR_CODE(c0, c1) ((((int)c0) << 8) | (int)c1)
 
-  AE = MAKE_VR_ENUM('A', 'E'),  // Application Entity
-  AS = MAKE_VR_ENUM('A', 'S'),  // Age String
-  AT = MAKE_VR_ENUM('A', 'T'),  // Attribute Tag
-  CS = MAKE_VR_ENUM('C', 'S'),  // Code String
-  DA = MAKE_VR_ENUM('D', 'A'),  // Date
-  DS = MAKE_VR_ENUM('D', 'S'),  // Decimal String
-  DT = MAKE_VR_ENUM('D', 'T'),  // Date Time
-  FL = MAKE_VR_ENUM('F', 'L'),  // Floating Point Single
-  FD = MAKE_VR_ENUM('F', 'D'),  // Floating Point Double
-  IS = MAKE_VR_ENUM('I', 'S'),  // Integer String
-  LO = MAKE_VR_ENUM('L', 'O'),  // Long String
-  LT = MAKE_VR_ENUM('L', 'T'),  // Long Text
-  OB = MAKE_VR_ENUM('O', 'B'),  // Other Byte
-  OD = MAKE_VR_ENUM('O', 'D'),  // Other Double
-  OF = MAKE_VR_ENUM('O', 'F'),  // Other Float
-  OL = MAKE_VR_ENUM('O', 'L'),  // Other Long
-  OW = MAKE_VR_ENUM('O', 'W'),  // Other Word
-  PN = MAKE_VR_ENUM('P', 'N'),  // Person Name
-  SH = MAKE_VR_ENUM('S', 'H'),  // Short String
-  SL = MAKE_VR_ENUM('S', 'L'),  // Signed Long
-  SQ = MAKE_VR_ENUM('S', 'Q'),  // Sequence of Items
-  SS = MAKE_VR_ENUM('S', 'S'),  // Signed Short
-  ST = MAKE_VR_ENUM('S', 'T'),  // Short Text
-  TM = MAKE_VR_ENUM('T', 'M'),  // Time
-  UC = MAKE_VR_ENUM('U', 'C'),  // Unlimited Characters
-  UI = MAKE_VR_ENUM('U', 'I'),  // Unique Identifier (UID)
-  UL = MAKE_VR_ENUM('U', 'L'),  // Unsigned Long
-  UN = MAKE_VR_ENUM('U', 'N'),  // Unknown
-  UR = MAKE_VR_ENUM('U', 'R'),  // Universal Resource Identifier
-  US = MAKE_VR_ENUM('U', 'S'),  // Unsigned Short
-  UT = MAKE_VR_ENUM('U', 'T'),  // Unlimited Text
+    UNKNOWN = 0,
+
+    AE = MAKE_VR_CODE('A', 'E'),  // Application Entity
+    AS = MAKE_VR_CODE('A', 'S'),  // Age String
+    AT = MAKE_VR_CODE('A', 'T'),  // Attribute Tag
+    CS = MAKE_VR_CODE('C', 'S'),  // Code String
+    DA = MAKE_VR_CODE('D', 'A'),  // Date
+    DS = MAKE_VR_CODE('D', 'S'),  // Decimal String
+    DT = MAKE_VR_CODE('D', 'T'),  // Date Time
+    FL = MAKE_VR_CODE('F', 'L'),  // Floating Point Single
+    FD = MAKE_VR_CODE('F', 'D'),  // Floating Point Double
+    IS = MAKE_VR_CODE('I', 'S'),  // Integer String
+    LO = MAKE_VR_CODE('L', 'O'),  // Long String
+    LT = MAKE_VR_CODE('L', 'T'),  // Long Text
+    OB = MAKE_VR_CODE('O', 'B'),  // Other Byte
+    OD = MAKE_VR_CODE('O', 'D'),  // Other Double
+    OF = MAKE_VR_CODE('O', 'F'),  // Other Float
+    OL = MAKE_VR_CODE('O', 'L'),  // Other Long
+    OW = MAKE_VR_CODE('O', 'W'),  // Other Word
+    PN = MAKE_VR_CODE('P', 'N'),  // Person Name
+    SH = MAKE_VR_CODE('S', 'H'),  // Short String
+    SL = MAKE_VR_CODE('S', 'L'),  // Signed Long
+    SQ = MAKE_VR_CODE('S', 'Q'),  // Sequence of Items
+    SS = MAKE_VR_CODE('S', 'S'),  // Signed Short
+    ST = MAKE_VR_CODE('S', 'T'),  // Short Text
+    TM = MAKE_VR_CODE('T', 'M'),  // Time
+    UC = MAKE_VR_CODE('U', 'C'),  // Unlimited Characters
+    UI = MAKE_VR_CODE('U', 'I'),  // Unique Identifier (UID)
+    UL = MAKE_VR_CODE('U', 'L'),  // Unsigned Long
+    UN = MAKE_VR_CODE('U', 'N'),  // Unknown
+    UR = MAKE_VR_CODE('U', 'R'),  // Universal Resource Identifier
+    US = MAKE_VR_CODE('U', 'S'),  // Unsigned Short
+    UT = MAKE_VR_CODE('U', 'T'),  // Unlimited Text
+  };
+
+  // Convert a string to VR.
+  // Return UNKNOWN if the string is not a valid VR.
+  static VR FromString(const std::string& str);
+
+public:
+  VR(Code code = UNKNOWN) : code_(code) {}
+
+  Code code() const { return code_; }
+
+  void set_code(Code code) { code_ = code; }
+
+  bool IsUnknown() const { return code_ == UNKNOWN; }
+
+  // For OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits following the
+  // two character VR Field are reserved for use by later versions of the DICOM
+  // Standard.
+  // See: PS 3.5 Section 7.1.2 - Data Element Structure with Explicit VR
+  bool Is16BitsFollowingReversed() const;
+
+  std::string ToString() const;
+
+private:
+  Code code_;
 };
+
+inline bool operator==(VR lhs, VR rhs) {
+  return lhs.code() == rhs.code();
+}
+
+inline bool operator!=(VR lhs, VR rhs) {
+  return lhs.code() != rhs.code();
+}
 
 // -----------------------------------------------------------------------------
 
 class Tag {
 public:
   Tag() = default;
-  Tag(const Tag& rhs) = default;
-  Tag& operator=(const Tag& rhs) = default;
+
+  Tag(const Tag&) = default;
+  Tag& operator=(const Tag&) = default;
 
   Tag(std::uint16_t group, std::uint16_t element)
       : group_(group), element_(element) {

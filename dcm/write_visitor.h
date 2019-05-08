@@ -1,6 +1,7 @@
 #ifndef DCM_WRITE_VISITOR_H_
 #define DCM_WRITE_VISITOR_H_
 
+#include "dcm/defs.h"
 #include "dcm/visitor.h"
 
 namespace dcm {
@@ -27,7 +28,7 @@ private:
   Writer* writer_;
 
   // If the current visited data set is explicit VR or not.
-  bool explicit_vr_ = true;
+  VR::Type vr_type_ = VR::EXPLICIT;
 
   int level_ = 0;
 };

@@ -14,6 +14,8 @@ public:
 
   ~DumpReadHandler() override = default;
 
+  void OnTransferSyntax(VR::Type vr_type, ByteOrder byte_order) override;
+
   bool OnElementStart(Tag tag) override;
   void OnElementEnd(DataElement* data_element) override;
 
