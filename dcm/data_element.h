@@ -41,52 +41,98 @@ public:
   // The buffer size must be even: 2, 4, 8, ...
   bool SetBuffer(Buffer&& buffer);
 
-  // TODO: Add applicable VR types as comments.
+  // ---------------------------------------------------------------------------
+
+  // Get and set values
+
+  // AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR.
+
   bool GetString(std::string* value) const;
 
   bool SetString(const std::string& value);
 
-  bool GetUint16(std::uint16_t* value) const;
+  // US (Unsigned Short)
 
-  bool GetUint32(std::uint32_t* value) const;
+  bool GetUint16(std::uint16_t* value) const {
+    return GetNumber(VR::US, 2, value);
+  }
 
-  bool GetInt16(std::int16_t* value) const;
+  bool SetUint16(std::uint16_t value) {
+    return SetNumber(VR::US, 2, &value);
+  }
 
-  bool GetInt32(std::int32_t* value) const;
+  // UL (Unsigned Long)
 
-  bool GetFloat32(float32_t* value) const;
+  bool GetUint32(std::uint32_t* value) const {
+    return GetNumber(VR::UL, 4, value);
+  }
 
-  bool GetFloat64(float64_t* value) const;
+  bool SetUint32(std::uint32_t value) {
+    return SetNumber(VR::UL, 4, &value);
+  }
+
+  // SS (Signed Short)
+
+  bool GetInt16(std::int16_t* value) const {
+    return GetNumber(VR::SS, 2, value);
+  }
+
+  bool SetInt16(std::int16_t value) {
+    return SetNumber(VR::SS, 2, &value);
+  }
+
+  // SL (Signed Long)
+
+  bool GetInt32(std::int32_t* value) const {
+    return GetNumber(VR::SL, 4, value);
+  }
+
+  bool SetInt32(std::int32_t value) {
+    return SetNumber(VR::SL, 4, &value);
+  }
+
+  // FL (Floating Point Single)
+
+  bool GetFloat32(float32_t* value) const {
+    return GetNumber(VR::FL, 4, value);
+  }
+
+  bool SetFloat32(float32_t value) {
+    return SetNumber(VR::FL, 4, &value);
+  }
+
+  // FD (Floating Point Double)
+
+  bool GetFloat64(float64_t* value) const {
+    return GetNumber(VR::FD, 8, value);
+  }
+
+  bool SetFloat64(float64_t value) {
+    return SetNumber(VR::FD, 8, &value);
+  }
+
+  // TODO: OD, OF, OL, OW
 
   // Print data element to an output stream.
+  // TODO: Remove
   void Print(std::ostream& os) const;
 
   // Print value to an output stream.
+  // TODO: Remove
   void PrintValue(std::ostream& os) const;
 
   // Print value to a string.
+  // TODO: Remove
   std::string PrintValue() const;
 
 protected:
-  // Get number value.
-  template <typename T>
-  bool GetNumber(T* value) const {
-    return GetNumber<T>(value, sizeof(T));
-  }
+  bool GetNumber(VR vr, size_t size, void* value) const;
+  bool SetNumber(VR vr, size_t size, void* value);
 
-  // Get number value.
-  template <typename T>
-  bool GetNumber(T* value, std::size_t length) const {
-    if (length_ == length) {
-      *value = *reinterpret_cast<const T*>(&buffer_[0]);
-      return true;
-    }
-    return false;
-  }
+  void GetBytes(void* value, std::size_t length) const;
+  void SetBytes(void* value, std::size_t length);
 
-  void AdjustBytes16(void* value) const;
-  void AdjustBytes32(void* value) const;
-  void AdjustBytes64(void* value) const;
+  void AdjustBytes(void* value, std::size_t size) const;
 
 protected:
   // Tag key.

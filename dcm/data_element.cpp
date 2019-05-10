@@ -93,6 +93,76 @@ bool CheckCS(const std::string& value) {
   return true;
 }
 
+// Date
+bool CheckDA(const std::string& value) {
+  // Fix: 8
+  // YYYYMMDD; 0-9.
+  // Example: "20050822"
+
+  if (value.size() != 8) {
+    return false;
+  }
+
+  for (char c : value) {
+    if (!IsDigit(c)) {
+      return false;
+    }
+  }
+
+  // TODO: Check the range.
+
+  return true;
+}
+
+// Time
+bool CheckTM(const std::string& value) {
+  // Max: 16
+  // A string of characters of the format HHMMSS.FRAC;
+  // Example: "183200.00"
+  // Allowed characters: 0-9, and period(.)
+
+  if (value.size() > 16) {
+    return false;
+  }
+
+  // TODO
+
+  return true;
+}
+
+// Date Time
+bool CheckDT(const std::string& value) {
+  // Max: 26
+  // Concatenated datetime string in the format: YYYYMMDDHHMMSS.FFFFFF&ZZXX
+  // Example: "20050812183000.00"
+  // Allowed characters: 0-9, plus(+), minus(-) and period(.)
+
+  if (value.size() > 26) {
+    return false;
+  }
+
+  // TODO
+
+  return true;
+}
+
+// Decimal String
+bool CheckDS(const std::string& value) {
+  // Max: 16
+  // A string of characters representing either a fixed point number or a
+  // floating point number.
+  // Example: "12345.67", "-5.0e3"
+  // Allowed characters: 0-9, plus(+), minus(-), E, e, and period(.)
+
+  if (value.size() > 16) {
+    return false;
+  }
+
+  // TODO: Check more.
+
+  return true;
+}
+
 // Integer String
 bool CheckIS(const std::string& value) {
   // Max: 12
@@ -131,6 +201,18 @@ bool CheckLO(const std::string& value) {
   return true;
 }
 
+// Short Text
+bool CheckST(const std::string& value) {
+  // Max: 1024
+  // A character string that may contain one or more paragraphs.
+
+  if (value.size() > 1024) {
+    return false;
+  }
+
+  return true;
+}
+
 // Long Text
 bool CheckLT(const std::string& value) {
   // Max: 10240
@@ -138,6 +220,73 @@ bool CheckLT(const std::string& value) {
   if (value.size() > 10240) {
     return false;
   }
+
+  return true;
+}
+
+// Unlimited Text
+bool CheckUT(const std::string& value) {
+  // Max: 4,294,967,294 (2^32 - 2)
+
+  return true;
+}
+
+// Person Name
+bool CheckPN(const std::string& value) {
+  // Max: 64
+
+  if (value.size() > 64) {
+    return false;
+  }
+
+  // TODO
+
+  return true;
+}
+
+// Short String
+bool CheckSH(const std::string& value) {
+  // Max: 16
+  // Example: telephone numbers, IDs
+
+  if (value.size() > 16) {
+    return false;
+  }
+
+  return true;
+}
+
+// Unlimited Characters
+// TODO
+bool CheckUC(const std::string& value) {
+  return true;
+}
+
+// Unique Identifier(UID)
+bool CheckUI(const std::string& value) {
+  // Max: 64
+  // A character string containing a UID that is used to uniquely identify a
+  // wide variety of items.
+  // Example: "1.2.840.10008.1.1"
+
+  if (value.size() > 64) {
+    return false;
+  }
+
+  // TODO
+
+  return true;
+}
+
+// Universal Resource Identifier
+bool CheckUR(const std::string& value) {
+  // Max: 64
+  // A string of characters that identifies a URI or a URL as defined in
+  // [RFC3986]. Leading spaces are not allowed. Trailing spaces shallbe ignored.
+  // Data Elements with this VR shall not be multi-valued.
+  // Example: "1.2.840.10008.1.1"
+
+  // TODO
 
   return true;
 }
@@ -157,14 +306,47 @@ bool CheckStringValue(VR vr, const std::string& value) {
     case VR::CS:
       return CheckCS(value);
 
+    case VR::DA:
+      return CheckDA(value);
+
+    case VR::TM:
+      return CheckTM(value);
+
+    case VR::DT:
+      return CheckDT(value);
+
+    case VR::DS:
+      return CheckDS(value);
+ 
     case VR::IS:
       return CheckIS(value);
 
     case VR::LO:
       return CheckLO(value);
 
+    case VR::ST:
+      return CheckST(value);
+
     case VR::LT:
       return CheckLT(value);
+
+    case VR::UT:
+      return CheckUT(value);
+
+    case VR::PN:
+      return CheckPN(value);
+
+    case VR::SH:
+      return CheckSH(value);
+
+    case VR::UC:
+      return CheckUC(value);
+
+    case VR::UI:
+      return CheckUI(value);
+
+    case VR::UR:
+      return CheckUR(value);
 
     default:
       break;
@@ -250,55 +432,6 @@ bool DataElement::SetString(const std::string& value) {
   }
 
   return true;
-}
-
-bool DataElement::GetUint16(std::uint16_t* value) const {
-  if (GetNumber<std::uint16_t>(value)) {
-    AdjustBytes16(value);
-    return true;
-  }
-  return false;
-}
-
-bool DataElement::GetUint32(std::uint32_t* value) const {
-  if (GetNumber<std::uint32_t>(value)) {
-    AdjustBytes32(value);
-    return true;
-  }
-  return false;
-}
-
-bool DataElement::GetInt16(std::int16_t* value) const {
-  if (GetNumber<std::int16_t>(value)) {
-    AdjustBytes16(value);
-    return true;
-  }
-  return false;
-}
-
-bool DataElement::GetInt32(std::int32_t* value) const {
-  if (GetNumber<std::int32_t>(value)) {
-    AdjustBytes32(value);
-    return true;
-  }
-  return false;
-}
-
-
-bool DataElement::GetFloat32(float32_t* value) const {
-  if (GetNumber<float32_t>(value, 4)) {
-    AdjustBytes32(value);
-    return true;
-  }
-  return false;
-}
-
-bool DataElement::GetFloat64(float64_t* value) const {
-  if (GetNumber<float64_t>(value, 8)) {
-    AdjustBytes64(value);
-    return true;
-  }
-  return false;
 }
 
 void DataElement::Print(std::ostream& os) const {
@@ -420,21 +553,57 @@ std::string DataElement::PrintValue() const {
   return ss.str();
 }
 
-void DataElement::AdjustBytes16(void* value) const {
-  if (byte_order_ != kByteOrderOS) {
-    Swap16(value);
+bool DataElement::GetNumber(VR vr, size_t size, void* value) const {
+  if (vr_ != vr) {
+    return false;
   }
+
+  GetBytes(value, size);
+
+  AdjustBytes(value, size);
+
+  return true;
 }
 
-void DataElement::AdjustBytes32(void* value) const {
-  if (byte_order_ != kByteOrderOS) {
-    Swap32(value);
+bool DataElement::SetNumber(VR vr, size_t size, void* value) {
+  if (vr_ != vr) {
+    return false;
   }
+
+  AdjustBytes(value, size);
+
+  SetBytes(value, size);
+
+  return true;
 }
 
-void DataElement::AdjustBytes64(void* value) const {
+void DataElement::GetBytes(void* value, std::size_t length) const {
+  assert(length == length_);  // TODO
+
+  memcpy(value, &buffer_[0], length_);
+}
+
+void DataElement::SetBytes(void* value, std::size_t length) {
+  assert(length != 0);  // TODO: length % 2 == 0
+
+  length_ = length;
+
+  if (buffer_.size() != length_) {
+    buffer_.resize(length_);
+  }
+
+  memcpy(&buffer_[0], value, length_);
+}
+
+void DataElement::AdjustBytes(void* value, std::size_t size) const {
   if (byte_order_ != kByteOrderOS) {
-    Swap64(value);
+    if (size == 2) {
+      Swap16(value);
+    } else if (size == 4) {
+      Swap32(value);
+    } else if (size == 8) {
+      Swap64(value);
+    }
   }
 }
 

@@ -2,7 +2,14 @@
 
 #include <string>
 
+#include "dcm/defs.h"
+
 std::string g_data_dir;
+
+TEST(DefinitionsTest, TypeSize) {
+  EXPECT_EQ(4, sizeof(dcm::float32_t));
+  EXPECT_EQ(8, sizeof(dcm::float64_t));
+}
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
