@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstdint>
 #include <istream>
-#include <string>
 
 namespace dcm {
 
@@ -47,11 +46,6 @@ public:
   // NOTE: Byte order is not considered.
   bool ReadUint32(std::uint32_t* value) {
     return ReadBytes(value, 4) == 4;
-  }
-
-  bool ReadString(std::string* value, std::size_t count) {
-    value->resize(count);
-    return ReadBytes(&(*value)[0], count) == count;
   }
 
 protected:

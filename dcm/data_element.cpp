@@ -304,7 +304,17 @@ bool DataElement::GetFloat64(float64_t* value) const {
 void DataElement::Print(std::ostream& os) const {
   tag_.Print(os);
 
-  os << "\t" << vr_.ToString() << "\t";
+  const char* TAB = "\t";
+
+  os << TAB;
+
+  if (vr_.IsUnknown()) {
+    os << "--";
+  } else {
+    os << vr_.byte1() << vr_.byte2();
+  }
+
+  os << TAB;
 
   if (length_ != kUndefinedLength) {
     os << length_;
@@ -312,7 +322,7 @@ void DataElement::Print(std::ostream& os) const {
     os << "-1";
   }
 
-  os << "\t";
+  os << TAB;
 
   PrintValue(os);
 }

@@ -83,22 +83,6 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
   }
 }
 
-bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetInt16(value);
-  }
-  return false;
-}
-
-bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetInt32(value);
-  }
-  return false;
-}
-
 bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
   const DataElement* element = Get(tag);
   if (element != nullptr) {
@@ -111,6 +95,22 @@ bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
   const DataElement* element = Get(tag);
   if (element != nullptr) {
     return element->GetUint32(value);
+  }
+  return false;
+}
+
+bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetInt16(value);
+  }
+  return false;
+}
+
+bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
+  const DataElement* element = Get(tag);
+  if (element != nullptr) {
+    return element->GetInt32(value);
   }
   return false;
 }

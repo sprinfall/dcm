@@ -8,14 +8,11 @@
 namespace dcm {
 
 class DataElement;
-class DataSet;
 class Reader;
 class ReadHandler;
 
 class DicomReader {
 public:
-  explicit DicomReader(DataSet* data_set);
-
   explicit DicomReader(ReadHandler* handler);
 
   ~DicomReader();
@@ -65,9 +62,6 @@ private:
 
 private:
   ReadHandler* handler_;
-
-  // If we own (need to delete) the handler or not.
-  bool own_handler_;
 
   // Transfer Syntax UID read from 0x00020010.
   // Please note that some DICOM files don't have group 0002.

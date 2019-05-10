@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstdint>
 #include <ostream>
-#include <string>
 
 namespace dcm {
 
@@ -18,6 +17,11 @@ public:
 
   bool IsOk() const {
     return ostream_ != nullptr && !ostream_->bad();
+  }
+
+  void WriteByte(char byte) {
+    assert(IsOk());
+    ostream_->put(byte);
   }
 
   void WriteBytes(const void* bytes, std::size_t count) {
@@ -37,10 +41,6 @@ public:
   // NOTE: Byte order is not considered.
   void WriteUint32(std::uint32_t value) {
     WriteBytes(&value, 4);
-  }
-
-  void WriteString(const std::string& value) {
-    WriteBytes(value.c_str(), value.size());
   }
 
 protected:

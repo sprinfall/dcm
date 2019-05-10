@@ -6,8 +6,9 @@
 namespace dcm {
 
 DataSequence::DataSequence(Tag tag, VR::Type vr_type, ByteOrder byte_order)
-    : DataElement(tag, tag.empty() ? VR::UNKNOWN : VR::SQ, byte_order),
-      vr_type_(vr_type), delimitation_(nullptr) {
+    : DataElement(tag, VR::SQ, byte_order),
+      vr_type_(vr_type),
+      delimitation_(nullptr) {
   length_ = kUndefinedLength;
 }
 

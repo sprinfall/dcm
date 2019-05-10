@@ -9,23 +9,17 @@
 namespace dcm {
 
 void WriteVisitor::VisitDataElement(const DataElement* data_element) {
-  Tag tag = data_element->tag();
+  tag_ = data_element->tag();
 
   // Tag
-  writer_->WriteUint16(tag.group());
-  writer_->WriteUint16(tag.element());
+  WriteUint16(tag_.group());
+  WriteUint16(tag_.element());
 
   // Special data element for SQ.
-  if (tag == kSeqEndTag) {
-    writer_->WriteUint32(data_element->length());  // 0
-    return;
-  }
-  if (tag == kSeqItemEndTag) {
-    writer_->WriteUint32(data_element->length());  // 0
-    return;
-  }
-  if (tag == kSeqItemPrefixTag) {
-    writer_->WriteUint32(data_element->length());
+  if (tag_ == kSeqEndTag || tag_ == kSeqItemEndTag ||
+      tag_ == kSeqItemPrefixTag) {
+    // Value length of kSeqEndTag and kSeqItemEndTag should both be 0.
+    WriteUint32(data_element->length());
     return;
   }
 
@@ -33,37 +27,37 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   std::size_t length = data_element->length();
 
   // VR
-  if (vr_type_ == VR::EXPLICIT || tag.group() == 2) {
-    writer_->WriteString(data_element->vr().ToString());
+  if (vr_type_ == VR::EXPLICIT || tag_.group() == 2) {
+    // TODO: VR::UNKNOWN
+    writer_->WriteByte(vr.byte1());
+    writer_->WriteByte(vr.byte2());
 
-    if (data_element->vr().Is16BitsFollowingReversed()) {
+    if (vr.Is16BitsFollowingReversed()) {
       // 2 reversed bytes.
-      writer_->WriteUint16(0);
+      WriteUint16(0);
       // 4 bytes value length.
-      writer_->WriteUint32(length);
+      WriteUint32(length);
     } else {
       // 2 bytes value length.
-      writer_->WriteUint16(static_cast<std::uint16_t>(length));
+      WriteUint16(static_cast<std::uint16_t>(length));
     }
   } else {
     // Implicit VR
     // 4 bytes value length.
-    writer_->WriteUint32(length);
+    WriteUint32(length);
   }
 
-  if (vr != VR::SQ) {  // SQ item has no value by itself.
+  if (vr != VR::SQ) {
     if (length > 0) {
-      // TODO: Convert byte order for numbers if necessary.
-      writer_->WriteBytes(&(data_element->buffer()[0]), length);
+      const Buffer& buffer = data_element->buffer();
+      writer_->WriteBytes(&buffer[0], length);
     }
   }
 }
 
 void WriteVisitor::VisitDataSequence(const DataSequence* data_sequence) {
-  // Visit the sequence as a data element.
+  // Visit the sequence as a normal data element.
   VisitDataElement(data_sequence);
-
-  ++level_;
 
   // Visit sequence items.
   for (std::size_t i = 0; i < data_sequence->size(); ++i) {
@@ -77,33 +71,68 @@ void WriteVisitor::VisitDataSequence(const DataSequence* data_sequence) {
       VisitDataElement(item.delimitation);
     }
   }
-
-  --level_;
 }
 
 void WriteVisitor::VisitDataSet(const DataSet* data_set) {
   vr_type_ = data_set->vr_type();
+  byte_order_ = data_set->byte_order();
 
-  // level_ starts from 0.
   if (level_ == 0) {
-    // level_ == 0 means root data set.
-    // The data element itself doesn't need to be written.
-    // Just write the Preamble & prefix.
+    // Root data set.
+    // Just write the preamble and DICOM prefix.
 
     // Preamble (128 bytes)
     for (std::size_t i = 0; i < 32; ++i) {
-      writer_->WriteUint32(0);
+      WriteUint32(0);
     }
 
     // Prefix
-    writer_->WriteString("DICM");
+    writer_->WriteBytes("DICM", 4);
   }
+
+  ++level_;
 
   // Visit the child data elements one by one.
   std::size_t size = data_set->size();
   for (std::size_t i = 0; i < size; ++i) {
     (*data_set)[i]->Accept(*this);
   }
+
+  --level_;
+}
+
+void WriteVisitor::WriteUint16(std::uint16_t value) {
+  if (value != 0) {
+    if (tag_.group() == 2) {
+      // Meta header always in Little Endian.
+      if (kByteOrderOS != ByteOrder::LE) {
+        Swap16(&value);
+      }
+    } else {
+      if (kByteOrderOS != byte_order_) {
+        Swap16(&value);
+      }
+    }
+  }
+
+  writer_->WriteUint16(value);
+}
+
+void WriteVisitor::WriteUint32(std::uint32_t value) {
+  if (value != 0) {
+    if (tag_.group() == 2) {
+      // Meta header always in Little Endian.
+      if (kByteOrderOS != ByteOrder::LE) {
+        Swap32(&value);
+      }
+    } else {
+      if (kByteOrderOS != byte_order_) {
+        Swap32(&value);
+      }
+    }
+  }
+
+  writer_->WriteUint32(value);
 }
 
 }  // namespace dcm

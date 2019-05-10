@@ -5,8 +5,8 @@
 #include "dcm/data_dict.h"
 #include "dcm/data_sequence.h"
 #include "dcm/data_set.h"
-#include "dcm/full_read_handler.h"
 #include "dcm/logger.h"
+#include "dcm/read_handler.h"
 #include "dcm/reader.h"
 #include "dcm/util.h"
 
@@ -22,8 +22,8 @@ bool CheckVrType(Reader& reader, VR::Type* vr_type) {
   // Skip the 4 tag bytes.
   reader.Seek(4, std::ios::cur);
 
-  std::string vr_str;
-  if (!reader.ReadString(&vr_str, 2)) {
+  char bytes[2];
+  if (!reader.ReadBytes(bytes, 2)) {
     reader.UndoRead(4);  // Put 4 tag bytes back.
     return false;
   }
@@ -31,7 +31,7 @@ bool CheckVrType(Reader& reader, VR::Type* vr_type) {
   reader.UndoRead(6);  // Put it back.
 
   // Check to see if the 2 bytes following the tag field represents a valid VR.
-  if (VR::FromString(vr_str).IsUnknown()) {
+  if (VR(bytes).IsUnknown()) {
     *vr_type = VR::IMPLICIT;
     LOG_INFO("VR type: Implicit.");
   } else {
@@ -43,15 +43,15 @@ bool CheckVrType(Reader& reader, VR::Type* vr_type) {
 }
 
 bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
-  std::uint8_t tag_bytes[4] = { 0 };
-  if (!reader.ReadBytes(&tag_bytes, 4)) {
+  std::uint8_t bytes[4] = { 0 };
+  if (!reader.ReadBytes(bytes, 4)) {
     return false;
   }
 
   reader.UndoRead(4);  // Put it back.
 
-  std::uint16_t group = (tag_bytes[0] & 0xff) + ((tag_bytes[1] & 0xff) << 8);
-  std::uint16_t element = (tag_bytes[2] & 0xff) + ((tag_bytes[3] & 0xff) << 8);
+  std::uint16_t group = (bytes[0] & 0xff) + ((bytes[1] & 0xff) << 8);
+  std::uint16_t element = (bytes[2] & 0xff) + ((bytes[3] & 0xff) << 8);
   Tag tag_l(group, element);  // Little Endian
   Tag tag_b = tag_l.SwapBytes();  // Big Endian
 
@@ -101,27 +101,19 @@ bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
 
 // -----------------------------------------------------------------------------
 
-DicomReader::DicomReader(DataSet* data_set)
-    : handler_(new FullReadHandler(data_set)), own_handler_(true),
-      transfer_syntax_checked_(false),
-      vr_type_(VR::EXPLICIT) {
-}
-
 DicomReader::DicomReader(ReadHandler* handler)
-    : handler_(handler), own_handler_(false),
+    : handler_(handler),
       transfer_syntax_checked_(false),
       vr_type_(VR::EXPLICIT) {
 }
 
 DicomReader::~DicomReader() {
-  if (own_handler_) {
-    delete handler_;
-  }
 }
 
 bool DicomReader::ReadFile(const Path& path) {
   bfs::ifstream stream(path, std::ios::binary);
   if (stream.bad()) {
+    LOG_ERRO("Failed to open the file to read: %s", path.string().c_str());
     return false;
   }
 
@@ -133,12 +125,13 @@ bool DicomReader::DoRead(Reader& reader) {
   // Preamble
   reader.Seek(128);
 
-  std::string prefix;
-  if (!reader.ReadString(&prefix, 4)) {
-    return false;  // TODO: Use exception?
+  char prefix[4];
+  if (!reader.ReadBytes(prefix, 4)) {
+    LOG_ERRO("Failed to read 4 bytes DICOM prefix.");
+    return false;
   }
 
-  if (prefix != "DICM") {
+  if (memcmp(prefix, "DICM", 4) != 0) {
     // Preamble is omitted.
     reader.UndoRead(132);
   }
@@ -205,7 +198,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
       continue;
     }
 
-    VR vr = VR::UNKNOWN;
+    VR vr = VR::UN;
     if (!ReadVR(reader, tag, read_length, &vr)) {
       break;
     }
@@ -306,7 +299,7 @@ void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
+  auto element = new DataElement(tag, VR::UN, byte_order_);
   handler_->OnSequenceEnd(element);
 }
 
@@ -318,7 +311,7 @@ void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
   reader.Seek(4, std::ios::cur);
   read_length += 4;
 
-  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
+  auto element = new DataElement(tag, VR::UN, byte_order_);
   handler_->OnSequenceItemEnd(element);
 }
 
@@ -331,7 +324,7 @@ void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
 
   read_length += 4;
 
-  auto element = new DataElement(tag, VR::UNKNOWN, byte_order_);
+  auto element = new DataElement(tag, VR::UN, byte_order_);
 
   // If item length is undefined, this item will be ended with a delimitation.
   element->set_length(item_length);
@@ -346,13 +339,12 @@ void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
 bool DicomReader::ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length,
                          VR* vr) {
   if (vr_type_ == VR::EXPLICIT) {
-    std::string vr_str;
-    reader.ReadString(&vr_str, 2);
+    char bytes[2];
+    reader.ReadBytes(bytes, 2);
     read_length += 2;
 
-    *vr = VR::FromString(vr_str);
-    if (vr->IsUnknown()) {
-      LOG_ERRO("%s is not a VR!", vr_str.c_str());
+    if (!vr->SetBytes(bytes)) {
+      LOG_ERRO("'%s' is not a VR!", std::string(bytes, 2).c_str());
       return false;
     }
   } else {
@@ -360,13 +352,17 @@ bool DicomReader::ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length,
       // Group Length (VR type is always UL).
       *vr = VR::UL;
     } else {
-      // Query VR type from data dictionary.
-      *vr = DataDict::GetVR(tag);
-
-      // TODO: Private tags in implicit VR?
-      if (*vr == VR::UNKNOWN) {
-        LOG_ERRO("Private tags in implicit VR.");
-        return false;
+      if (tag.group() % 2 == 1) {
+        // Private tag with Implicit VR.
+        // As I know, images generated by Carestream Dental CR CS7600 are really
+        // Implicit VR. They do have private tags.
+        LOG_WARN("Private tag in Implicit VR.");
+      } else {
+        // Query VR type from data dictionary.
+        *vr = DataDict::GetVR(tag);
+        if (vr->IsUnknown()) {
+          LOG_WARN("Unknown tag in Implicit VR.");
+        }
       }
     }
   }
@@ -439,7 +435,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
         return false;
       }
 
-      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxTag) {
+      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxUidTag) {
         element->GetString(&transfer_syntax_uid_);
       }
 
@@ -447,7 +443,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
       handler_->OnElementEnd(element);
 
     } else {
-      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxTag) {
+      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxUidTag) {
         DataElement* element = ReadElement(reader, tag, vr, length);
         if (element == nullptr) {
           return false;

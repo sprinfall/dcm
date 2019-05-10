@@ -23,6 +23,8 @@ public:
 
   void Accept(Visitor& visitor) const;
 
+  // ---------------------------------------------------------------------------
+
   VR::Type vr_type() const { return vr_type_; }
   void set_vr_type(VR::Type vr_type) { vr_type_ = vr_type; }
 
@@ -31,6 +33,8 @@ public:
 
   Charset charset() const { return charset_; }
   void set_charset(Charset charset) { charset_ = charset; }
+
+  // ---------------------------------------------------------------------------
 
   std::size_t size() const { return elements_.size(); }
 
@@ -44,18 +48,18 @@ public:
 
   bool Insert(DataElement* element);
 
-  // Reset transfer syntax, clear elements, etc.
   void Clear();
 
+  // ---------------------------------------------------------------------------
+
   bool GetString(Tag tag, std::string* value) const;
-
   bool SetString(Tag tag, const std::string& value);
-
-  bool GetInt16(Tag tag, std::int16_t* value) const;
-  bool GetInt32(Tag tag, std::int32_t* value) const;
 
   bool GetUint16(Tag tag, std::uint16_t* value) const;
   bool GetUint32(Tag tag, std::uint32_t* value) const;
+
+  bool GetInt16(Tag tag, std::int16_t* value) const;
+  bool GetInt32(Tag tag, std::int32_t* value) const;
 
   bool GetFloat32(Tag tag, float32_t* value) const;
   bool GetFloat64(Tag tag, float64_t* value) const;

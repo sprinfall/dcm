@@ -25,12 +25,23 @@ public:
   void VisitDataSet(const DataSet* data_set) override;
 
 private:
+  void WriteUint16(std::uint16_t value);
+  void WriteUint32(std::uint32_t value);
+
+private:
   Writer* writer_;
 
-  // If the current visited data set is explicit VR or not.
+  // VR type of the current data set.
   VR::Type vr_type_ = VR::EXPLICIT;
 
+  // Byte order of the current data set.
+  ByteOrder byte_order_ = ByteOrder::LE;
+
+  // Data set level (0 means root data set).
   int level_ = 0;
+
+  // The tag currently being written.
+  Tag tag_;
 };
 
 }  // namespace dcm 

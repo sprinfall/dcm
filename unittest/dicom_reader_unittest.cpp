@@ -2,6 +2,7 @@
 
 #include "dcm/data_set.h"
 #include "dcm/dicom_reader.h"
+#include "dcm/full_read_handler.h"
 
 extern std::string g_data_dir;
 
@@ -10,7 +11,8 @@ TEST(DicomReaderTest, ImplicitLittleNoMeta) {
   path /= "Implicit Little NoMeta (CR-MONO1-10-chest).dcm";
 
   dcm::DataSet data_set;
-  dcm::DicomReader reader(&data_set);
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
 
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
@@ -36,7 +38,8 @@ TEST(DicomReaderTest, ExplicitBig) {
   path /= "Explicit Big (US-RGB-8-epicard).dcm";
 
   dcm::DataSet data_set;
-  dcm::DicomReader reader(&data_set);
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
 
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
@@ -64,7 +67,74 @@ TEST(DicomReaderTest, ExplicitLittle_CS_Ceph) {
   path /= "Explicit Little (Ceph).dcm";
 
   dcm::DataSet data_set;
-  dcm::DicomReader reader(&data_set);
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
+
+  bool ok = reader.ReadFile(path);
+  EXPECT_TRUE(ok);
+
+  std::string sop_instance_uid;
+  data_set.GetString(0x00080018, &sop_instance_uid);
+  EXPECT_EQ("1.2.250.1.90.3.348752952.1313490280.15", sop_instance_uid);
+
+  auto element = data_set.Get(0x7fe00010);
+  EXPECT_TRUE(element != nullptr);
+  EXPECT_EQ(6981640, element->length());
+
+  // Private tags
+  {
+    std::string value;
+    EXPECT_TRUE(data_set.GetString(0x00090011, &value));
+    EXPECT_EQ("TROPHY", value);
+  }
+  {
+    std::uint32_t value;
+    EXPECT_TRUE(data_set.GetUint32(0x00091109, &value));
+    EXPECT_EQ(32837, value);
+  }
+}
+
+TEST(DicomReaderTest, ExplicitLittle_SeqEnd_CS_Ceph) {
+  dcm::Path path(g_data_dir);
+  path /= "cs";
+  path /= "Explicit Little SeqEnd (Ceph).dcm";
+
+  dcm::DataSet data_set;
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
+
+  bool ok = reader.ReadFile(path);
+  EXPECT_TRUE(ok);
+
+  std::string sop_instance_uid;
+  data_set.GetString(0x00080018, &sop_instance_uid);
+  EXPECT_EQ("1.2.250.1.90.3.348752952.1313490280.15", sop_instance_uid);
+
+  auto element = data_set.Get(0x7fe00010);
+  EXPECT_TRUE(element != nullptr);
+  EXPECT_EQ(6981640, element->length());
+
+  // Private tags
+  {
+    std::string value;
+    EXPECT_TRUE(data_set.GetString(0x00090011, &value));
+    EXPECT_EQ("TROPHY", value);
+  }
+  {
+    std::uint32_t value;
+    EXPECT_TRUE(data_set.GetUint32(0x00091109, &value));
+    EXPECT_EQ(32837, value);
+  }
+}
+
+TEST(DicomReaderTest, ImplicitLittle_CS_CR7600) {
+  dcm::Path path(g_data_dir);
+  path /= "cs";
+  path /= "Implicit Little (CR 7600).dcm";
+
+  dcm::DataSet data_set;
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
 
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);

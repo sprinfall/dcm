@@ -30,6 +30,8 @@ extern const ByteOrder kByteOrderOS;
 
 // -----------------------------------------------------------------------------
 
+#define MAKE_VR_CODE(c0, c1) ((((int)c0) << 8) | (int)c1)
+
 // Value Representation.
 // See: PS 3.5 Section 6.2 - Value Representation (VR).
 class VR {
@@ -40,11 +42,6 @@ public:
   };
 
   enum Code {
-
-#define MAKE_VR_CODE(c0, c1) ((((int)c0) << 8) | (int)c1)
-
-    UNKNOWN = 0,
-
     AE = MAKE_VR_CODE('A', 'E'),  // Application Entity
     AS = MAKE_VR_CODE('A', 'S'),  // Age String
     AT = MAKE_VR_CODE('A', 'T'),  // Attribute Tag
@@ -78,26 +75,33 @@ public:
     UT = MAKE_VR_CODE('U', 'T'),  // Unlimited Text
   };
 
-  // Convert a string to VR.
-  // Return UNKNOWN if the string is not a valid VR.
-  static VR FromString(const std::string& str);
-
 public:
-  VR(Code code = UNKNOWN) : code_(code) {}
+  VR(Code code = UN) : code_(code) {}
+
+  explicit VR(const char bytes[2]);
 
   Code code() const { return code_; }
-
   void set_code(Code code) { code_ = code; }
 
-  bool IsUnknown() const { return code_ == UNKNOWN; }
+  char byte1() const {
+    return (((std::uint16_t)code_) & 0xFF00) >> 8;
+  }
+  char byte2() const {
+    return (((std::uint16_t)code_) & 0x00FF);
+  }
+
+  // Set with bytes.
+  // Return false (the original code keeps unchanged) if the bytes is
+  // not a valid VR.
+  bool SetBytes(const char bytes[2]);
+
+  bool IsUnknown() const { return code_ == UN; }
 
   // For OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits following the
   // two character VR Field are reserved for use by later versions of the DICOM
   // Standard.
   // See: PS 3.5 Section 7.1.2 - Data Element Structure with Explicit VR
   bool Is16BitsFollowingReversed() const;
-
-  std::string ToString() const;
 
 private:
   Code code_;
@@ -177,7 +181,7 @@ inline bool operator>=(Tag lhs, Tag rhs) {
 
 // A list of commonly used tags:
 
-const Tag kTransferSyntaxTag = 0x00020010;
+const Tag kTransferSyntaxUidTag = 0x00020010;
 const Tag kSeqEndTag = 0xFFFEE0DD;
 const Tag kSeqItemEndTag = 0xFFFEE00D;
 const Tag kSeqItemPrefixTag = 0xFFFEE000;

@@ -85,19 +85,25 @@ private:
   std::map<int, VRInfo> vr_map_;
 };
 
-// static
-VR VR::FromString(const std::string& str) {
-  if (str.size() != 2) {
-    return VR();
-  }
+VR::VR(const char bytes[2]) {
+  int code = MAKE_VR_CODE(bytes[0], bytes[1]);
 
-  int code = MAKE_VR_CODE(str[0], str[1]);
+  if (VRDict::Instance()->IsValid(code)) {
+    code_ = static_cast<VR::Code>(code);
+  } else {
+    code_ = UN;
+  }
+}
+
+bool VR::SetBytes(const char bytes[2]) {
+  int code = MAKE_VR_CODE(bytes[0], bytes[1]);
 
   if (!VRDict::Instance()->IsValid(code)) {
-    return VR();
+    return false;
   }
 
-  return static_cast<VR::Code>(code);
+  code_ = static_cast<VR::Code>(code);
+  return true;
 }
 
 bool VR::Is16BitsFollowingReversed() const {
@@ -108,17 +114,6 @@ bool VR::Is16BitsFollowingReversed() const {
     return true;
   }
   return false;
-}
-
-std::string VR::ToString() const {
-  if (code_ == UNKNOWN) {
-    return "UNKNOWN";
-  }
-
-  std::string str(2, ' ');
-  str[0] = (((std::uint16_t)code_) & 0xFF00) >> 8;
-  str[1] = (((std::uint16_t)code_) & 0x00FF);
-  return str;
 }
 
 // -----------------------------------------------------------------------------

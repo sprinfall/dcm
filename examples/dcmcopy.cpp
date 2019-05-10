@@ -1,9 +1,6 @@
 #include <iostream>
 
-#include "dcm/data_set.h"
-#include "dcm/dicom_reader.h"
-#include "dcm/dicom_writer.h"
-#include "dcm/full_read_handler.h"
+#include "dcm/dicom_file.h"
 #include "dcm/logger.h"
 
 void CopyDicomFile(const dcm::Path& path, const dcm::Path& path_copy) {
@@ -12,13 +9,13 @@ void CopyDicomFile(const dcm::Path& path, const dcm::Path& path_copy) {
     return;
   }
 
-  dcm::DataSet data_set;
-  dcm::FullReadHandler read_handler(&data_set);
-  dcm::DicomReader reader(&read_handler);
-  reader.ReadFile(path);
+  dcm::DicomFile dicom_file(path);
+  if (!dicom_file.Load()) {
+    std::cerr << "Failed to read DICOM file." << std::endl;
+    return;
+  }
 
-  dcm::DicomWriter writer(&data_set);
-  if (!writer.WriteFile(path_copy)) {
+  if (!dicom_file.Save(path_copy)) {
     std::cerr << "Failed to copy file!" << std::endl;
   } else {
     std::cout << "File copied." << std::endl;

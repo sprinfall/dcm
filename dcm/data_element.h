@@ -46,8 +46,6 @@ public:
 
   bool SetString(const std::string& value);
 
-  bool GetWString(std::wstring* value) const;
-
   bool GetUint16(std::uint16_t* value) const;
 
   bool GetUint32(std::uint32_t* value) const;
