@@ -39,14 +39,14 @@ private:
   bool ReadUint32(Reader& reader, std::uint32_t* value);
 
   // Read sequence delimitation tag.
-  void ReadSeqEndTag(Reader& reader, Tag tag, std::uint32_t& read_length);
+  void ReadSeqDelimitation(Reader& reader, Tag tag, std::uint32_t& read_length);
 
   // Read sequence item delimitation tag.
-  void ReadSeqItemEndTag(Reader& reader, Tag tag, std::uint32_t& read_length);
+  void ReadSeqItemDelimitation(Reader& reader, Tag tag,
+                               std::uint32_t& read_length);
 
   // Read sequence prefix tag.
-  void ReadSeqItemPrefixTag(Reader& reader, Tag tag,
-                            std::uint32_t& read_length);
+  void ReadSeqItemPrefix(Reader& reader, Tag tag, std::uint32_t& read_length);
 
   // Read VR code.
   bool ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length, VR* vr);

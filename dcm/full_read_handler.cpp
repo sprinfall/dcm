@@ -39,7 +39,7 @@ void FullReadHandler::OnSequenceEnd(DataElement* data_element) {
   if (data_element != nullptr) {
     LOG_INFO("Sequence delimitation tag read.");
 
-    assert(data_element->tag() == kSeqEndTag);
+    assert(data_element->tag() == tags::kSeqDelimatation);
     assert(!sequence_stack_.empty());
 
     sequence_stack_.top()->set_delimitation(data_element);
@@ -52,7 +52,7 @@ void FullReadHandler::OnSequenceEnd(DataElement* data_element) {
 }
 
 void FullReadHandler::OnSequenceItemStart(DataElement* data_element) {
-  assert(data_element->tag() == kSeqItemPrefixTag);
+  assert(data_element->tag() == tags::kSeqItemPrefix);
   assert(!sequence_stack_.empty());
 
   LOG_INFO("OnSequenceItemStart");
@@ -64,7 +64,7 @@ void FullReadHandler::OnSequenceItemEnd(DataElement* data_element) {
   if (data_element != nullptr) {
     LOG_INFO("Sequence item delimitation tag read.");
 
-    assert(data_element->tag() == kSeqItemEndTag);
+    assert(data_element->tag() == tags::kSeqItemDelimatation);
     assert(!sequence_stack_.empty());
 
     sequence_stack_.top()->EndItem(data_element);

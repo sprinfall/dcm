@@ -2,9 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "dcm/data_set.h"
-#include "dcm/dicom_reader.h"
-#include "dcm/full_read_handler.h"
+#include "dcm/dicom_file.h"
 #include "dcm/logger.h"
 #include "dcm/util.h"
 
@@ -33,25 +31,24 @@ static void PrintKV(const char* key, bool value) {
 
 // Print basic info (VR type, byte order, etc.).
 void InfoDicomFile(const dcm::Path& path) {
-  dcm::DataSet data_set;
-  dcm::FullReadHandler read_handler(&data_set);
-  dcm::DicomReader reader(&read_handler);
+  dcm::DicomFile dicom_file(path);
 
-  if (!reader.ReadFile(path)) {
+  if (!dicom_file.Load()) {
     std::cerr << "Failed to read file." << std::endl;
     return;
   }
 
-  if (data_set.vr_type() == dcm::VR::EXPLICIT) {
+  if (dicom_file.vr_type() == dcm::VR::EXPLICIT) {
     PrintKV("VR Type", "Explicit");
   } else {
     PrintKV("VR Type", "Implicit");
   }
 
-  PrintKV("Byte Order", ByteOrderStr(data_set.byte_order()));
+  PrintKV("Byte Order", ByteOrderStr(dicom_file.byte_order()));
 
   std::string charset;
-  data_set.GetString(0x00080005, &charset);
+  dicom_file.GetString(dcm::tags::kSpecificCharacterSet, &charset);
+
   PrintKV("Specific Character Set", charset);
 }
 

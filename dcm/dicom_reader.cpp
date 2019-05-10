@@ -178,14 +178,14 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
     }
 
     // End of sequence itself.
-    if (tag == kSeqEndTag) {
-      ReadSeqEndTag(reader, tag, read_length);
+    if (tag == tags::kSeqDelimatation) {
+      ReadSeqDelimitation(reader, tag, read_length);
       break;
     }
 
     // End of sequence item.
-    if (tag == kSeqItemEndTag) {
-      ReadSeqItemEndTag(reader, tag, read_length);
+    if (tag == tags::kSeqItemDelimatation) {
+      ReadSeqItemDelimitation(reader, tag, read_length);
       // The reading of the sequence item has ended.
       // The value length of this sequence item must be undefined, so it is
       // ended with a delimitation tag.
@@ -193,8 +193,8 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
       break;
     }
 
-    if (tag == kSeqItemPrefixTag) {
-      ReadSeqItemPrefixTag(reader, tag, read_length);
+    if (tag == tags::kSeqItemPrefix) {
+      ReadSeqItemPrefix(reader, tag, read_length);
       continue;
     }
 
@@ -291,9 +291,9 @@ bool DicomReader::ReadUint32(Reader& reader, std::uint32_t* value) {
   return false;
 }
 
-void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
-                                std::uint32_t& read_length) {
-  LOG_INFO("Read sequence end/delimitation tag.");
+void DicomReader::ReadSeqDelimitation(Reader& reader, Tag tag,
+                                      std::uint32_t& read_length) {
+  LOG_INFO("Read sequence delimitation tag.");
 
   // Skip the 4-byte zero length of this sequence delimitation item.
   reader.Seek(4, std::ios::cur);
@@ -303,9 +303,9 @@ void DicomReader::ReadSeqEndTag(Reader& reader, Tag tag,
   handler_->OnSequenceEnd(element);
 }
 
-void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
-                                    std::uint32_t& read_length) {
-  LOG_INFO("Read sequence item end/delimitation tag.");
+void DicomReader::ReadSeqItemDelimitation(Reader& reader, Tag tag,
+                                          std::uint32_t& read_length) {
+  LOG_INFO("Read sequence item delimitation tag.");
 
   // Skip the 4-byte zero length of this item delimitation item.
   reader.Seek(4, std::ios::cur);
@@ -315,9 +315,9 @@ void DicomReader::ReadSeqItemEndTag(Reader& reader, Tag tag,
   handler_->OnSequenceItemEnd(element);
 }
 
-void DicomReader::ReadSeqItemPrefixTag(Reader& reader, Tag tag,
-                                       std::uint32_t& read_length) {
-  LOG_INFO("Read sequence item start/prefix tag.");
+void DicomReader::ReadSeqItemPrefix(Reader& reader, Tag tag,
+                                    std::uint32_t& read_length) {
+  LOG_INFO("Read sequence item prefix tag.");
 
   std::uint32_t item_length = 0;
   ReadUint32(reader, &item_length);
@@ -435,7 +435,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
         return false;
       }
 
-      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxUidTag) {
+      if (transfer_syntax_uid_.empty() && tag == tags::kTransferSyntaxUID) {
         element->GetString(&transfer_syntax_uid_);
       }
 
@@ -443,7 +443,7 @@ bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
       handler_->OnElementEnd(element);
 
     } else {
-      if (transfer_syntax_uid_.empty() && tag == kTransferSyntaxUidTag) {
+      if (transfer_syntax_uid_.empty() && tag == tags::kTransferSyntaxUID) {
         DataElement* element = ReadElement(reader, tag, vr, length);
         if (element == nullptr) {
           return false;

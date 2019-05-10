@@ -291,8 +291,6 @@ bool CheckUR(const std::string& value) {
   return true;
 }
 
-}  // namespace
-
 // -----------------------------------------------------------------------------
 
 bool CheckStringValue(VR vr, const std::string& value) {
@@ -317,7 +315,7 @@ bool CheckStringValue(VR vr, const std::string& value) {
 
     case VR::DS:
       return CheckDS(value);
- 
+
     case VR::IS:
       return CheckIS(value);
 
@@ -355,11 +353,10 @@ bool CheckStringValue(VR vr, const std::string& value) {
   return false;
 }
 
+}  // namespace
+
 // -----------------------------------------------------------------------------
 
-// NOTE:
-// In order to be consistent with the initial state of buffer, |length_| is
-// initialized as 0 instead of kUndefinedLength.
 DataElement::DataElement(Tag tag, VR vr, ByteOrder byte_order)
     : tag_(tag), vr_(vr), byte_order_(byte_order), length_(0) {
 }

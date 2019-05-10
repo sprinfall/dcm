@@ -49,7 +49,7 @@ void DumpReadHandler::OnSequenceEnd(DataElement* data_element) {
 
   if (data_element != nullptr) {
     // Sequence delimitation tag read.
-    assert(data_element->tag() == kSeqEndTag);
+    assert(data_element->tag() == tags::kSeqDelimatation);
 
     PrintIndent();
 
@@ -80,7 +80,7 @@ void DumpReadHandler::OnSequenceItemEnd(DataElement* data_element) {
 
   if (data_element != nullptr) {
     // Sequence item delimitation tag read.
-    assert(data_element->tag() == kSeqItemEndTag);
+    assert(data_element->tag() == tags::kSeqItemDelimatation);
 
     PrintIndent();
 

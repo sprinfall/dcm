@@ -12,8 +12,6 @@ namespace dcm {
 
 using Buffer = std::vector<char>;
 
-bool CheckStringValue(VR vr, const std::string& value);
-
 class Visitor;
 
 class DataElement {

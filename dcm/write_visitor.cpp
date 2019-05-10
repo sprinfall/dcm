@@ -16,8 +16,8 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   WriteUint16(tag_.element());
 
   // Special data element for SQ.
-  if (tag_ == kSeqEndTag || tag_ == kSeqItemEndTag ||
-      tag_ == kSeqItemPrefixTag) {
+  if (tag_ == tags::kSeqDelimatation || tag_ == tags::kSeqItemDelimatation ||
+      tag_ == tags::kSeqItemPrefix) {
     // Value length of kSeqEndTag and kSeqItemEndTag should both be 0.
     WriteUint32(data_element->length());
     return;

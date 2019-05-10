@@ -179,12 +179,72 @@ inline bool operator>=(Tag lhs, Tag rhs) {
   return lhs.ToUint32() >= rhs.ToUint32();
 }
 
-// A list of commonly used tags:
+// -----------------------------------------------------------------------------
 
-const Tag kTransferSyntaxUidTag = 0x00020010;
-const Tag kSeqEndTag = 0xFFFEE0DD;
-const Tag kSeqItemEndTag = 0xFFFEE00D;
-const Tag kSeqItemPrefixTag = 0xFFFEE000;
+namespace tags {
+
+// Commonly used tags.
+// This is not meant to be a full list.
+
+const Tag kSeqDelimatation            = 0xFFFEE0DD;
+const Tag kSeqItemPrefix              = 0xFFFEE000;
+const Tag kSeqItemDelimatation        = 0xFFFEE00D;
+
+// 0x0002
+const Tag kTransferSyntaxUID          = 0x00020010;  // UI
+const Tag kImplementationClassUID     = 0x00020012;  // UI
+const Tag kSourceAETitle              = 0x00020016;  // AE
+const Tag kSendingAETitle             = 0x00020017;  // AE
+
+// 0x0008
+const Tag kSpecificCharacterSet       = 0x00080005;  // CS
+const Tag kImageType                  = 0x00080008;  // CS
+const Tag kSOPClassUID                = 0x00080016;  // UI
+const Tag kSOPInstanceUID             = 0x00080018;  // UI
+const Tag kStudyDate                  = 0x00080020;  // DA
+const Tag kSeriesDate                 = 0x00080021;  // DA
+const Tag kAcquisitionDate            = 0x00080022;  // DA
+const Tag kAcquisitionDateTime        = 0x0008002A;  // DT
+const Tag kStudyTime                  = 0x00080030;  // TM
+const Tag kSeriesTime                 = 0x00080031;  // TM
+const Tag kAcquisitionTime            = 0x00080032;  // TM
+const Tag kAccessionNumber            = 0x00080050;  // SH
+const Tag kQueryRetrieveLevel         = 0x00080052;  // CS
+const Tag kModality                   = 0x00080060;  // CS
+const Tag kStudyDescription           = 0x00081030;  // LO
+const Tag kSeriesDescription          = 0x0008103E;  // LO
+
+// 0x0010
+const Tag kPatientName                = 0x00100010;  // PN
+const Tag kPatientID                  = 0x00100020;  // LO
+const Tag kPatientBirthDate           = 0x00100030;  // DA
+const Tag kPatientBirthTime           = 0x00100032;  // TM
+const Tag kPatientSex                 = 0x00100040;  // CS
+const Tag kPatientAge                 = 0x00101010;  // AS
+const Tag kPregnancyStatus            = 0x001021C0;  // US
+
+// 0x0020
+const Tag kImageComments              = 0x00204000;  // LT
+
+// 0x0028
+const Tag kSamplesPerPixel            = 0x00280002;  // US
+const Tag kPhotometricInterpretation  = 0x00280004;  // CS
+const Tag kNumberOfFrames             = 0x00280008;  // IS
+const Tag kRows                       = 0x00280010;  // US
+const Tag kColumns                    = 0x00280011;  // US
+const Tag kPixelSpacing               = 0x00280030;  // DS
+const Tag kBitsAllocated              = 0x00280100;  // US
+const Tag kBitsStored                 = 0x00280101;  // US
+const Tag kWindowCenter               = 0x00281050;  // DS
+const Tag kWindowWidth                = 0x00281051;  // DS
+
+// 0x0074
+const Tag kReceivingAE                = 0x00741234;  // AE
+const Tag kRequestingAE               = 0x00741236;  // AE
+
+const Tag kPixelData                  = 0x7FE00010;  // OB
+
+}  // namespace tags
 
 // -----------------------------------------------------------------------------
 

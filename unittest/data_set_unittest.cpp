@@ -95,69 +95,65 @@ TEST(DataSetTest, SetString) {
   bool ok = reader.ReadFile(path);
   EXPECT_TRUE(ok);
 
-  const dcm::Tag kCommentsTag = 0x00204000;
-
   {
     std::string comments(10, 'a');
 
-    ok = data_set.SetString(kCommentsTag, comments);
+    ok = data_set.SetString(dcm::tags::kImageComments, comments);
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(10, data_set.Get(kCommentsTag)->length());
+    EXPECT_EQ(10, data_set.Get(dcm::tags::kImageComments)->length());
 
     std::string value;
-    EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));
+    EXPECT_TRUE(data_set.GetString(dcm::tags::kImageComments, &value));
     EXPECT_EQ(comments, value);
   }
 
   {
     std::string comments(11, 'a');
 
-    ok = data_set.SetString(kCommentsTag, comments);
+    ok = data_set.SetString(dcm::tags::kImageComments, comments);
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(12, data_set.Get(kCommentsTag)->length());
+    EXPECT_EQ(12, data_set.Get(dcm::tags::kImageComments)->length());
 
     std::string value;
-    EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));
+    EXPECT_TRUE(data_set.GetString(dcm::tags::kImageComments, &value));
     EXPECT_EQ(comments, value);
   }
 
   {
-    ok = data_set.SetString(kCommentsTag, "");
+    ok = data_set.SetString(dcm::tags::kImageComments, "");
     EXPECT_TRUE(ok);
 
-    EXPECT_EQ(0, data_set.Get(kCommentsTag)->length());
+    EXPECT_EQ(0, data_set.Get(dcm::tags::kImageComments)->length());
 
     std::string value;
-    EXPECT_TRUE(data_set.GetString(kCommentsTag, &value));
+    EXPECT_TRUE(data_set.GetString(dcm::tags::kImageComments, &value));
     EXPECT_EQ("", value);
   }
 }
 
 TEST(DataSetTest, SetString_NoExist) {
-  const dcm::Tag kSourceAETitleTag = 0x00020016;
   const std::string kAETitle = "MYSTORESCU";
 
   dcm::DataSet data_set;
 
-  bool ok = data_set.SetString(kSourceAETitleTag, kAETitle);
+  bool ok = data_set.SetString(dcm::tags::kSourceAETitle, kAETitle);
   EXPECT_TRUE(ok);
 
   EXPECT_EQ(1, data_set.size());
 
   std::string ae_title;
-  data_set.GetString(kSourceAETitleTag, &ae_title);
+  data_set.GetString(dcm::tags::kSourceAETitle, &ae_title);
   EXPECT_EQ(kAETitle, ae_title);
 }
 
 TEST(DataSetTest, SetString_InvalidValue) {
-  const dcm::Tag kSourceAETitleTag = 0x00020016;
   const std::string kAETitle = "MYSTORESCU_MORETHAN_MAX_LENGTH_16";
 
   dcm::DataSet data_set;
 
-  bool ok = data_set.SetString(kSourceAETitleTag, kAETitle);
+  bool ok = data_set.SetString(dcm::tags::kSourceAETitle, kAETitle);
   EXPECT_FALSE(ok);
 
   EXPECT_EQ(0, data_set.size());
