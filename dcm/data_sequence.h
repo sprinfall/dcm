@@ -1,8 +1,6 @@
 #ifndef DCM_DATA_SEQUENCE_H_
 #define DCM_DATA_SEQUENCE_H_
 
-#include <cstdint>
-#include <string>
 #include <vector>
 
 #include "dcm/data_element.h"

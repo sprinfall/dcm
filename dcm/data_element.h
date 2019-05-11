@@ -3,7 +3,6 @@
 
 #include <cassert>
 #include <cstdint>
-#include <iosfwd>
 #include <vector>
 
 #include "dcm/defs.h"
@@ -16,14 +15,16 @@ class Visitor;
 
 class DataElement {
 public:
-  DataElement(Tag tag, VR vr, ByteOrder byte_order = ByteOrder::LE);
-
   // VR will be queried from the data dictionary.
   DataElement(Tag tag, ByteOrder byte_order = ByteOrder::LE);
+
+  DataElement(Tag tag, VR vr, ByteOrder byte_order = ByteOrder::LE);
 
   virtual ~DataElement() = default;
 
   virtual void Accept(Visitor& visitor) const;
+
+  // ---------------------------------------------------------------------------
 
   Tag tag() const { return tag_; }
 
@@ -111,19 +112,7 @@ public:
 
   // TODO: OD, OF, OL, OW
 
-  // Print data element to an output stream.
-  // TODO: Remove
-  void Print(std::ostream& os) const;
-
-  // Print value to an output stream.
-  // TODO: Remove
-  void PrintValue(std::ostream& os) const;
-
-  // Print value to a string.
-  // TODO: Remove
-  std::string PrintValue() const;
-
-protected:
+private:
   bool GetNumber(VR vr, size_t size, void* value) const;
   bool SetNumber(VR vr, size_t size, void* value);
 
