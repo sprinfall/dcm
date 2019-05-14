@@ -232,6 +232,7 @@ bool CheckUT(const std::string& value) {
 // Person Name
 bool CheckPN(const std::string& value) {
   // Max: 64
+  // TODO: Max length of PN is 3*64+2 = 194 characters (not bytes!)
 
   if (value.size() > 64) {
     return false;
@@ -381,6 +382,62 @@ bool DataElement::SetBuffer(Buffer&& buffer) {
   return true;
 }
 
+// -----------------------------------------------------------------------------
+
+std::size_t DataElement::GetVM() const {
+  switch (vr_.code()) {
+    case VR::OF:
+    case VR::OD:
+    case VR::OB:
+    case VR::OW:
+      return 1;
+
+    case VR::US:
+    case VR::SS:
+      return length_ / 2;
+
+    case VR::UL:
+    case VR::SL:
+    case VR::FL:
+    case VR::AT:
+      return length_ / 4;
+
+    case VR::FD:
+      return length_ / 8;
+
+    case VR::ST:
+    case VR::LT:
+    case VR::UT:
+    case VR::UR:
+      // TODO: length_ > 0 ? 1 : 0
+      break;
+
+    case VR::AE:
+    case VR::AS:
+    case VR::CS:
+    case VR::DA:
+    case VR::DS:
+    case VR::DT:
+    case VR::TM:
+    case VR::IS:
+    case VR::UI:
+      // split by '\\'
+      break;
+
+    case VR::SH:
+    case VR::LO:
+    case VR::PN:
+    case VR::UC:
+      // split by '\\'
+      break;
+
+    default:
+      break;
+  }
+
+  return 1;
+}
+
 bool DataElement::GetString(std::string* value) const {
   if (buffer_.empty()) {
     value->clear();
@@ -434,7 +491,7 @@ bool DataElement::GetNumber(VR vr, size_t size, void* value) const {
     return false;
   }
 
-  GetBytes(value, size);
+  memcpy(value, &buffer_[0], size);
 
   AdjustBytes(value, size);
 
@@ -446,29 +503,19 @@ bool DataElement::SetNumber(VR vr, size_t size, void* value) {
     return false;
   }
 
+  // TODO: VM
+
   AdjustBytes(value, size);
 
-  SetBytes(value, size);
-
-  return true;
-}
-
-void DataElement::GetBytes(void* value, std::size_t length) const {
-  //assert(length == length_);  // TODO: VM
-
-  memcpy(value, &buffer_[0], length);
-}
-
-void DataElement::SetBytes(void* value, std::size_t length) {
-  assert(length != 0);  // TODO: length % 2 == 0
-
-  length_ = length;
+  length_ = size;
 
   if (buffer_.size() != length_) {
     buffer_.resize(length_);
   }
 
   memcpy(&buffer_[0], value, length_);
+
+  return true;
 }
 
 void DataElement::AdjustBytes(void* value, std::size_t size) const {

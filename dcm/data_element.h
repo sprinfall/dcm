@@ -44,6 +44,9 @@ public:
 
   // Get and set values
 
+  // Get value multiplicity.
+  std::size_t GetVM() const;
+
   // AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR.
 
   bool GetString(std::string* value) const;
@@ -60,14 +63,8 @@ public:
     return SetNumber(VR::US, 2, &value);
   }
 
-  // UL (Unsigned Long)
-
-  bool GetUint32(std::uint32_t* value) const {
-    return GetNumber(VR::UL, 4, value);
-  }
-
-  bool SetUint32(std::uint32_t value) {
-    return SetNumber(VR::UL, 4, &value);
+  bool GetMultiUint16(std::vector<std::uint16_t>* values) const {
+    return GetMultiNumbers(VR::US, values);
   }
 
   // SS (Signed Short)
@@ -80,6 +77,24 @@ public:
     return SetNumber(VR::SS, 2, &value);
   }
 
+  bool GetMultiInt16(std::vector<std::int16_t>* values) const {
+    return GetMultiNumbers(VR::SS, values);
+  }
+
+  // UL (Unsigned Long)
+
+  bool GetUint32(std::uint32_t* value) const {
+    return GetNumber(VR::UL, 4, value);
+  }
+
+  bool SetUint32(std::uint32_t value) {
+    return SetNumber(VR::UL, 4, &value);
+  }
+
+  bool GetMultiUint32(std::vector<std::uint32_t>* values) const {
+    return GetMultiNumbers(VR::UL, values);
+  }
+
   // SL (Signed Long)
 
   bool GetInt32(std::int32_t* value) const {
@@ -88,6 +103,10 @@ public:
 
   bool SetInt32(std::int32_t value) {
     return SetNumber(VR::SL, 4, &value);
+  }
+
+  bool GetMultiInt32(std::vector<std::int32_t>* values) const {
+    return GetMultiNumbers(VR::SL, values);
   }
 
   // FL (Floating Point Single)
@@ -100,6 +119,10 @@ public:
     return SetNumber(VR::FL, 4, &value);
   }
 
+  bool GetMultiFloat32(std::vector<float32_t>* values) const {
+    return GetMultiNumbers(VR::FL, values);
+  }
+
   // FD (Floating Point Double)
 
   bool GetFloat64(float64_t* value) const {
@@ -110,14 +133,37 @@ public:
     return SetNumber(VR::FD, 8, &value);
   }
 
+  bool GetMultiFloat64(std::vector<float64_t>* values) const {
+    return GetMultiNumbers(VR::FD, values);
+  }
+
   // TODO: OD, OF, OL, OW
 
 private:
   bool GetNumber(VR vr, size_t size, void* value) const;
   bool SetNumber(VR vr, size_t size, void* value);
 
-  void GetBytes(void* value, std::size_t length) const;
-  void SetBytes(void* value, std::size_t length);
+  template <typename T>
+  bool GetMultiNumbers(VR vr, std::vector<T>* values) const {
+    if (vr != vr_) {
+      return false;
+    }
+
+    const std::size_t vm = GetVM();
+    values->resize(vm);
+
+    const std::size_t size = sizeof(T);
+
+    const char* src = &buffer_[0];
+    T* dst = &(*values)[0];
+
+    for (std::size_t i = 0; i < vm; ++i, src += size, ++dst) {
+      std::memcpy(dst, src, size);
+      AdjustBytes(dst, size);
+    }
+
+    return true;
+  }
 
   void AdjustBytes(void* value, std::size_t size) const;
 
