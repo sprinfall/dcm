@@ -439,6 +439,10 @@ std::size_t DataElement::GetVM() const {
 }
 
 bool DataElement::GetString(std::string* value) const {
+  if (!vr_.IsString()) {
+    return false;
+  }
+
   if (buffer_.empty()) {
     value->clear();
     return true;

@@ -9,10 +9,34 @@ TEST(DataElementTest, Constructor) {
 }
 
 TEST(DataElementTest, SetString_AE) {
-  dcm::DataElement element(dcm::tags::kRequestingAE, dcm::ByteOrder::LE);
+  dcm::DataElement element(dcm::tags::kRequestingAE);
 
   bool ok = element.SetString("MyStoreScuPC01");
   EXPECT_TRUE(ok);
+}
+
+TEST(DataElementTest, GetString_AE) {
+  const std::string requesting_ae = "MyStoreScuPC01";
+
+  dcm::DataElement element(dcm::tags::kRequestingAE);
+
+  bool ok = element.SetString(requesting_ae);
+  EXPECT_TRUE(ok);
+
+  std::string value;
+  ok = element.GetString(&value);
+  EXPECT_TRUE(ok);
+
+  EXPECT_EQ(requesting_ae, value);
+}
+
+TEST(DataElementTest, GetString_NotAString) {
+  dcm::DataElement element(dcm::tags::kSamplesPerPixel, dcm::ByteOrder::LE);
+  element.SetUint16(1);
+
+  std::string value;
+  bool ok = element.GetString(&value);
+  EXPECT_FALSE(ok);
 }
 
 TEST(DataElementTest, SetUint16_LE) {

@@ -1,5 +1,6 @@
 #include "dcm/defs.h"
 
+#include <array>
 #include <iomanip>
 #include <map>
 
@@ -106,6 +107,16 @@ bool VR::SetBytes(const char bytes[2]) {
   return true;
 }
 
+bool VR::IsString() const {
+  static const Code kStringVRs[] = {
+    AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR,
+  };
+
+  const auto end = kStringVRs + sizeof(kStringVRs) / sizeof(VR::Code);
+
+  return std::find(kStringVRs, end, code_) != end;
+}
+
 bool VR::Is16BitsFollowingReversed() const {
   if (code_ == VR::OB || code_ == VR::OD || code_ == VR::OF ||
       code_ == VR::OL || code_ == VR::OW || code_ == VR::SQ ||
@@ -115,6 +126,7 @@ bool VR::Is16BitsFollowingReversed() const {
   }
   return false;
 }
+
 
 // -----------------------------------------------------------------------------
 

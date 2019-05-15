@@ -97,6 +97,8 @@ public:
 
   bool IsUnknown() const { return code_ == UN; }
 
+  bool IsString() const;
+
   // For OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits following the
   // two character VR Field are reserved for use by later versions of the DICOM
   // Standard.
