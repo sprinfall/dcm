@@ -1,11 +1,10 @@
 #include "gtest/gtest.h"
 
-#include "dcm/data_set.h"
 #include "dcm/dicom_file.h"
 
 extern std::string g_data_dir;
 
-TEST(DicomReaderTest, ImplicitLittleNoMeta) {
+TEST(DicomFileTest, ImplicitLittleNoMeta) {
   dcm::Path path(g_data_dir);
   path /= "Implicit Little NoMeta (CR-MONO1-10-chest).dcm";
 
@@ -30,7 +29,7 @@ TEST(DicomReaderTest, ImplicitLittleNoMeta) {
   EXPECT_EQ(387200, element->length());
 }
 
-TEST(DicomReaderTest, ExplicitBig) {
+TEST(DicomFileTest, ExplicitBig) {
   dcm::Path path(g_data_dir);
   path /= "Explicit Big (US-RGB-8-epicard).dcm";
 
@@ -56,7 +55,7 @@ TEST(DicomReaderTest, ExplicitBig) {
   EXPECT_EQ(921600, element->length());
 }
 
-TEST(DicomReaderTest, ExplicitLittle_CS_Ceph) {
+TEST(DicomFileTest, ExplicitLittle_CS_Ceph) {
   dcm::Path path(g_data_dir);
   path /= "cs";
   path /= "Explicit Little (Ceph).dcm";
@@ -86,24 +85,37 @@ TEST(DicomReaderTest, ExplicitLittle_CS_Ceph) {
     EXPECT_EQ(32837, value);
   }
 
-  // Multiple values
   {
-    // VR: US; VM: 2
+    // Multi-values (VR: US; VM: 2)
+
     const dcm::Tag kHeadClampRingPositionTag = 0x00091159;
 
-    const dcm::DataElement* element = dicom_file.Get(kHeadClampRingPositionTag);
-    EXPECT_TRUE(element != nullptr);
-
     std::vector<std::uint16_t> values;
-    EXPECT_TRUE(element->GetMultiUint16(&values));
+    EXPECT_TRUE(dicom_file.GetUint16Array(kHeadClampRingPositionTag, &values));
 
     EXPECT_EQ(2, values.size());
     EXPECT_EQ(567, values[0]);
     EXPECT_EQ(1177, values[1]);
   }
+
+  {
+    // Multi-values (VR: CS; VM: ?)
+
+    std::string value;
+    EXPECT_TRUE(dicom_file.GetString(dcm::tags::kImageType, &value));
+    EXPECT_EQ("ORIGINAL\\PRIMARY\\", value);
+
+    std::vector<std::string> values;
+    EXPECT_TRUE(dicom_file.GetStringArray(dcm::tags::kImageType, &values));
+
+    EXPECT_EQ(3, values.size());
+    EXPECT_EQ("ORIGINAL", values[0]);
+    EXPECT_EQ("PRIMARY", values[1]);
+    EXPECT_EQ("", values[2]);
+  }
 }
 
-TEST(DicomReaderTest, ExplicitLittle_SeqEnd_CS_Ceph) {
+TEST(DicomFileTest, ExplicitLittle_SeqEnd_CS_Ceph) {
   dcm::Path path(g_data_dir);
   path /= "cs";
   path /= "Explicit Little SeqEnd (Ceph).dcm";
@@ -134,7 +146,7 @@ TEST(DicomReaderTest, ExplicitLittle_SeqEnd_CS_Ceph) {
   }
 }
 
-TEST(DicomReaderTest, ImplicitLittle_CS_CR7600) {
+TEST(DicomFileTest, ImplicitLittle_CS_CR7600) {
   dcm::Path path(g_data_dir);
   path /= "cs";
   path /= "Implicit Little (CR 7600).dcm";
@@ -143,4 +155,21 @@ TEST(DicomReaderTest, ImplicitLittle_CS_CR7600) {
 
   bool ok = dicom_file.Load();
   EXPECT_TRUE(ok);
+
+  {
+    // Multi-values (VR: CS; VM: ?)
+
+    std::string value;
+    EXPECT_TRUE(dicom_file.GetString(dcm::tags::kImageType, &value));
+    EXPECT_EQ("ORIGINAL\\PRIMARY\\\\FOR PROCESSING", value);
+
+    std::vector<std::string> values;
+    EXPECT_TRUE(dicom_file.GetStringArray(dcm::tags::kImageType, &values));
+
+    EXPECT_EQ(4, values.size());
+    EXPECT_EQ("ORIGINAL", values[0]);
+    EXPECT_EQ("PRIMARY", values[1]);
+    EXPECT_EQ("", values[2]);
+    EXPECT_EQ("FOR PROCESSING", values[3]);
+  }
 }

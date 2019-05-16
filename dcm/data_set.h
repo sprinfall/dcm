@@ -52,17 +52,32 @@ public:
 
   // ---------------------------------------------------------------------------
 
+  // Get value multiplicity.
+  // Return false if the tag doesn't exist.
+  bool GetVM(Tag tag, std::size_t* vm) const;
+
   bool GetString(Tag tag, std::string* value) const;
+  bool GetStringArray(Tag tag, std::vector<std::string>* values) const;
+
   bool SetString(Tag tag, const std::string& value);
 
   bool GetUint16(Tag tag, std::uint16_t* value) const;
-  bool GetUint32(Tag tag, std::uint32_t* value) const;
+  bool GetUint16Array(Tag tag, std::vector<std::uint16_t>* values) const;
 
   bool GetInt16(Tag tag, std::int16_t* value) const;
+  bool GetInt16Array(Tag tag, std::vector<std::int16_t>* values) const;
+
+  bool GetUint32(Tag tag, std::uint32_t* value) const;
+  bool GetUint32Array(Tag tag, std::vector<std::uint32_t>* values) const;
+
   bool GetInt32(Tag tag, std::int32_t* value) const;
+  bool GetInt32Array(Tag tag, std::vector<std::int32_t>* values) const;
 
   bool GetFloat32(Tag tag, float32_t* value) const;
+  bool GetFloat32Array(Tag tag, std::vector<float32_t>* values) const;
+
   bool GetFloat64(Tag tag, float64_t* value) const;
+  bool GetFloat64Array(Tag tag, std::vector<float64_t>* values) const;
 
 private:
   using Elements = std::vector<DataElement*>;

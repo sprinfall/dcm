@@ -42,6 +42,7 @@ public:
   };
 
   enum Code {
+    // Total number: 31
     AE = MAKE_VR_CODE('A', 'E'),  // Application Entity
     AS = MAKE_VR_CODE('A', 'S'),  // Age String
     AT = MAKE_VR_CODE('A', 'T'),  // Attribute Tag
@@ -97,13 +98,16 @@ public:
 
   bool IsUnknown() const { return code_ == UN; }
 
-  bool IsString() const;
-
   // For OB, OD, OF, OL, OW, SQ, UN and UC, UR, UT, the 16 bits following the
   // two character VR Field are reserved for use by later versions of the DICOM
   // Standard.
   // See: PS 3.5 Section 7.1.2 - Data Element Structure with Explicit VR
   bool Is16BitsFollowingReversed() const;
+
+  bool IsString() const;
+
+  // Is VM determined by back slash?
+  bool IsBackSlashVM() const;
 
 private:
   Code code_;

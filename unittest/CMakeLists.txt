@@ -5,7 +5,7 @@ set(UT_SRCS
     data_element_unittest.cpp
     data_set_unittest.cpp
     charset_unittest.cpp
-    dicom_reader_unittest.cpp
+    dicom_file_unittest.cpp
     main.cpp
     )
 

@@ -42,14 +42,14 @@ public:
 
   // ---------------------------------------------------------------------------
 
-  // Get and set values
-
   // Get value multiplicity.
   std::size_t GetVM() const;
 
   // AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR.
 
   bool GetString(std::string* value) const;
+
+  bool GetStringArray(std::vector<std::string>* values) const;
 
   bool SetString(const std::string& value);
 
@@ -59,12 +59,12 @@ public:
     return GetNumber(VR::US, 2, value);
   }
 
-  bool SetUint16(std::uint16_t value) {
-    return SetNumber(VR::US, 2, &value);
+  bool GetUint16Array(std::vector<std::uint16_t>* values) const {
+    return GetNumberArray(VR::US, values);
   }
 
-  bool GetMultiUint16(std::vector<std::uint16_t>* values) const {
-    return GetMultiNumbers(VR::US, values);
+  bool SetUint16(std::uint16_t value) {
+    return SetNumber(VR::US, 2, &value);
   }
 
   // SS (Signed Short)
@@ -73,12 +73,12 @@ public:
     return GetNumber(VR::SS, 2, value);
   }
 
-  bool SetInt16(std::int16_t value) {
-    return SetNumber(VR::SS, 2, &value);
+  bool GetInt16Array(std::vector<std::int16_t>* values) const {
+    return GetNumberArray(VR::SS, values);
   }
 
-  bool GetMultiInt16(std::vector<std::int16_t>* values) const {
-    return GetMultiNumbers(VR::SS, values);
+  bool SetInt16(std::int16_t value) {
+    return SetNumber(VR::SS, 2, &value);
   }
 
   // UL (Unsigned Long)
@@ -87,12 +87,12 @@ public:
     return GetNumber(VR::UL, 4, value);
   }
 
-  bool SetUint32(std::uint32_t value) {
-    return SetNumber(VR::UL, 4, &value);
+  bool GetUint32Array(std::vector<std::uint32_t>* values) const {
+    return GetNumberArray(VR::UL, values);
   }
 
-  bool GetMultiUint32(std::vector<std::uint32_t>* values) const {
-    return GetMultiNumbers(VR::UL, values);
+  bool SetUint32(std::uint32_t value) {
+    return SetNumber(VR::UL, 4, &value);
   }
 
   // SL (Signed Long)
@@ -101,12 +101,12 @@ public:
     return GetNumber(VR::SL, 4, value);
   }
 
-  bool SetInt32(std::int32_t value) {
-    return SetNumber(VR::SL, 4, &value);
+  bool GetInt32Array(std::vector<std::int32_t>* values) const {
+    return GetNumberArray(VR::SL, values);
   }
 
-  bool GetMultiInt32(std::vector<std::int32_t>* values) const {
-    return GetMultiNumbers(VR::SL, values);
+  bool SetInt32(std::int32_t value) {
+    return SetNumber(VR::SL, 4, &value);
   }
 
   // FL (Floating Point Single)
@@ -115,12 +115,12 @@ public:
     return GetNumber(VR::FL, 4, value);
   }
 
-  bool SetFloat32(float32_t value) {
-    return SetNumber(VR::FL, 4, &value);
+  bool GetFloat32Array(std::vector<float32_t>* values) const {
+    return GetNumberArray(VR::FL, values);
   }
 
-  bool GetMultiFloat32(std::vector<float32_t>* values) const {
-    return GetMultiNumbers(VR::FL, values);
+  bool SetFloat32(float32_t value) {
+    return SetNumber(VR::FL, 4, &value);
   }
 
   // FD (Floating Point Double)
@@ -129,12 +129,12 @@ public:
     return GetNumber(VR::FD, 8, value);
   }
 
-  bool SetFloat64(float64_t value) {
-    return SetNumber(VR::FD, 8, &value);
+  bool GetFloat64Array(std::vector<float64_t>* values) const {
+    return GetNumberArray(VR::FD, values);
   }
 
-  bool GetMultiFloat64(std::vector<float64_t>* values) const {
-    return GetMultiNumbers(VR::FD, values);
+  bool SetFloat64(float64_t value) {
+    return SetNumber(VR::FD, 8, &value);
   }
 
   // TODO: OD, OF, OL, OW
@@ -144,7 +144,7 @@ private:
   bool SetNumber(VR vr, size_t size, void* value);
 
   template <typename T>
-  bool GetMultiNumbers(VR vr, std::vector<T>* values) const {
+  bool GetNumberArray(VR vr, std::vector<T>* values) const {
     if (vr != vr_) {
       return false;
     }
@@ -182,6 +182,7 @@ protected:
   // Identical to the buffer size if the buffer is not empty.
   std::size_t length_;
 
+private:
   // Raw buffer (i.e., bytes) of the value.
   Buffer buffer_;
 };

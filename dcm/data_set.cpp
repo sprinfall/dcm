@@ -59,12 +59,29 @@ void DataSet::Clear() {
   elements_.clear(); 
 }
 
-bool DataSet::GetString(Tag tag, std::string* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetString(value);
+// ---------------------------------------------------------------------------
+
+// Get an element by tag or return false.
+#define GET_OR_RETURN                    \
+  const DataElement* element = Get(tag); \
+  if (element == nullptr) {              \
+    return false;                        \
   }
-  return false;
+
+bool DataSet::GetVM(Tag tag, std::size_t* vm) const {
+  GET_OR_RETURN;
+  *vm = element->GetVM();
+  return true;
+}
+
+bool DataSet::GetString(Tag tag, std::string* value) const {
+  GET_OR_RETURN;
+  return element->GetString(value);
+}
+
+bool DataSet::GetStringArray(Tag tag, std::vector<std::string>* values) const {
+  GET_OR_RETURN;
+  return element->GetStringArray(values);
 }
 
 bool DataSet::SetString(Tag tag, const std::string& value) {
@@ -84,52 +101,68 @@ bool DataSet::SetString(Tag tag, const std::string& value) {
 }
 
 bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetUint16(value);
-  }
-  return false;
+  GET_OR_RETURN;
+  return element->GetUint16(value);
 }
 
-bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetUint32(value);
-  }
-  return false;
+bool DataSet::GetUint16Array(Tag tag,
+                             std::vector<std::uint16_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetUint16Array(values);
 }
 
 bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetInt16(value);
-  }
-  return false;
+  GET_OR_RETURN;
+  return element->GetInt16(value);
+}
+
+bool DataSet::GetInt16Array(Tag tag, std::vector<std::int16_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetInt16Array(values);
+}
+
+bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
+  GET_OR_RETURN;
+  return element->GetUint32(value);
+}
+
+bool DataSet::GetUint32Array(Tag tag,
+                             std::vector<std::uint32_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetUint32Array(values);
 }
 
 bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetInt32(value);
-  }
-  return false;
+  GET_OR_RETURN;
+  return element->GetInt32(value);
+}
+
+bool DataSet::GetInt32Array(Tag tag, std::vector<std::int32_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetInt32Array(values);
 }
 
 bool DataSet::GetFloat32(Tag tag, float32_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetFloat32(value);
-  }
-  return false;
+  GET_OR_RETURN;
+  return element->GetFloat32(value);
+}
+
+bool DataSet::GetFloat32Array(Tag tag, std::vector<float32_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetFloat32Array(values);
 }
 
 bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
-  const DataElement* element = Get(tag);
-  if (element != nullptr) {
-    return element->GetFloat64(value);
-  }
-  return false;
+  GET_OR_RETURN;
+  return element->GetFloat64(value);
 }
+
+bool DataSet::GetFloat64Array(Tag tag, std::vector<float64_t>* values) const {
+  GET_OR_RETURN;
+  return element->GetFloat64Array(values);
+}
+
+// -----------------------------------------------------------------------------
 
 DataSet::Elements::iterator DataSet::LowerBound(Tag tag) {
   auto less = [](DataElement* lhs, Tag tag) {

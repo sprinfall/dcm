@@ -2,6 +2,8 @@
 
 #include <cctype>
 
+#include "boost/algorithm/string.hpp"
+
 #include "dcm/data_dict.h"
 #include "dcm/util.h"
 #include "dcm/visitor.h"
@@ -369,14 +371,13 @@ void DataElement::Accept(Visitor& visitor) const {
   visitor.VisitDataElement(this);
 }
 
+// TODO: Add trailing space or NULL byte if necessary.
 bool DataElement::SetBuffer(Buffer&& buffer) {
   if (buffer.size() % 2 != 0) {
     return false;
   }
 
-  // TODO: Redundent (only useful for SQ and SQ item prefix tags).
-  length_ = buffer.size();
-
+  length_ = buffer.size();  // NOTE: Before std::move()!
   buffer_ = std::move(buffer);
 
   return true;
@@ -385,56 +386,44 @@ bool DataElement::SetBuffer(Buffer&& buffer) {
 // -----------------------------------------------------------------------------
 
 std::size_t DataElement::GetVM() const {
-  switch (vr_.code()) {
-    case VR::OF:
-    case VR::OD:
-    case VR::OB:
-    case VR::OW:
-      return 1;
+  const VR::Code code = vr_.code();
 
-    case VR::US:
-    case VR::SS:
-      return length_ / 2;
-
-    case VR::UL:
-    case VR::SL:
-    case VR::FL:
-    case VR::AT:
-      return length_ / 4;
-
-    case VR::FD:
-      return length_ / 8;
-
-    case VR::ST:
-    case VR::LT:
-    case VR::UT:
-    case VR::UR:
-      // TODO: length_ > 0 ? 1 : 0
-      break;
-
-    case VR::AE:
-    case VR::AS:
-    case VR::CS:
-    case VR::DA:
-    case VR::DS:
-    case VR::DT:
-    case VR::TM:
-    case VR::IS:
-    case VR::UI:
-      // split by '\\'
-      break;
-
-    case VR::SH:
-    case VR::LO:
-    case VR::PN:
-    case VR::UC:
-      // split by '\\'
-      break;
-
-    default:
-      break;
+  if (code == VR::OF || code == VR::OD || code == VR::OB || code == VR::OW ||
+      code == VR::OL) {
+    return 1;
   }
 
+  if (code == VR::US || code == VR::SS) {
+    return length_ / 2;
+  }
+
+  if (code == VR::UL || code == VR::SL || code == VR::FL || code == VR::AT) {
+    return length_ / 4;
+  }
+
+  if (code == VR::FD) {
+    return length_ / 8;
+  }
+
+  if (code == VR::ST || code == VR::LT || code == VR::UT || code == VR::UR) {
+    return length_ > 0 ? 1 : 0;
+  }
+
+  if (vr_.IsBackSlashVM()) {
+    // AE, AS, UI, etc.
+    if (buffer_.empty()) {
+      return 0;
+    }
+    std::size_t vm = 1;
+    for (std::size_t i = 0; i < buffer_.size(); ++i) {
+      if (buffer_[i] == '\\') {
+        ++vm;
+      }
+    }
+    return vm;
+  }
+
+  // SQ, UN
   return 1;
 }
 
@@ -450,18 +439,37 @@ bool DataElement::GetString(std::string* value) const {
 
   std::size_t size = buffer_.size();
 
-  if (buffer_.back() == ' ') {
-    // Remove padding space.
-    --size;
-  }
-
-  if (size > 0 && buffer_[size - 1] == '\0') {
-    // Some strings end with a redundent '\0', remove it.
-    --size;
+  if (size > 0) {
+    // Remove blank trailing space (or NULL byte for UI).
+    if (vr_ == VR::UI) {
+      if (buffer_.back() == '\0') {
+        --size;
+      }
+    } else {
+      if (buffer_.back() == ' ') {
+        --size;
+      }
+    }
   }
 
   value->assign(&buffer_[0], size);
 
+  return true;
+}
+
+bool DataElement::GetStringArray(std::vector<std::string>* values) const {
+  std::string value;
+  if (!GetString(&value)) {
+    return false;
+  }
+
+  if (!vr_.IsBackSlashVM()) {
+    // TODO: What if value is empty? Return false?
+    values->push_back(std::move(value));
+    return true;
+  }
+
+  boost::split(*values, value, boost::is_any_of("\\"));
   return true;
 }
 
@@ -473,6 +481,7 @@ bool DataElement::SetString(const std::string& value) {
   bool padding = (value.size() % 2 == 1);
 
   length_ = value.size();
+
   if (padding) {
     length_ += 1;
   }
@@ -484,7 +493,12 @@ bool DataElement::SetString(const std::string& value) {
   }
 
   if (padding) {
-    buffer_[length_ - 1] = ' ';
+    // Add blank trailing space (or NULL byte for UI).
+    if (vr_ == VR::UI) {
+      buffer_[length_ - 1] = '\0';
+    } else {
+      buffer_[length_ - 1] = ' ';
+    }
   }
 
   return true;
