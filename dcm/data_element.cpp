@@ -427,6 +427,8 @@ std::size_t DataElement::GetVM() const {
   return 1;
 }
 
+// -----------------------------------------------------------------------------
+
 bool DataElement::GetString(std::string* value) const {
   if (!vr_.IsString()) {
     return false;
@@ -463,7 +465,7 @@ bool DataElement::GetStringArray(std::vector<std::string>* values) const {
     return false;
   }
 
-  if (!vr_.IsBackSlashVM()) {
+  if (!vr_.IsBackSlashVM()) {  // TODO: Just return false?
     // TODO: What if value is empty? Return false?
     values->push_back(std::move(value));
     return true;
@@ -504,47 +506,26 @@ bool DataElement::SetString(const std::string& value) {
   return true;
 }
 
-bool DataElement::GetNumber(VR vr, size_t size, void* value) const {
-  if (vr_ != vr) {
+bool DataElement::SetStringArray(const std::vector<std::string>& values) {
+  if (!vr_.IsBackSlashVM()) {
     return false;
   }
 
-  memcpy(value, &buffer_[0], size);
+  // TODO: Check expected VM using data dict.
 
-  AdjustBytes(value, size);
+  std::string value = boost::join(values, "\\");
 
-  return true;
+  // TODO: Avoid VR check.
+  return SetString(value);
 }
 
-bool DataElement::SetNumber(VR vr, size_t size, void* value) {
-  if (vr_ != vr) {
-    return false;
-  }
-
-  // TODO: VM
-
-  AdjustBytes(value, size);
-
-  length_ = size;
-
-  if (buffer_.size() != length_) {
-    buffer_.resize(length_);
-  }
-
-  memcpy(&buffer_[0], value, length_);
-
-  return true;
-}
-
-void DataElement::AdjustBytes(void* value, std::size_t size) const {
-  if (byte_order_ != kByteOrderOS) {
-    if (size == 2) {
-      Swap16(value);
-    } else if (size == 4) {
-      Swap32(value);
-    } else if (size == 8) {
-      Swap64(value);
-    }
+void DataElement::SwapBytes(void* value, std::size_t size) const {
+  if (size == 2) {
+    Swap16(value);
+  } else if (size == 4) {
+    Swap32(value);
+  } else if (size == 8) {
+    Swap64(value);
   }
 }
 

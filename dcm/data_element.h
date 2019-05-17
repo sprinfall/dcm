@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cstring>  // std::memcpy
 #include <vector>
 
 #include "dcm/defs.h"
@@ -42,106 +43,180 @@ public:
 
   // ---------------------------------------------------------------------------
 
+  // Get value length.
+  std::size_t GetVL() const {
+    return length_;
+  }
+
   // Get value multiplicity.
   std::size_t GetVM() const;
 
-  // AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR.
+  // ---------------------------------------------------------------------------
 
+  // Get string value.
+  // Return false if the VR is not a string (see VR::IsString).
   bool GetString(std::string* value) const;
 
+  // Get string multiple values.
+  // Split the original string by back slash (\).
+  // Return false if the VR is not a string (see VR::IsString).
   bool GetStringArray(std::vector<std::string>* values) const;
 
   bool SetString(const std::string& value);
 
+  bool SetStringArray(const std::vector<std::string>& values);
+
   // US (Unsigned Short)
 
   bool GetUint16(std::uint16_t* value) const {
-    return GetNumber(VR::US, 2, value);
+    return GetNumber(VR::US, value);
+  }
+
+  bool SetUint16(std::uint16_t value) {
+    return SetNumber(VR::US, value);
   }
 
   bool GetUint16Array(std::vector<std::uint16_t>* values) const {
     return GetNumberArray(VR::US, values);
   }
-
-  bool SetUint16(std::uint16_t value) {
-    return SetNumber(VR::US, 2, &value);
+  
+  bool SetUint16Array(const std::vector<std::uint16_t>& values) {
+    return SetNumberArray(VR::US, values);
   }
 
   // SS (Signed Short)
 
   bool GetInt16(std::int16_t* value) const {
-    return GetNumber(VR::SS, 2, value);
+    return GetNumber(VR::SS, value);
+  }
+
+  bool SetInt16(std::int16_t value) {
+    return SetNumber(VR::SS, value);
   }
 
   bool GetInt16Array(std::vector<std::int16_t>* values) const {
     return GetNumberArray(VR::SS, values);
   }
 
-  bool SetInt16(std::int16_t value) {
-    return SetNumber(VR::SS, 2, &value);
+  bool SetInt16Array(const std::vector<std::int16_t>& values) {
+    return SetNumberArray(VR::SS, values);
   }
 
   // UL (Unsigned Long)
 
   bool GetUint32(std::uint32_t* value) const {
-    return GetNumber(VR::UL, 4, value);
+    return GetNumber(VR::UL, value);
+  }
+
+  bool SetUint32(std::uint32_t value) {
+    return SetNumber(VR::UL, value);
   }
 
   bool GetUint32Array(std::vector<std::uint32_t>* values) const {
     return GetNumberArray(VR::UL, values);
   }
 
-  bool SetUint32(std::uint32_t value) {
-    return SetNumber(VR::UL, 4, &value);
+  bool SetUint32Array(const std::vector<std::uint32_t>& values) {
+    return SetNumberArray(VR::UL, values);
   }
 
   // SL (Signed Long)
 
   bool GetInt32(std::int32_t* value) const {
-    return GetNumber(VR::SL, 4, value);
+    return GetNumber(VR::SL, value);
+  }
+
+  bool SetInt32(std::int32_t value) {
+    return SetNumber(VR::SL, value);
   }
 
   bool GetInt32Array(std::vector<std::int32_t>* values) const {
     return GetNumberArray(VR::SL, values);
   }
 
-  bool SetInt32(std::int32_t value) {
-    return SetNumber(VR::SL, 4, &value);
+  bool SetInt32Array(const std::vector<std::int32_t>& values) {
+    return SetNumberArray(VR::SL, values);
   }
 
   // FL (Floating Point Single)
 
   bool GetFloat32(float32_t* value) const {
-    return GetNumber(VR::FL, 4, value);
+    return GetNumber(VR::FL, value);
+  }
+
+  bool SetFloat32(float32_t value) {
+    return SetNumber(VR::FL, value);
   }
 
   bool GetFloat32Array(std::vector<float32_t>* values) const {
     return GetNumberArray(VR::FL, values);
   }
 
-  bool SetFloat32(float32_t value) {
-    return SetNumber(VR::FL, 4, &value);
+  bool SetFloat32Array(const std::vector<float32_t>& values) {
+    return SetNumberArray(VR::FL, values);
   }
 
   // FD (Floating Point Double)
 
   bool GetFloat64(float64_t* value) const {
-    return GetNumber(VR::FD, 8, value);
+    return GetNumber(VR::FD, value);
+  }
+
+  bool SetFloat64(float64_t value) {
+    return SetNumber(VR::FD, value);
   }
 
   bool GetFloat64Array(std::vector<float64_t>* values) const {
     return GetNumberArray(VR::FD, values);
   }
 
-  bool SetFloat64(float64_t value) {
-    return SetNumber(VR::FD, 8, &value);
+  bool SetFloat64Array(const std::vector<float64_t>& values) {
+    return SetNumberArray(VR::FD, values);
   }
 
-  // TODO: OD, OF, OL, OW
-
 private:
-  bool GetNumber(VR vr, size_t size, void* value) const;
-  bool SetNumber(VR vr, size_t size, void* value);
+
+  // If VM > 1, only the first number is retrieved.
+  template <typename T>
+  bool GetNumber(VR vr, T* value) const {
+    if (vr_ != vr) {
+      return false;
+    }
+
+    const std::size_t size = sizeof(T);
+
+    // length_ > size when VM > 1.
+    assert(length_ >= size);
+
+    std::memcpy(value, &buffer_[0], size);
+
+    if (byte_order_ != kByteOrderOS) {
+      SwapBytes(value, size);
+    }
+
+    return true;
+  }
+
+  // If VM is supposed to be > 1, setting a single number should fail.
+  template <typename T>
+  bool SetNumber(VR vr, const T& value) {
+    if (vr_ != vr) {
+      return false;
+    }
+
+    const std::size_t size = sizeof(T);
+
+    length_ = size;
+    buffer_.resize(size);
+
+    std::memcpy(&buffer_[0], &value, size);
+
+    if (byte_order_ != kByteOrderOS) {
+      SwapBytes(&buffer_[0], size);
+    }
+
+    return true;
+  }
 
   template <typename T>
   bool GetNumberArray(VR vr, std::vector<T>* values) const {
@@ -149,23 +224,49 @@ private:
       return false;
     }
 
+    const std::size_t size = sizeof(T);
     const std::size_t vm = GetVM();
+
     values->resize(vm);
 
-    const std::size_t size = sizeof(T);
-
-    const char* src = &buffer_[0];
     T* dst = &(*values)[0];
 
-    for (std::size_t i = 0; i < vm; ++i, src += size, ++dst) {
-      std::memcpy(dst, src, size);
-      AdjustBytes(dst, size);
+    std::memcpy(dst, &buffer_[0], length_);
+
+    if (byte_order_ != kByteOrderOS) {
+      for (std::size_t i = 0; i < vm; ++i, ++dst) {
+        SwapBytes(dst, size);
+      }
     }
 
     return true;
   }
 
-  void AdjustBytes(void* value, std::size_t size) const;
+  template <typename T>
+  bool SetNumberArray(VR vr, const std::vector<T>& values) {
+    if (vr != vr_) {
+      return false;
+    }
+
+    const std::size_t size = sizeof(T);
+    const std::size_t vm = values.size();
+
+    buffer_.resize(size * vm);
+
+    char* dst = &buffer_[0];
+
+    std::memcpy(dst, &values[0], buffer_.size());
+
+    if (byte_order_ != kByteOrderOS) {
+      for (std::size_t i = 0; i < vm; ++i, dst += size) {
+        SwapBytes(dst, size);
+      }
+    }
+
+    return true;
+  }
+
+  void SwapBytes(void* value, std::size_t size) const;
 
 protected:
   // Tag key.

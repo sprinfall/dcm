@@ -24,9 +24,7 @@ TEST(DicomFileTest, ImplicitLittleNoMeta) {
   dicom_file.GetString(dcm::tags::kSOPInstanceUID, &sop_instance_uid);
   EXPECT_EQ("1.2.392.200036.9125.0.19950720112207", sop_instance_uid);
 
-  auto element = dicom_file.Get(dcm::tags::kPixelData);
-  EXPECT_TRUE(element != nullptr);
-  EXPECT_EQ(387200, element->length());
+  EXPECT_EQ(387200, dicom_file.GetVL(dcm::tags::kPixelData));
 }
 
 TEST(DicomFileTest, ExplicitBig) {
@@ -50,9 +48,7 @@ TEST(DicomFileTest, ExplicitBig) {
   EXPECT_EQ("1.2.840.1136190195280574824680000700.3.0.1.19970424140438",
             sop_instance_uid);
 
-  auto element = dicom_file.Get(dcm::tags::kPixelData);
-  EXPECT_TRUE(element != nullptr);
-  EXPECT_EQ(921600, element->length());
+  EXPECT_EQ(921600, dicom_file.GetVL(dcm::tags::kPixelData));
 }
 
 TEST(DicomFileTest, ExplicitLittle_CS_Ceph) {
@@ -69,30 +65,30 @@ TEST(DicomFileTest, ExplicitLittle_CS_Ceph) {
   dicom_file.GetString(dcm::tags::kSOPInstanceUID, &sop_instance_uid);
   EXPECT_EQ("1.2.250.1.90.3.348752952.1313490280.15", sop_instance_uid);
 
-  auto element = dicom_file.Get(dcm::tags::kPixelData);
-  EXPECT_TRUE(element != nullptr);
-  EXPECT_EQ(6981640, element->length());
+  EXPECT_EQ(6981640, dicom_file.GetVL(dcm::tags::kPixelData));
 
   // Private tags
   {
     std::string value;
-    EXPECT_TRUE(dicom_file.GetString(0x00090011, &value));
+    ok = dicom_file.GetString(0x00090011, &value);
+    EXPECT_TRUE(ok);
     EXPECT_EQ("TROPHY", value);
   }
   {
     std::uint32_t value;
-    EXPECT_TRUE(dicom_file.GetUint32(0x00091109, &value));
+    ok = dicom_file.GetUint32(0x00091109, &value);
+    EXPECT_TRUE(ok);
     EXPECT_EQ(32837, value);
   }
 
   {
     // Multi-values (VR: US; VM: 2)
 
-    const dcm::Tag kHeadClampRingPositionTag = 0x00091159;
+    const dcm::Tag kHeadClampRingPosition = 0x00091159;
 
     std::vector<std::uint16_t> values;
-    EXPECT_TRUE(dicom_file.GetUint16Array(kHeadClampRingPositionTag, &values));
-
+    ok = dicom_file.GetUint16Array(kHeadClampRingPosition, &values);
+    EXPECT_TRUE(ok);
     EXPECT_EQ(2, values.size());
     EXPECT_EQ(567, values[0]);
     EXPECT_EQ(1177, values[1]);
@@ -102,16 +98,33 @@ TEST(DicomFileTest, ExplicitLittle_CS_Ceph) {
     // Multi-values (VR: CS; VM: ?)
 
     std::string value;
-    EXPECT_TRUE(dicom_file.GetString(dcm::tags::kImageType, &value));
+    ok = dicom_file.GetString(dcm::tags::kImageType, &value);
+    EXPECT_TRUE(ok);
     EXPECT_EQ("ORIGINAL\\PRIMARY\\", value);
 
     std::vector<std::string> values;
-    EXPECT_TRUE(dicom_file.GetStringArray(dcm::tags::kImageType, &values));
-
+    ok = dicom_file.GetStringArray(dcm::tags::kImageType, &values);
+    EXPECT_TRUE(ok);
     EXPECT_EQ(3, values.size());
     EXPECT_EQ("ORIGINAL", values[0]);
     EXPECT_EQ("PRIMARY", values[1]);
     EXPECT_EQ("", values[2]);
+  }
+
+  {
+    // Multi-values (VR: DS; VM: 2)
+
+    std::string value;
+    ok = dicom_file.GetString(dcm::tags::kPixelSpacing, &value);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ("0.127000\\0.127000", value);
+
+    std::vector<std::string> values;
+    ok = dicom_file.GetStringArray(dcm::tags::kPixelSpacing, &values);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ(2, values.size());
+    EXPECT_EQ("0.127000", values[0]);
+    EXPECT_EQ("0.127000", values[1]);
   }
 }
 
@@ -126,12 +139,11 @@ TEST(DicomFileTest, ExplicitLittle_SeqEnd_CS_Ceph) {
   EXPECT_TRUE(ok);
 
   std::string sop_instance_uid;
-  dicom_file.GetString(dcm::tags::kSOPInstanceUID, &sop_instance_uid);
+  ok = dicom_file.GetString(dcm::tags::kSOPInstanceUID, &sop_instance_uid);
+  EXPECT_TRUE(ok);
   EXPECT_EQ("1.2.250.1.90.3.348752952.1313490280.15", sop_instance_uid);
 
-  auto element = dicom_file.Get(dcm::tags::kPixelData);
-  EXPECT_TRUE(element != nullptr);
-  EXPECT_EQ(6981640, element->length());
+  EXPECT_EQ(6981640, dicom_file.GetVL(dcm::tags::kPixelData));
 
   // Private tags
   {
@@ -160,16 +172,33 @@ TEST(DicomFileTest, ImplicitLittle_CS_CR7600) {
     // Multi-values (VR: CS; VM: ?)
 
     std::string value;
-    EXPECT_TRUE(dicom_file.GetString(dcm::tags::kImageType, &value));
+    ok = dicom_file.GetString(dcm::tags::kImageType, &value);
+    EXPECT_TRUE(ok);
     EXPECT_EQ("ORIGINAL\\PRIMARY\\\\FOR PROCESSING", value);
 
     std::vector<std::string> values;
-    EXPECT_TRUE(dicom_file.GetStringArray(dcm::tags::kImageType, &values));
-
+    ok = dicom_file.GetStringArray(dcm::tags::kImageType, &values);
+    EXPECT_TRUE(ok);
     EXPECT_EQ(4, values.size());
     EXPECT_EQ("ORIGINAL", values[0]);
     EXPECT_EQ("PRIMARY", values[1]);
     EXPECT_EQ("", values[2]);
     EXPECT_EQ("FOR PROCESSING", values[3]);
+  }
+
+  {
+    // Multi-values (VR: DS; VM: 2)
+
+    std::string value;
+    ok = dicom_file.GetString(dcm::tags::kPixelSpacing, &value);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ("0.019973\\0.019973", value);
+
+    std::vector<std::string> values;
+    ok = dicom_file.GetStringArray(dcm::tags::kPixelSpacing, &values);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ(2, values.size());
+    EXPECT_EQ("0.019973", values[0]);
+    EXPECT_EQ("0.019973", values[1]);
   }
 }
