@@ -360,7 +360,7 @@ bool CheckStringValue(VR vr, const std::string& value) {
 
 DataElement::DataElement(Tag tag, ByteOrder byte_order)
     : tag_(tag), byte_order_(byte_order), length_(0) {
-  vr_ = DataDict::GetVR(tag);
+  vr_ = dict::GetVR(tag);
 }
 
 DataElement::DataElement(Tag tag, VR vr, ByteOrder byte_order)

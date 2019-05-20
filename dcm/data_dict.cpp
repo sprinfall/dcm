@@ -1,36 +1,69 @@
 #include "dcm/data_dict.h"
 
+#include <algorithm>
+
 namespace dcm {
+namespace dict {
 
-#include "dcm/data_dict.inl"
+// -----------------------------------------------------------------------------
 
-const DataEntry* DataDict::GetEntry(Tag tag) {
-  std::uint32_t tag_value = tag.ToUint32();
+struct VMEntry {
+  std::uint32_t tag;
+  VM vm;
+};
 
-  std::size_t j = 0;  // begin
-  std::size_t k = DATA_DICT_SIZE;  // end
-  std::size_t i = 0;
+#include "dcm/dict.inl"
 
-  while (j < k) {
-    i = j + (k - j) / 2;
+#include "dcm/dict_vm.inl"
 
-    const DataEntry& entry = g_data_dict[i];
+// -----------------------------------------------------------------------------
 
-    if (tag_value < entry.tag) {
-      k = i;
-    } else if (tag_value > entry.tag) {
-      j = i + 1;
-    } else {
-      return &entry;
-    }
+const Entry* GetEntry(Tag tag) {
+  auto less = [](const Entry& entry, std::uint32_t tag) {
+    return entry.tag < tag;
+  };
+
+  const auto end = g_dict + ARRAY_SIZE(g_dict);
+
+  auto it = std::lower_bound(g_dict, end, tag.ToUint32(), less);
+  if (it != end && it->tag == tag) {
+    return it;
   }
 
   return nullptr;
 }
 
-VR DataDict::GetVR(Tag tag) {
-  const DataEntry* entry = DataDict::GetEntry(tag);
+VR GetVR(Tag tag) {
+  const Entry* entry = GetEntry(tag);
   return (entry != nullptr ? entry->vr : VR::UN);
 }
 
+const VM* GetVM(Tag tag) {
+  auto less = [](const VMEntry& entry, std::uint32_t tag) {
+    return entry.tag < tag;
+  };
+
+  const auto end = g_dict_vm + ARRAY_SIZE(g_dict_vm);
+
+  auto it = std::lower_bound(g_dict_vm, end, tag.ToUint32(), less);
+
+  if (it != end && it->tag == tag) {
+    return &it->vm;
+  }
+
+  return nullptr;
+}
+
+bool CheckVM(Tag tag, std::size_t value) {
+  const VM* vm = GetVM(tag);
+
+  if (vm != nullptr) {
+    return vm->Check(value);
+  }
+
+  // Tag not in the VM dict, assume the VM is 1.
+  return value == 1;
+}
+
+}  // namespace dict
 }  // namespace dcm

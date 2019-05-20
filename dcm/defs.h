@@ -2,12 +2,17 @@
 #define DCM_DEFS_H_
 
 #include <cstdint>
+#include <string>
 
 #include "boost/filesystem/path.hpp"
 
 #include "dcm/config.h"
 
 namespace dcm {
+
+// -----------------------------------------------------------------------------
+
+#define ARRAY_SIZE(A) (sizeof(A) / sizeof(*(A)))
 
 // -----------------------------------------------------------------------------
 
@@ -120,6 +125,44 @@ inline bool operator==(VR lhs, VR rhs) {
 inline bool operator!=(VR lhs, VR rhs) {
   return lhs.code() != rhs.code();
 }
+
+// -----------------------------------------------------------------------------
+
+// Value Multiplicity.
+//
+// Examples:
+//   - "1":     min=1, max=1,  times=1
+//   - "1-n":   min=1, max=-1, times=1
+//   - "2-2n":  min=1, max=-1, times=2
+//
+class VM {
+public:
+  // "1", "1-n", "2-2n", etc.
+  VM(const char* str);
+
+  std::size_t min() const { return min_; }
+  std::size_t max() const { return max_; }
+  std::size_t times() const { return times_; }
+
+  bool Check(std::size_t n) const;
+
+  bool IsRange() const {
+    return min_ != max_;
+  }
+
+  std::size_t value() const {
+    assert(!IsRange());
+    return min_;
+  }
+
+private:
+  bool Parse(const std::string& str);
+
+private:
+  std::size_t min_;
+  std::size_t max_;
+  std::size_t times_;
+};
 
 // -----------------------------------------------------------------------------
 

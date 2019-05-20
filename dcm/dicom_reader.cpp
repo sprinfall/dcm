@@ -55,8 +55,8 @@ bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
   Tag tag_l(group, element);  // Little Endian
   Tag tag_b = tag_l.SwapBytes();  // Big Endian
 
-  const DataEntry* entry_l = DataDict::GetEntry(tag_l);
-  const DataEntry* entry_b = DataDict::GetEntry(tag_b);
+  const dict::Entry* entry_l = dict::GetEntry(tag_l);
+  const dict::Entry* entry_b = dict::GetEntry(tag_b);
 
   if (entry_l == nullptr && entry_b == nullptr) {
     if (element == 0) {
@@ -359,7 +359,7 @@ bool DicomReader::ReadVR(Reader& reader, Tag tag, std::uint32_t& read_length,
         LOG_WARN("Private tag in Implicit VR.");
       } else {
         // Query VR type from data dictionary.
-        *vr = DataDict::GetVR(tag);
+        *vr = dict::GetVR(tag);
         if (vr->IsUnknown()) {
           LOG_WARN("Unknown tag in Implicit VR.");
         }

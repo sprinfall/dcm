@@ -117,8 +117,6 @@ bool VR::Is16BitsFollowingReversed() const {
   return false;
 }
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
 bool VR::IsString() const {
   static const Code kVRCodes[] = {
     AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR,
@@ -138,6 +136,85 @@ bool VR::IsBackSlashVM() const {
   const auto end = kVRCodes + ARRAY_SIZE(kVRCodes);
 
   return std::find(kVRCodes, end, code_) != end;
+}
+
+// -----------------------------------------------------------------------------
+
+VM::VM(const char* str)
+    : min_(0), max_(0), times_(1) {
+  if (!Parse(str)) {
+    min_ = max_ = 0;
+    times_ = 1;
+  }
+}
+
+bool VM::Check(std::size_t n) const {
+  if (!IsRange()) {
+    return n == value();
+  }
+
+  if (times_ != 1) {
+    if (n % times_ != 0) {
+      return false;
+    }
+    n /= times_;
+  }
+
+  return n >= min_ && n <= max_;
+}
+
+static bool StrToSize(const std::string& str, std::size_t* size) {
+  try {
+    *size = std::stoul(str);
+  } catch (const std::exception&) {
+    return false;
+  }
+  return true;
+}
+
+bool VM::Parse(const std::string& str) {
+  std::size_t pos = str.find('-');
+  if (pos == std::string::npos) {
+    if (!StrToSize(str, &min_)) {
+      return false;
+    }
+    max_ = min_;
+    return true;
+  }
+
+  if (!StrToSize(str.substr(0, pos), &min_)) {
+    return false;
+  }
+
+  std::string max_str = str.substr(pos + 1);
+  if (max_str.empty()) {
+    return false;
+  }
+
+  if (max_str.back() != 'n') {
+    if (!StrToSize(max_str, &max_)) {
+      return false;
+    }
+  } else {
+    max_ = -1;
+
+    if (max_str.size() > 2) {
+      return false;
+    }
+    if (max_str.size() == 2) {
+      if (max_str[0] == '2' && min_ == 2) {  // "2-2n"
+        times_ = 2;
+        min_ = 1;
+      } else if (max_str[0] == '3' && min_ == 3) {  // "3-3n"
+        times_ = 3;
+        min_ = 1;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
