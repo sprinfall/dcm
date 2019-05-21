@@ -519,6 +519,89 @@ bool DataElement::SetStringArray(const std::vector<std::string>& values) {
   return SetString(value);
 }
 
+bool DataElement::GetNumber(VR vr, std::size_t size, void* value) const {
+  if (vr_ != vr) {
+    return false;
+  }
+
+  // length_ > size when VM > 1.
+  assert(length_ >= size);
+
+  std::memcpy(value, &buffer_[0], size);
+
+  if (byte_order_ != kByteOrderOS) {
+    SwapBytes(value, size);
+  }
+
+  return true;
+}
+
+bool DataElement::SetNumber(VR vr, std::size_t size, void* value) {
+  if (vr_ != vr) {
+    return false;
+  }
+
+  if (!dict::CheckVM(tag_, 1)) {
+    return false;
+  }
+
+  length_ = size;
+  buffer_.resize(size);
+
+  std::memcpy(&buffer_[0], value, size);
+
+  if (byte_order_ != kByteOrderOS) {
+    SwapBytes(&buffer_[0], size);
+  }
+
+  return true;
+}
+
+bool DataElement::GetNumberArray(VR vr, std::size_t size, std::size_t count,
+                                 void* values) const {
+  if (vr != vr_) {
+    return false;
+  }
+
+  assert(length_ == size * count);
+
+  std::memcpy(values, &buffer_[0], length_);
+
+  if (byte_order_ != kByteOrderOS) {
+    char* dst = reinterpret_cast<char*>(values);
+    for (std::size_t i = 0; i < count; ++i, dst += size) {
+      SwapBytes(dst, size);
+    }
+  }
+
+  return true;
+}
+
+bool DataElement::SetNumberArray(VR vr, std::size_t size, std::size_t count,
+                                 const void* values) {
+  if (vr != vr_) {
+    return false;
+  }
+
+  if (!dict::CheckVM(tag_, count)) {
+    return false;
+  }
+
+  buffer_.resize(size * count);
+
+  char* dst = &buffer_[0];
+
+  std::memcpy(dst, values, buffer_.size());
+
+  if (byte_order_ != kByteOrderOS) {
+    for (std::size_t i = 0; i < count; ++i, dst += size) {
+      SwapBytes(dst, size);
+    }
+  }
+
+  return true;
+}
+
 void DataElement::SwapBytes(void* value, std::size_t size) const {
   if (size == 2) {
     Swap16(value);
