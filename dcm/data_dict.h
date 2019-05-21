@@ -6,20 +6,20 @@
 namespace dcm {
 namespace dict {
 
-// -----------------------------------------------------------------------------
-
+// Data dictionary entry.
+// E.g., { 0x00080018, VR::UI, "SOPInstanceUID" }
 struct Entry {
   std::uint32_t tag;
   VR vr;
   const char* keyword;
 };
 
-// -----------------------------------------------------------------------------
-
+// Get entry of the given tag.
+// Return nullptr if the the dictionary has no such tag.
 const Entry* GetEntry(Tag tag);
 
 // Get VR of the given tag.
-// Return VR::UN if the tag doesn't exist in the dictionary.
+// Return VR::UN if the the dictionary has no such tag.
 VR GetVR(Tag tag);
 
 // Get VM of the given tag.

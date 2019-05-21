@@ -1,13 +1,6 @@
 # Unit test
 
-set(UT_SRCS
-    tag_unittest.cpp
-    data_element_unittest.cpp
-    data_set_unittest.cpp
-    charset_unittest.cpp
-    dicom_file_unittest.cpp
-    main.cpp
-    )
+file(GLOB UT_SRCS *.cpp)
 
 set(UT_TARGET_NAME dcm_unittest)
 
