@@ -1,9 +1,7 @@
 #ifndef DCM_DATA_ELEMENT_H_
 #define DCM_DATA_ELEMENT_H_
 
-#include <cassert>
 #include <cstdint>
-#include <cstring>  // std::memcpy
 #include <vector>
 
 #include "dcm/defs.h"
@@ -31,8 +29,9 @@ public:
 
   VR vr() const { return vr_; }
 
-  std::size_t length() const { return length_; }
-  void set_length(std::size_t length) { length_ = length; }
+  std::uint32_t length() const { return length_; }
+
+  void set_length(std::uint32_t length) { length_ = length; }
 
   // Get raw value buffer.
   const Buffer& buffer() const { return buffer_; }
@@ -43,150 +42,226 @@ public:
 
   // ---------------------------------------------------------------------------
 
-  // Get value length.
-  std::size_t GetVL() const {
-    return length_;
-  }
-
   // Get value multiplicity.
   std::size_t GetVM() const;
 
   // ---------------------------------------------------------------------------
+  // String
 
-  // Get string value.
-  // Return false if the VR is not a string (see VR::IsString).
   bool GetString(std::string* value) const;
 
-  // Get string multiple values.
-  // Split the original string by back slash (\).
-  // Return false if the VR is not a string (see VR::IsString).
+  std::string GetString() const;
+
   bool GetStringArray(std::vector<std::string>* values) const;
+
+  std::vector<std::string> GetStringArray() const;
 
   bool SetString(const std::string& value);
 
   bool SetStringArray(const std::vector<std::string>& values);
 
+  // ---------------------------------------------------------------------------
   // US (Unsigned Short)
 
   bool GetUint16(std::uint16_t* value) const {
-    return GetNumber(VR::US, 2, value);
+    return GetNumber(VR::US, value);
+  }
+
+  std::uint16_t GetUint16(std::uint16_t default_value = 0) const {
+    return GetNumber(VR::US, default_value);
   }
 
   bool SetUint16(std::uint16_t value) {
-    return SetNumber(VR::US, 2, &value);
+    return SetNumber(VR::US, value);
   }
 
   bool GetUint16Array(std::vector<std::uint16_t>* values) const {
-    const std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::US, 2, count, &(*values)[0]);
+    return GetNumberArray(VR::US, values);
+  }
+
+  std::vector<std::uint16_t> GetUint16Array() const {
+    return GetNumberArray<std::uint16_t>(VR::US);
   }
   
   bool SetUint16Array(const std::vector<std::uint16_t>& values) {
-    return SetNumberArray(VR::US, 2, values.size(), &values[0]);
+    return SetNumberArray(VR::US, values);
   }
 
+  // ---------------------------------------------------------------------------
   // SS (Signed Short)
 
   bool GetInt16(std::int16_t* value) const {
-    return GetNumber(VR::SS, 2, value);
+    return GetNumber(VR::SS, value);
+  }
+
+  std::int16_t GetInt16(std::int16_t default_value = 0) const {
+    return GetNumber(VR::SS, default_value);
   }
 
   bool SetInt16(std::int16_t value) {
-    return SetNumber(VR::SS, 2, &value);
+    return SetNumber(VR::SS, value);
   }
 
   bool GetInt16Array(std::vector<std::int16_t>* values) const {
-    const std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::SS, 2, count, &(*values)[0]);
+    return GetNumberArray(VR::SS, values);
+  }
+
+  std::vector<std::int16_t> GetInt16Array() const {
+    return GetNumberArray<std::int16_t>(VR::SS);
   }
 
   bool SetInt16Array(const std::vector<std::int16_t>& values) {
-    return SetNumberArray(VR::SS, 2, values.size(), &values[0]);
+    return SetNumberArray(VR::SS, values);
   }
 
+  // ---------------------------------------------------------------------------
   // UL (Unsigned Long)
 
   bool GetUint32(std::uint32_t* value) const {
-    return GetNumber(VR::UL, 4, value);
+    return GetNumber(VR::UL, value);
+  }
+
+  std::uint32_t GetUint32(std::uint32_t default_value = 0) const {
+    return GetNumber(VR::UL, default_value);
   }
 
   bool SetUint32(std::uint32_t value) {
-    return SetNumber(VR::UL, 4, &value);
+    return SetNumber(VR::UL, value);
   }
 
   bool GetUint32Array(std::vector<std::uint32_t>* values) const {
-    std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::UL, 4, count, &(*values)[0]);
+    return GetNumberArray(VR::UL, values);
+  }
+
+  std::vector<std::uint32_t> GetUint32Array() const {
+    return GetNumberArray<std::uint32_t>(VR::UL);
   }
 
   bool SetUint32Array(const std::vector<std::uint32_t>& values) {
-    return SetNumberArray(VR::UL, 4, values.size(), &values[0]);
+    return SetNumberArray(VR::UL, values);
   }
 
+  // ---------------------------------------------------------------------------
   // SL (Signed Long)
 
   bool GetInt32(std::int32_t* value) const {
-    return GetNumber(VR::SL, 4, value);
+    return GetNumber(VR::SL, value);
+  }
+
+  std::int32_t GetInt32(std::int32_t default_value = 0) const {
+    return GetNumber(VR::SL, default_value);
   }
 
   bool SetInt32(std::int32_t value) {
-    return SetNumber(VR::SL, 4, &value);
+    return SetNumber(VR::SL, value);
   }
 
   bool GetInt32Array(std::vector<std::int32_t>* values) const {
-    std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::SL, 4, count, &(*values)[0]);
+    return GetNumberArray(VR::SL, values);
+  }
+
+  std::vector<std::int32_t> GetInt32Array() const {
+    return GetNumberArray<std::int32_t>(VR::SL);
   }
 
   bool SetInt32Array(const std::vector<std::int32_t>& values) {
-    return SetNumberArray(VR::SL, 4, values.size(), &values[0]);
+    return SetNumberArray(VR::SL, values);
   }
 
+  // ---------------------------------------------------------------------------
   // FL (Floating Point Single)
 
   bool GetFloat32(float32_t* value) const {
-    return GetNumber(VR::FL, 4, value);
+    return GetNumber(VR::FL, value);
+  }
+
+  float32_t GetFloat32(float32_t default_value = 0.0f) const {
+    return GetNumber(VR::FL, default_value);
   }
 
   bool SetFloat32(float32_t value) {
-    return SetNumber(VR::FL, 4, &value);
+    return SetNumber(VR::FL, value);
   }
 
   bool GetFloat32Array(std::vector<float32_t>* values) const {
-    std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::FL, 4, count, &(*values)[0]);
+    return GetNumberArray(VR::FL, values);
+  }
+
+  std::vector<float32_t> GetFloat32Array() const {
+    return GetNumberArray<float32_t>(VR::FL);
   }
 
   bool SetFloat32Array(const std::vector<float32_t>& values) {
-    return SetNumberArray(VR::FL, 4, values.size(), &values[0]);
+    return SetNumberArray(VR::FL, values);
   }
 
+  // ---------------------------------------------------------------------------
   // FD (Floating Point Double)
 
   bool GetFloat64(float64_t* value) const {
-    return GetNumber(VR::FD, 8, value);
+    return GetNumber(VR::FD, value);
+  }
+
+  float64_t GetFloat64(float64_t default_value = 0.0f) const {
+    return GetNumber(VR::FD, default_value);
   }
 
   bool SetFloat64(float64_t value) {
-    return SetNumber(VR::FD, 8, &value);
+    return SetNumber(VR::FD, value);
   }
 
   bool GetFloat64Array(std::vector<float64_t>* values) const {
-    std::size_t count = GetVM();
-    values->resize(count);
-    return GetNumberArray(VR::FD, 8, count, &(*values)[0]);
+    return GetNumberArray(VR::FD, values);
+  }
+
+  std::vector<float64_t> GetFloat64Array() const {
+    return GetNumberArray<float64_t>(VR::FD);
   }
 
   bool SetFloat64Array(const std::vector<float64_t>& values) {
-    return SetNumberArray(VR::FD, 8, values.size(), &values[0]);
+    return SetNumberArray(VR::FD, values);
   }
 
 private:
+  void DoSetString(const std::string& value);
+
+  template <typename T>
+  bool GetNumber(VR vr, T* value) const {
+    return GetNumber(vr, sizeof(T), value);
+  }
+
+  template <typename T>
+  T GetNumber(VR vr, T default_value) const {
+    T value = default_value;
+    GetNumber(vr, &value);
+    return value;
+  }
+
+  template <typename T>
+  bool SetNumber(VR vr, T value) {
+    return SetNumber(vr, sizeof(T), &value);
+  }
+
+  template <typename T>
+  bool GetNumberArray(VR vr, std::vector<T>* values) const {
+    const std::size_t count = GetVM();
+    values->resize(count);
+    return GetNumberArray(vr, sizeof(T), count, &(*values)[0]);
+  }
+
+  template <typename T>
+  std::vector<T> GetNumberArray(VR vr) const {
+    std::vector<T> values;
+    GetNumberArray(vr, &values);
+    return values;
+  }
+
+  template <typename T>
+  bool SetNumberArray(VR vr, const std::vector<T>& values) {
+    // TODO: What if values is empty?
+    return SetNumberArray(vr, sizeof(T), values.size(), &values[0]);
+  }
+
   bool GetNumber(VR vr, std::size_t size, void* value) const;
 
   bool SetNumber(VR vr, std::size_t size, void* value);
@@ -210,9 +285,9 @@ protected:
   ByteOrder byte_order_;
 
   // Value length.
-  // Undefined length for SQ element is 0xFFFFFFFF.
+  // 0xFFFFFFFF (-1) for SQ element.
   // Identical to the buffer size if the buffer is not empty.
-  std::size_t length_;
+  std::uint32_t length_;
 
 private:
   // Raw buffer (i.e., bytes) of the value.

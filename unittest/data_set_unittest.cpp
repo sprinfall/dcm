@@ -158,3 +158,20 @@ TEST(DataSetTest, SetString_InvalidValue) {
 
   EXPECT_EQ(0, data_set.size());
 }
+
+TEST(DataSetTest, SetStringArray) {
+  dcm::DataSet data_set;
+
+  std::vector<std::string> values = {
+    "0.127000", "0.127000"
+  };
+
+  bool ok = data_set.SetStringArray(dcm::tags::kPixelSpacing, values);
+  EXPECT_TRUE(ok);
+
+  std::string value;
+  data_set.GetString(dcm::tags::kPixelSpacing, &value);
+
+  EXPECT_EQ("0.127000\\0.127000", value);
+}
+

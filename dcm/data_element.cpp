@@ -1,6 +1,8 @@
 #include "dcm/data_element.h"
 
+#include <cassert>
 #include <cctype>
+#include <cstring>  // std::memcpy
 
 #include "boost/algorithm/string.hpp"
 
@@ -423,11 +425,11 @@ std::size_t DataElement::GetVM() const {
     return vm;
   }
 
-  // SQ, UN
-  return 1;
+  return 1;  // SQ, UN
 }
 
 // -----------------------------------------------------------------------------
+// String
 
 bool DataElement::GetString(std::string* value) const {
   if (!vr_.IsString()) {
@@ -459,6 +461,12 @@ bool DataElement::GetString(std::string* value) const {
   return true;
 }
 
+std::string DataElement::GetString() const {
+  std::string value;
+  GetString(&value);
+  return value;
+}
+
 bool DataElement::GetStringArray(std::vector<std::string>* values) const {
   std::string value;
   if (!GetString(&value)) {
@@ -475,33 +483,19 @@ bool DataElement::GetStringArray(std::vector<std::string>* values) const {
   return true;
 }
 
+std::vector<std::string> DataElement::GetStringArray() const {
+  std::vector<std::string> values;
+  GetStringArray(&values);
+  return values;
+}
+
+// TODO: Split by "\\", check each value separately.
 bool DataElement::SetString(const std::string& value) {
   if (!CheckStringValue(vr_, value)) {
     return false;
   }
 
-  bool padding = (value.size() % 2 == 1);
-
-  length_ = value.size();
-
-  if (padding) {
-    length_ += 1;
-  }
-
-  buffer_.resize(length_);
-
-  if (length_ > 0) {
-    std::memcpy(&buffer_[0], value.data(), value.size());
-  }
-
-  if (padding) {
-    // Add blank trailing space (or NULL byte for UI).
-    if (vr_ == VR::UI) {
-      buffer_[length_ - 1] = '\0';
-    } else {
-      buffer_[length_ - 1] = ' ';
-    }
-  }
+  DoSetString(value);
 
   return true;
 }
@@ -511,12 +505,49 @@ bool DataElement::SetStringArray(const std::vector<std::string>& values) {
     return false;
   }
 
-  // TODO: Check expected VM using data dict.
+  if (!dict::CheckVM(tag_, values.size())) {
+    return false;
+  }
 
-  std::string value = boost::join(values, "\\");
+  // Check each value separately.
+  for (const std::string& value : values) {
+    if (!CheckStringValue(vr_, value)) {
+      return false;
+    }
+  }
 
-  // TODO: Avoid VR check.
-  return SetString(value);
+  std::string joined_value = boost::join(values, "\\");
+  DoSetString(joined_value);
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+
+void DataElement::DoSetString(const std::string& value) {
+  const bool odd = value.size() % 2 == 1;
+
+  length_ = value.size();
+
+  if (odd) {
+    // +1 for blank trailing space.
+    length_ += 1;
+  }
+
+  buffer_.resize(length_);
+
+  if (length_ > 0) {
+    std::memcpy(&buffer_[0], value.data(), value.size());
+  }
+
+  if (odd) {
+    // Add blank trailing space (or NULL byte for UI).
+    if (vr_ == VR::UI) {
+      buffer_[length_ - 1] = '\0';
+    } else {
+      buffer_[length_ - 1] = ' ';
+    }
+  }
 }
 
 bool DataElement::GetNumber(VR vr, std::size_t size, void* value) const {

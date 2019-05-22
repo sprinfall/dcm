@@ -54,11 +54,12 @@ public:
 
   // Get value length.
   // Return false if the tag doesn't exist.
-  bool GetVL(Tag tag, std::size_t* vl) const;
+  bool GetVL(Tag tag, std::uint32_t* vl) const;
 
   // Get value length.
   // Return |vl_default| if the tag doesn't exist.
-  std::size_t GetVL(Tag tag, std::size_t vl_default = kUndefinedLength) const;
+  std::uint32_t GetVL(Tag tag,
+                      std::uint32_t vl_default = kUndefinedLength) const;
 
   // Get value multiplicity.
   // Return false if the tag doesn't exist.
@@ -66,13 +67,15 @@ public:
 
   // Get value multiplicity.
   // Return |vm_default| if the tag doesn't exist.
-  std::size_t GetVM(Tag tag, std::size_t vm_default = kUndefinedLength) const;
+  std::size_t GetVM(Tag tag, std::size_t vm_default = 0) const;
 
   // ---------------------------------------------------------------------------
 
   // String
 
   bool GetString(Tag tag, std::string* value) const;
+
+  std::string GetString(Tag tag) const;
 
   bool SetString(Tag tag, const std::string& value);
 

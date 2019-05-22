@@ -77,15 +77,15 @@ void DataSet::Clear() {
 
 // -----------------------------------------------------------------------------
 
-bool DataSet::GetVL(Tag tag, std::size_t* vl) const {
+bool DataSet::GetVL(Tag tag, std::uint32_t* vl) const {
   GET_OR_RETURN_FALSE();
-  *vl = element->GetVL();
+  *vl = element->length();
   return true;
 }
 
-std::size_t DataSet::GetVL(Tag tag, std::size_t vl_default) const {
+std::uint32_t DataSet::GetVL(Tag tag, std::uint32_t vl_default) const {
   GET_OR_RETURN(vl_default);
-  return element->GetVL();
+  return element->length();
 }
 
 bool DataSet::GetVM(Tag tag, std::size_t* vm) const {
@@ -102,6 +102,11 @@ std::size_t DataSet::GetVM(Tag tag, std::size_t vm_default) const {
 bool DataSet::GetString(Tag tag, std::string* value) const {
   GET_OR_RETURN_FALSE();
   return element->GetString(value);
+}
+
+std::string DataSet::GetString(Tag tag) const {
+  GET_OR_RETURN("");
+  return element->GetString();
 }
 
 bool DataSet::SetString(Tag tag, const std::string& value) {
