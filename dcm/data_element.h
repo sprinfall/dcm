@@ -2,13 +2,10 @@
 #define DCM_DATA_ELEMENT_H_
 
 #include <cstdint>
-#include <vector>
 
 #include "dcm/defs.h"
 
 namespace dcm {
-
-using Buffer = std::vector<char>;
 
 class Visitor;
 
@@ -39,6 +36,10 @@ public:
   // Set raw value buffer.
   // The buffer size must be even: 2, 4, 8, ...
   bool SetBuffer(Buffer&& buffer);
+
+  // Convert byte order for numeric values.
+  // Return false if not applicable.
+  virtual bool ConvertByteOrder(ByteOrder byte_order);
 
   // ---------------------------------------------------------------------------
 
@@ -272,7 +273,7 @@ private:
   bool SetNumberArray(VR vr, std::size_t size, std::size_t count,
                       const void* values);
 
-  void SwapBytes(void* value, std::size_t size) const;
+  void SwapBytes(std::size_t size);
 
 protected:
   // Tag key.

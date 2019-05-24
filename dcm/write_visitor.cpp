@@ -8,6 +8,9 @@
 
 namespace dcm {
 
+WriteVisitor::WriteVisitor(Writer* writer) : writer_(writer) {
+}
+
 void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   tag_ = data_element->tag();
 
@@ -18,17 +21,17 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
   // Special data element for SQ.
   if (tag_ == tags::kSeqDelimatation || tag_ == tags::kSeqItemDelimatation ||
       tag_ == tags::kSeqItemPrefix) {
-    // Value length of kSeqEndTag and kSeqItemEndTag should both be 0.
+    // Value length of kSeqDelimatation and kSeqItemDelimatation should
+    // both be 0.
     WriteUint32(data_element->length());
     return;
   }
 
   VR vr = data_element->vr();
-  std::size_t length = data_element->length();
+  std::uint32_t length = data_element->length();
 
   // VR
   if (vr_type_ == VR::EXPLICIT || tag_.group() == 2) {
-    // TODO: VR::UNKNOWN
     writer_->WriteByte(vr.byte1());
     writer_->WriteByte(vr.byte2());
 
@@ -74,10 +77,10 @@ void WriteVisitor::VisitDataSequence(const DataSequence* data_sequence) {
 }
 
 void WriteVisitor::VisitDataSet(const DataSet* data_set) {
-  vr_type_ = data_set->vr_type();
-  byte_order_ = data_set->byte_order();
-
   if (level_ == 0) {
+    vr_type_ = data_set->vr_type();
+    byte_order_ = data_set->byte_order();
+
     // Root data set.
     // Just write the preamble and DICOM prefix.
 
@@ -106,11 +109,11 @@ void WriteVisitor::WriteUint16(std::uint16_t value) {
     if (tag_.group() == 2) {
       // Meta header always in Little Endian.
       if (kByteOrderOS != ByteOrder::LE) {
-        Swap16(&value);
+        util::Swap16(&value);
       }
     } else {
       if (kByteOrderOS != byte_order_) {
-        Swap16(&value);
+        util::Swap16(&value);
       }
     }
   }
@@ -123,11 +126,11 @@ void WriteVisitor::WriteUint32(std::uint32_t value) {
     if (tag_.group() == 2) {
       // Meta header always in Little Endian.
       if (kByteOrderOS != ByteOrder::LE) {
-        Swap32(&value);
+        util::Swap32(&value);
       }
     } else {
       if (kByteOrderOS != byte_order_) {
-        Swap32(&value);
+        util::Swap32(&value);
       }
     }
   }

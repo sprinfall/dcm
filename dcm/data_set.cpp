@@ -25,6 +25,18 @@ void DataSet::Accept(Visitor& visitor) const {
   // concrete visitor. (See Design Patterns, P.339)
 }
 
+void DataSet::ConvertByteOrder(ByteOrder byte_order) {
+  if (byte_order != byte_order_) {
+    for (DataElement* element : elements_) {
+      // Group 0002 is always little endian, keep as it is.
+      if (element->tag().group() != 2) {
+        element->ConvertByteOrder(byte_order);
+      }
+    }
+    byte_order_ = byte_order;
+  }
+}
+
 // -----------------------------------------------------------------------------
 
 const DataElement* DataSet::operator[](std::size_t index) const {

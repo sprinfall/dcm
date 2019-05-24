@@ -2,7 +2,7 @@
 
 #include <array>
 #include <iomanip>
-#include <map>
+#include <set>
 
 #include "dcm/singleton_base.h"
 #include "dcm/util.h"
@@ -21,18 +21,6 @@ const ByteOrder kByteOrderOS =
 
 // -----------------------------------------------------------------------------
 
-class VRInfo {
-public:
-  int code;  // VR::Code
-
-  // The length of word; used for byte reversing in little/big endian
-  // conversion. For numeric VRs only ((FL, FD, OL, OW, etc.).
-  std::uint32_t word_size;
-
-  // The maximum length of the data.
-  std::uint32_t max_data_length;
-};
-
 // VR dictionary.
 // A singleton to cache all valid VRs.
 class VRDict : public SingletonBase<VRDict> {
@@ -40,50 +28,48 @@ public:
   ~VRDict() = default;
 
   bool IsValid(int code) const {
-    return vr_map_.find(code) != vr_map_.end();
+    return code_set_.find(code) != code_set_.end();
   }
 
 private:
   friend class SingletonBase<VRDict>;
 
   VRDict() {
-    RegisterVR(VR::AE, 0, 16);
-    RegisterVR(VR::AS, 0, 0);
-    RegisterVR(VR::AT, 2, 0);
-    RegisterVR(VR::CS, 0, 16);
-    RegisterVR(VR::DA, 0, 0);
-    RegisterVR(VR::DS, 0, 16);
-    RegisterVR(VR::DT, 0, 26);
-    RegisterVR(VR::FL, 4, 0);
-    RegisterVR(VR::FD, 8, 0);
-    RegisterVR(VR::IS, 0, 12);
-    RegisterVR(VR::LO, 0, 64);
-    RegisterVR(VR::LT, 0, 10240);
-    RegisterVR(VR::OB, 0, 0);
-    RegisterVR(VR::OF, 4, 0);
-    RegisterVR(VR::OL, 4, 0);
-    RegisterVR(VR::OW, 2, 0);
-    RegisterVR(VR::PN, 0, 64);
-    RegisterVR(VR::SH, 0, 16);
-    RegisterVR(VR::SL, 4, 0);
-    RegisterVR(VR::SQ, 0, 0);
-    RegisterVR(VR::SS, 2, 0);
-    RegisterVR(VR::ST, 0, 1024);
-    RegisterVR(VR::TM, 0, 16);
-    RegisterVR(VR::UI, 0, 64);
-    RegisterVR(VR::UL, 4, 0);
-    RegisterVR(VR::UN, 0, 0);
-    RegisterVR(VR::US, 2, 0);
-    RegisterVR(VR::UT, 0, 0);
-  }
-
-  void RegisterVR(int code, std::uint32_t word_size,
-                  std::uint32_t max_data_length) {
-    vr_map_[code] = { code, word_size, max_data_length };
+    code_set_.insert(VR::AE);
+    code_set_.insert(VR::AS);
+    code_set_.insert(VR::AT);
+    code_set_.insert(VR::CS);
+    code_set_.insert(VR::DA);
+    code_set_.insert(VR::DS);
+    code_set_.insert(VR::DT);
+    code_set_.insert(VR::FL);
+    code_set_.insert(VR::FD);
+    code_set_.insert(VR::IS);
+    code_set_.insert(VR::LO);
+    code_set_.insert(VR::LT);
+    code_set_.insert(VR::OB);
+    code_set_.insert(VR::OD);
+    code_set_.insert(VR::OF);
+    code_set_.insert(VR::OL);
+    code_set_.insert(VR::OW);
+    code_set_.insert(VR::PN);
+    code_set_.insert(VR::SH);
+    code_set_.insert(VR::SL);
+    code_set_.insert(VR::SQ);
+    code_set_.insert(VR::SS);
+    code_set_.insert(VR::ST);
+    code_set_.insert(VR::TM);
+    code_set_.insert(VR::UC);
+    code_set_.insert(VR::UI);
+    code_set_.insert(VR::UL);
+    code_set_.insert(VR::UN);
+    code_set_.insert(VR::UR);
+    code_set_.insert(VR::US);
+    code_set_.insert(VR::UT);
   }
 
 private:
-  std::map<int, VRInfo> vr_map_;
+  std::set<int> code_set_;
 };
 
 VR::VR(const char bytes[2]) {
@@ -107,26 +93,37 @@ bool VR::SetBytes(const char bytes[2]) {
   return true;
 }
 
+static bool Find(const VR::Code* codes, std::size_t size, VR::Code code) {
+  const auto end = codes + size;
+  return std::find(codes, end, code) != end;
+}
+
 bool VR::Is16BitsFollowingReversed() const {
-  if (code_ == VR::OB || code_ == VR::OD || code_ == VR::OF ||
-      code_ == VR::OL || code_ == VR::OW || code_ == VR::SQ ||
-      code_ == VR::UN || code_ == VR::UC || code_ == VR::UR ||
-      code_ == VR::UT) {
-    return true;
-  }
-  return false;
+  static const Code kCodes[] = {
+    OB, OD, OF, OL, OW, SQ, UN, UC, UR, UT
+  };
+
+  return Find(kCodes, ARRAY_SIZE(kCodes), code_);
 }
 
 bool VR::IsString() const {
-  static const Code kVRCodes[] = {
+  static const Code kCodes[] = {
     AE, AS, CS, DA, TM, DT, DS, IS, LO, ST, LT, UT, PN, SH, UC, UI, UR,
   };
 
-  const auto end = kVRCodes + ARRAY_SIZE(kVRCodes);
-
-  return std::find(kVRCodes, end, code_) != end;
+  return Find(kCodes, ARRAY_SIZE(kCodes), code_);
 }
 
+// TODO: Add an optional output parameter |size|.
+bool VR::IsNumber() const {
+  static const Code kCodes[] = {
+    AT, US, SS, UL, SL, FL, FD, OW, OF, OL, OD,
+  };
+
+  return Find(kCodes, ARRAY_SIZE(kCodes), code_);
+}
+
+// TODO: Merge to IsString() as an optional output parameter?
 bool VR::IsBackSlashVM() const {
   static const Code kVRCodes[] = {
     AE, AS, CS, DA, DS, DT, TM, IS, UI,
@@ -140,8 +137,7 @@ bool VR::IsBackSlashVM() const {
 
 // -----------------------------------------------------------------------------
 
-VM::VM(const char* str)
-    : min_(0), max_(0), times_(1) {
+VM::VM(const char* str) : min_(0), max_(0), times_(1) {
   if (!Parse(str)) {
     min_ = max_ = 0;
     times_ = 1;
@@ -220,7 +216,7 @@ bool VM::Parse(const std::string& str) {
 // -----------------------------------------------------------------------------
 
 Tag Tag::SwapBytes() const {
-  return Tag(SwapUint16(group_), SwapUint16(element_));
+  return Tag(util::SwapUint16(group_), util::SwapUint16(element_));
 }
 
 void Tag::Print(std::ostream& os, bool uppercase, bool as_uint32,

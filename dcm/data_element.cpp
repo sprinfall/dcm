@@ -379,10 +379,38 @@ bool DataElement::SetBuffer(Buffer&& buffer) {
     return false;
   }
 
-  length_ = buffer.size();  // NOTE: Before std::move()!
+  length_ = static_cast<std::uint32_t>(buffer.size());
   buffer_ = std::move(buffer);
 
   return true;
+}
+
+bool DataElement::ConvertByteOrder(ByteOrder byte_order) {
+  if (byte_order == byte_order_) {
+    return true;
+  }
+
+  byte_order_ = byte_order;
+
+  const VR::Code code = vr_.code();
+
+  if (code == VR::US || code == VR::SS || code == VR::AT || code == VR::OW) {
+    SwapBytes(2);
+    return true;
+  }
+
+  if (code == VR::UL || code == VR::SL || code == VR::FL || code == VR::OF ||
+      code == VR::OL) {
+    SwapBytes(4);
+    return true;
+  }
+
+  if (code == VR::FD || code == VR::OD) {
+    SwapBytes(8);
+    return true;
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -527,7 +555,7 @@ bool DataElement::SetStringArray(const std::vector<std::string>& values) {
 void DataElement::DoSetString(const std::string& value) {
   const bool odd = value.size() % 2 == 1;
 
-  length_ = value.size();
+  length_ = static_cast<std::uint32_t>(value.size());
 
   if (odd) {
     // +1 for blank trailing space.
@@ -561,7 +589,7 @@ bool DataElement::GetNumber(VR vr, std::size_t size, void* value) const {
   std::memcpy(value, &buffer_[0], size);
 
   if (byte_order_ != kByteOrderOS) {
-    SwapBytes(value, size);
+    util::SwapBytes(value, size);
   }
 
   return true;
@@ -576,13 +604,13 @@ bool DataElement::SetNumber(VR vr, std::size_t size, void* value) {
     return false;
   }
 
-  length_ = size;
+  length_ = static_cast<std::uint32_t>(size);
   buffer_.resize(size);
 
   std::memcpy(&buffer_[0], value, size);
 
   if (byte_order_ != kByteOrderOS) {
-    SwapBytes(&buffer_[0], size);
+    util::SwapBytes(&buffer_[0], size);
   }
 
   return true;
@@ -601,7 +629,7 @@ bool DataElement::GetNumberArray(VR vr, std::size_t size, std::size_t count,
   if (byte_order_ != kByteOrderOS) {
     char* dst = reinterpret_cast<char*>(values);
     for (std::size_t i = 0; i < count; ++i, dst += size) {
-      SwapBytes(dst, size);
+      util::SwapBytes(dst, size);
     }
   }
 
@@ -626,20 +654,20 @@ bool DataElement::SetNumberArray(VR vr, std::size_t size, std::size_t count,
 
   if (byte_order_ != kByteOrderOS) {
     for (std::size_t i = 0; i < count; ++i, dst += size) {
-      SwapBytes(dst, size);
+      util::SwapBytes(dst, size);
     }
   }
 
   return true;
 }
 
-void DataElement::SwapBytes(void* value, std::size_t size) const {
-  if (size == 2) {
-    Swap16(value);
-  } else if (size == 4) {
-    Swap32(value);
-  } else if (size == 8) {
-    Swap64(value);
+void DataElement::SwapBytes(std::size_t size) {
+  char* p = &buffer_[0];
+
+  const std::size_t count = length_ / size;
+
+  for (std::size_t i = 0; i < count; ++i, p += size) {
+    util::SwapBytes(p, size);
   }
 }
 

@@ -189,7 +189,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
       // The reading of the sequence item has ended.
       // The value length of this sequence item must be undefined, so it is
       // ended with a delimitation tag.
-      // See ReadSeqItemPrefixTag().
+      // See ReadSeqItemPrefix().
       break;
     }
 
@@ -238,7 +238,7 @@ void DicomReader::CheckTransferSyntax(Reader& reader) {
     } else {
       // Compressed pixel data transfer syntax are always Explicit VR Little
       // Endian (so you can call JPEG baseline 1.2.840.10008.1.2.4.50 for
-      // example "explicit little endian jpeg baseline").
+      // example "Explicit Little Endian JPEG Baseline").
       vr_type_ = VR::EXPLICIT;
       byte_order_ = ByteOrder::LE;
     }
@@ -274,7 +274,7 @@ bool DicomReader::ReadTag(Reader& reader, Tag* tag) {
 bool DicomReader::ReadUint16(Reader& reader, std::uint16_t* value) {
   if (reader.ReadUint16(value)) {
     if (byte_order_ != kByteOrderOS) {
-      Swap16(value);
+      util::Swap16(value);
     }
     return true;
   }
@@ -284,7 +284,7 @@ bool DicomReader::ReadUint16(Reader& reader, std::uint16_t* value) {
 bool DicomReader::ReadUint32(Reader& reader, std::uint32_t* value) {
   if (reader.ReadUint32(value)) {
     if (byte_order_ != kByteOrderOS) {
-      Swap32(value);
+      util::Swap32(value);
     }
     return true;
   }

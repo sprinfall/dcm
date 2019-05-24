@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "boost/filesystem/path.hpp"
 
@@ -22,6 +23,8 @@ using float64_t = double;
 using Path = boost::filesystem::path;
 
 const std::uint32_t kUndefinedLength = 0xFFFFFFFF;
+
+using Buffer = std::vector<char>;
 
 // -----------------------------------------------------------------------------
 
@@ -110,6 +113,8 @@ public:
   bool Is16BitsFollowingReversed() const;
 
   bool IsString() const;
+
+  bool IsNumber() const;
 
   // Is VM determined by back slash?
   bool IsBackSlashVM() const;

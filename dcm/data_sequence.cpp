@@ -25,6 +25,19 @@ void DataSequence::Accept(Visitor& visitor) const {
   // concrete visitor. (See Design Patterns, P.339)
 }
 
+bool DataSequence::ConvertByteOrder(ByteOrder byte_order) {
+  if (byte_order == byte_order_) {
+    return true;
+  }
+
+  for (auto& item : items_) {
+    item.data_set->ConvertByteOrder(byte_order);
+  }
+
+  byte_order_ = byte_order;
+  return true;
+}
+
 void DataSequence::NewItem(DataElement* prefix) {
   auto data_set = new DataSet(vr_type_, byte_order_/* TODO: charset*/);
 

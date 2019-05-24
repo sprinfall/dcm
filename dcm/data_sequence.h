@@ -31,6 +31,9 @@ public:
 
   void Accept(Visitor& visitor) const override;
 
+  // Convert byte order for numeric values.
+  bool ConvertByteOrder(ByteOrder byte_order) override;
+
   std::size_t size() const { return items_.size(); }
 
   const Item& GetItem(std::size_t index) const {

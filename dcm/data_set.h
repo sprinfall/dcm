@@ -23,6 +23,9 @@ public:
 
   void Accept(Visitor& visitor) const;
 
+  // Convert byte order for numeric values.
+  void ConvertByteOrder(ByteOrder byte_order);
+
   // ---------------------------------------------------------------------------
 
   VR::Type vr_type() const { return vr_type_; }

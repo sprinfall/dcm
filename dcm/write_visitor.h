@@ -16,7 +16,7 @@ class Writer;
 //
 class WriteVisitor : public Visitor {
 public:
-  explicit WriteVisitor(Writer* writer) : writer_(writer) {}
+  explicit WriteVisitor(Writer* writer);
 
   ~WriteVisitor() override = default;
 
@@ -31,10 +31,7 @@ private:
 private:
   Writer* writer_;
 
-  // VR type of the current data set.
   VR::Type vr_type_ = VR::EXPLICIT;
-
-  // Byte order of the current data set.
   ByteOrder byte_order_ = ByteOrder::LE;
 
   // Data set level (0 means root data set).

@@ -14,11 +14,16 @@ public:
   // Load DICOM file.
   bool Load();
 
+  // Change transfer syntax.
+  bool SetTransferSyntax(const std::string& transfer_syntax_uid);
+
   // Save DICOM file to the given path.
   bool Save(const Path& new_path);
 
 private:
   Path path_;
+
+  std::string transfer_syntax_uid_;
 };
 
 }  // namespace dcm
