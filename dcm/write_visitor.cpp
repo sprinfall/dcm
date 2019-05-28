@@ -36,10 +36,8 @@ void WriteVisitor::VisitDataElement(const DataElement* data_element) {
     writer_->WriteByte(vr.byte2());
 
     if (vr.Is16BitsFollowingReversed()) {
-      // 2 reversed bytes.
-      WriteUint16(0);
-      // 4 bytes value length.
-      WriteUint32(length);
+      WriteUint16(0);  // 2 bytes reversed
+      WriteUint32(length);  // 4 bytes value length
     } else {
       // 2 bytes value length.
       WriteUint16(static_cast<std::uint16_t>(length));
@@ -64,7 +62,7 @@ void WriteVisitor::VisitDataSequence(const DataSequence* data_sequence) {
 
   // Visit sequence items.
   for (std::size_t i = 0; i < data_sequence->size(); ++i) {
-    const auto& item = data_sequence->GetItem(i);
+    const auto& item = data_sequence->At(i);
 
     VisitDataElement(item.prefix);
 
@@ -96,9 +94,8 @@ void WriteVisitor::VisitDataSet(const DataSet* data_set) {
   ++level_;
 
   // Visit the child data elements one by one.
-  std::size_t size = data_set->size();
-  for (std::size_t i = 0; i < size; ++i) {
-    (*data_set)[i]->Accept(*this);
+  for (std::size_t i = 0; i < data_set->size(); ++i) {
+    data_set->At(i)->Accept(*this);
   }
 
   --level_;

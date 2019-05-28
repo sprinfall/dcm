@@ -54,7 +54,7 @@ void DumpVisitor::VisitDataSequence(const dcm::DataSequence* data_sequence) {
 
   // Visit sequence items.
   for (std::size_t i = 0; i < data_sequence->size(); ++i) {
-    const auto& item = data_sequence->GetItem(i);
+    const auto& item = data_sequence->At(i);
 
     VisitDataElement(item.prefix);
 

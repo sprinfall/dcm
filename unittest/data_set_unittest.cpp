@@ -175,3 +175,48 @@ TEST(DataSetTest, SetStringArray) {
   EXPECT_EQ("0.127000\\0.127000", value);
 }
 
+#if 0
+TEST(DataSetTest, GetGroupLength) {
+  dcm::Path path(g_data_dir);
+  path /= "cs";
+  path /= "Explicit Little (Ceph).dcm";
+
+  dcm::DataSet data_set;
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
+
+  bool ok = reader.ReadFile(path);
+  EXPECT_TRUE(ok);
+
+  EXPECT_EQ(178, data_set.GetGroupLength(2));
+}
+#endif  // 0
+
+TEST(DataSetTest, UpdateGroupLength) {
+  dcm::Path path(g_data_dir);
+  path /= "cs";
+  path /= "Explicit Little (Ceph).dcm";
+
+  dcm::DataSet data_set;
+  dcm::FullReadHandler read_handler(&data_set);
+  dcm::DicomReader reader(&read_handler);
+
+  bool ok = reader.ReadFile(path);
+  EXPECT_TRUE(ok);
+
+  {
+    std::uint32_t group_length = 0;
+    ok = data_set.GetUint32(0x00020000, &group_length);
+
+    EXPECT_TRUE(ok);
+
+    EXPECT_EQ(178, group_length);
+
+    ok = data_set.UpdateGroupLength(2);
+    EXPECT_TRUE(ok);
+
+    group_length = 0;
+    data_set.GetUint32(0x00020000, &group_length);
+    EXPECT_EQ(178, group_length);
+  }
+}

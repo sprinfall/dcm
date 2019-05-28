@@ -34,11 +34,17 @@ bool DicomFile::SetTransferSyntax(const std::string& transfer_syntax_uid) {
 
   using namespace transfer_syntax_uids;
 
-  if (transfer_syntax_uid == kExplicitBigEndian) {
-    set_vr_type(VR::EXPLICIT);
-    ConvertByteOrder(ByteOrder::BE);
+  if (transfer_syntax_uid == kImplicitLittleEndian) {
+    SetVRType(VR::IMPLICIT);
+    SetByteOrder(ByteOrder::LE);
+  } else if (transfer_syntax_uid == kExplicitLittleEndian) {
+    SetVRType(VR::EXPLICIT);
+    SetByteOrder(ByteOrder::LE);
+  } else if (transfer_syntax_uid == kExplicitBigEndian) {
+    SetVRType(VR::EXPLICIT);
+    SetByteOrder(ByteOrder::BE);
   } else {
-    // TODO: Other transfer syntaxes
+    // TODO
     return false;
   }
 
@@ -46,7 +52,7 @@ bool DicomFile::SetTransferSyntax(const std::string& transfer_syntax_uid) {
 
   SetString(tags::kTransferSyntaxUID, transfer_syntax_uid_);
 
-  // TODO: Update group length.
+  UpdateGroupLength(tags::kTransferSyntaxUID.group());
 
   return true;
 }

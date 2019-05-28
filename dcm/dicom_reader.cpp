@@ -412,7 +412,7 @@ std::uint32_t DicomReader::ReadValueLength(Reader& reader, VR vr,
 bool DicomReader::ReadValue(Reader& reader, Tag tag, VR vr,
                             std::uint32_t length, std::uint32_t& read_length) {
   if (vr == VR::SQ) {
-    auto data_sequence = new DataSequence(tag, vr_type_, byte_order_);
+    auto data_sequence = new DataSequence(tag);
     data_sequence->set_length(length);
 
     handler_->OnSequenceStart(data_sequence);

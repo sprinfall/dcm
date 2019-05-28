@@ -57,7 +57,8 @@ void FullReadHandler::OnSequenceItemStart(DataElement* data_element) {
 
   LOG_INFO("OnSequenceItemStart");
 
-  sequence_stack_.top()->NewItem(data_element);
+  sequence_stack_.top()->NewItem(data_element, data_set_->vr_type(),
+                                 data_set_->byte_order());
 }
 
 void FullReadHandler::OnSequenceItemEnd(DataElement* data_element) {

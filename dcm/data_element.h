@@ -37,13 +37,18 @@ public:
   // The buffer size must be even: 2, 4, 8, ...
   bool SetBuffer(Buffer&& buffer);
 
-  // Convert byte order for numeric values.
+  // Set byte order and swap bytes for numeric values.
   // Return false if not applicable.
-  virtual bool ConvertByteOrder(ByteOrder byte_order);
+  bool SetByteOrder(ByteOrder byte_order);
+
+  // Calculate the length of the whole element.
+  virtual std::uint32_t GetElementLength(VR::Type vr_type,
+                                         bool recursively = true) const;
 
   // ---------------------------------------------------------------------------
 
-  // Get value multiplicity.
+  // Get (actual) value multiplicity.
+  // To get the expected VM of a tag, use dict::GetVM() instead.
   std::size_t GetVM() const;
 
   // ---------------------------------------------------------------------------

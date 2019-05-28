@@ -23,9 +23,6 @@ public:
 
   void Accept(Visitor& visitor) const;
 
-  // Convert byte order for numeric values.
-  void ConvertByteOrder(ByteOrder byte_order);
-
   // ---------------------------------------------------------------------------
 
   VR::Type vr_type() const { return vr_type_; }
@@ -44,6 +41,10 @@ public:
   // Get the element at the given index.
   const DataElement* operator[](std::size_t index) const;
 
+  const DataElement* At(std::size_t index) const {
+    return (*this)[index];
+  }
+
   // Get the element with the given tag.
   const DataElement* Get(Tag tag) const;
 
@@ -52,6 +53,27 @@ public:
   bool Insert(DataElement* element);
 
   void Clear();
+
+  // ---------------------------------------------------------------------------
+
+  // Set VR type for all data sets.
+  void SetVRType(VR::Type vr_type);
+
+  // Set byte order for all numeric values.
+  void SetByteOrder(ByteOrder byte_order);
+
+#if 0
+  // Sum of the length of all elements in the given group except (gggg,0000).
+  std::uint32_t GetGroupLength(std::uint16_t group) const;
+#endif
+
+  // Update the value of group length element (gggg,0000).
+  // This is not effecient since the length will be recalculated by traversing
+  // each element in this group recursively.
+  // If the group length element (gggg,0000) doesn't exist, just return false
+  // without any calculation.
+  // TODO: When set a (string) value, update group length automatically.
+  bool UpdateGroupLength(std::uint16_t group);
 
   // ---------------------------------------------------------------------------
 

@@ -5,6 +5,7 @@
 #include <cstring>  // std::memcpy
 
 #include "boost/algorithm/string.hpp"
+#include "boost/core/ignore_unused.hpp"
 
 #include "dcm/data_dict.h"
 #include "dcm/util.h"
@@ -385,9 +386,13 @@ bool DataElement::SetBuffer(Buffer&& buffer) {
   return true;
 }
 
-bool DataElement::ConvertByteOrder(ByteOrder byte_order) {
+bool DataElement::SetByteOrder(ByteOrder byte_order) {
   if (byte_order == byte_order_) {
     return true;
+  }
+
+  if (tag_.group() == 2) {
+    return byte_order == ByteOrder::LE;
   }
 
   byte_order_ = byte_order;
@@ -411,6 +416,36 @@ bool DataElement::ConvertByteOrder(ByteOrder byte_order) {
   }
 
   return false;
+}
+
+std::uint32_t DataElement::GetElementLength(VR::Type vr_type,
+                                            bool recursively) const {
+  boost::ignore_unused(recursively);
+
+  if (tag_ == tags::kSeqDelimatation ||
+      tag_ == tags::kSeqItemDelimatation ||
+      tag_ == tags::kSeqItemPrefix) {
+    return 8;
+  }
+
+  std::uint32_t element_length = 4;  // Tag
+
+  if (vr_type == VR::EXPLICIT) {
+    element_length += 2;  // VR code
+
+    if (vr_.Is16BitsFollowingReversed()) {
+      element_length += 2;  // Reversed
+      element_length += 4;  // Value length
+    } else {
+      element_length += 2;  // Value length
+    }
+  } else {
+    element_length += 4;  // Value length
+  }
+
+  element_length += buffer_.size();
+
+  return element_length;
 }
 
 // -----------------------------------------------------------------------------

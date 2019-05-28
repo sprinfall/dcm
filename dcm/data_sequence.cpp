@@ -5,10 +5,8 @@
 
 namespace dcm {
 
-DataSequence::DataSequence(Tag tag, VR::Type vr_type, ByteOrder byte_order)
-    : DataElement(tag, VR::SQ, byte_order),
-      vr_type_(vr_type),
-      delimitation_(nullptr) {
+DataSequence::DataSequence(Tag tag)
+    : DataElement(tag, VR::SQ), delimitation_(nullptr) {
   length_ = kUndefinedLength;
 }
 
@@ -25,21 +23,33 @@ void DataSequence::Accept(Visitor& visitor) const {
   // concrete visitor. (See Design Patterns, P.339)
 }
 
-bool DataSequence::ConvertByteOrder(ByteOrder byte_order) {
-  if (byte_order == byte_order_) {
-    return true;
+std::uint32_t DataSequence::GetElementLength(VR::Type vr_type,
+                                             bool recursively) const {
+  std::uint32_t element_length = DataElement::GetElementLength(vr_type);
+
+  if (recursively) {
+    for (auto& item : items_) {
+      if (item.prefix != nullptr) {
+        element_length += item.prefix->GetElementLength(vr_type);
+      }
+
+      for (std::size_t i = 0; i < item.data_set->size(); ++i) {
+        element_length += item.data_set->At(i)->GetElementLength(vr_type);
+      }
+
+      if (item.delimitation != nullptr) {
+        element_length += item.delimitation->GetElementLength(vr_type);
+      }
+    }
   }
 
-  for (auto& item : items_) {
-    item.data_set->ConvertByteOrder(byte_order);
-  }
-
-  byte_order_ = byte_order;
-  return true;
+  return element_length;
 }
 
-void DataSequence::NewItem(DataElement* prefix) {
-  auto data_set = new DataSet(vr_type_, byte_order_/* TODO: charset*/);
+void DataSequence::NewItem(DataElement* prefix, VR::Type vr_type,
+                           ByteOrder byte_order) {
+  // TODO: charset
+  auto data_set = new DataSet(vr_type, byte_order);
 
   items_.push_back({ prefix, nullptr, data_set });
 }
@@ -59,8 +69,6 @@ bool DataSequence::AppendToLastItem(DataElement* data_element) {
 }
 
 void DataSequence::Clear() {
-  vr_type_ = VR::EXPLICIT;
-
   for (auto& item: items_) {
     delete item.prefix;
     delete item.delimitation;

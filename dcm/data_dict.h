@@ -23,7 +23,7 @@ const Entry* GetEntry(Tag tag);
 VR GetVR(Tag tag);
 
 // Get VM of the given tag.
-// Return false if the tag's VM is 1.
+// Return nullptr if the tag's VM is 1.
 // For saving memory, the VM dictionary doesn't store the tags whose VM is 1.
 const VM* GetVM(Tag tag);
 

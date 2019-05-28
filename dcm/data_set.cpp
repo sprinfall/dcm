@@ -2,9 +2,118 @@
 
 #include <algorithm>  // for lower_bound
 
+#include "boost/core/ignore_unused.hpp"
+
+#include "dcm/data_sequence.h"
 #include "dcm/visitor.h"
 
 namespace dcm {
+
+namespace {
+
+// -----------------------------------------------------------------------------
+
+class SetVRTypeVisitor : public Visitor {
+public:
+  explicit SetVRTypeVisitor(VR::Type vr_type) : vr_type_(vr_type) {
+  }
+
+  void VisitDataElement(const DataElement* data_element) override {
+    boost::ignore_unused(data_element);
+  }
+
+  void VisitDataSequence(const DataSequence* data_sequence) override {
+    for (std::size_t i = 0; i < data_sequence->size(); ++i) {
+      data_sequence->At(i).data_set->Accept(*this);
+    }
+  }
+
+  void VisitDataSet(const DataSet* data_set) override {
+    const_cast<DataSet*>(data_set)->set_vr_type(vr_type_);
+
+    for (std::size_t i = 0; i < data_set->size(); ++i) {
+      data_set->At(i)->Accept(*this);
+    }
+  }
+
+private:
+  VR::Type vr_type_;
+};
+
+// -----------------------------------------------------------------------------
+
+class SetByteOrderVisitor : public Visitor {
+public:
+  explicit SetByteOrderVisitor(ByteOrder byte_order) : byte_order_(byte_order) {
+  }
+
+  void VisitDataElement(const DataElement* data_element) override {
+    const_cast<DataElement*>(data_element)->SetByteOrder(byte_order_);
+  }
+
+  void VisitDataSequence(const DataSequence* data_sequence) override {
+    for (std::size_t i = 0; i < data_sequence->size(); ++i) {
+      data_sequence->At(i).data_set->Accept(*this);
+    }
+  }
+
+  void VisitDataSet(const DataSet* data_set) override {
+    const_cast<DataSet*>(data_set)->set_byte_order(byte_order_);
+
+    for (std::size_t i = 0; i < data_set->size(); ++i) {
+      data_set->At(i)->Accept(*this);
+    }
+  }
+
+private:
+  ByteOrder byte_order_;
+};
+
+// -----------------------------------------------------------------------------
+
+class UpdateSeqLengthVisitor : public Visitor {
+public:
+  void VisitDataElement(const DataElement* data_element) override {
+    boost::ignore_unused(data_element);
+  }
+
+  void VisitDataSequence(const DataSequence* data_sequence) override {
+    DataSequence* sequence = const_cast<DataSequence*>(data_sequence);
+
+    for (std::size_t i = 0; i < sequence->size(); ++i) {
+      DataSequence::Item& item = sequence->At(i);
+
+      item.data_set->Accept(*this);
+
+      if (item.delimitation != nullptr) {
+        item.prefix->set_length(kUndefinedLength);
+      } else {
+        std::uint32_t length = 0;
+        for (std::size_t i = 0; i < item.data_set->size(); ++i) {
+          length += item.data_set->At(i)->GetElementLength(vr_type_, true);
+        }
+        item.prefix->set_length(length);
+      }
+    }
+
+    std::uint32_t length = sequence->GetElementLength(vr_type_, true);
+    std::uint32_t self_length = sequence->GetElementLength(vr_type_, false);
+    sequence->set_length(length - self_length);
+  }
+
+  void VisitDataSet(const DataSet* data_set) override {
+    vr_type_ = data_set->vr_type();
+
+    for (std::size_t i = 0; i < data_set->size(); ++i) {
+      data_set->At(i)->Accept(*this);
+    }
+  }
+
+private:
+  VR::Type vr_type_ = VR::EXPLICIT;
+};
+
+}  // namespace
 
 // -----------------------------------------------------------------------------
 
@@ -23,18 +132,6 @@ void DataSet::Accept(Visitor& visitor) const {
   // The visitor is responsible for tranversing the child elements.
   // The drawback is that we end up duplicating the tranversal code in each
   // concrete visitor. (See Design Patterns, P.339)
-}
-
-void DataSet::ConvertByteOrder(ByteOrder byte_order) {
-  if (byte_order != byte_order_) {
-    for (DataElement* element : elements_) {
-      // Group 0002 is always little endian, keep as it is.
-      if (element->tag().group() != 2) {
-        element->ConvertByteOrder(byte_order);
-      }
-    }
-    byte_order_ = byte_order;
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -73,6 +170,76 @@ void DataSet::Clear() {
     delete element;
   }
   elements_.clear(); 
+}
+
+// -----------------------------------------------------------------------------
+
+void DataSet::SetVRType(VR::Type vr_type) {
+  if (vr_type != vr_type_) {
+    SetVRTypeVisitor v(vr_type);
+    v.VisitDataSet(this);
+
+    // VR type change impacts the element length.
+    // The value length of the sequences and the sequence items must be updated
+    // if they are not delimitated by delimitation tags.
+    {
+      UpdateSeqLengthVisitor v;
+      Accept(v);
+    }
+  }
+}
+
+void DataSet::SetByteOrder(ByteOrder byte_order) {
+  if (byte_order != byte_order_) {
+    SetByteOrderVisitor v(byte_order);
+    v.VisitDataSet(this);
+  }
+}
+
+#if 0
+std::uint32_t DataSet::GetGroupLength(std::uint16_t group) const {
+  Tag tag(group, 0);
+
+  auto less = [](Tag tag, DataElement* element) {
+    return tag < element->tag();
+  };
+
+  auto it = std::upper_bound(elements_.begin(), elements_.end(), tag, less);
+
+  if (it == elements_.end() || (*it)->tag().group() != group) {
+    // No such group.
+    return 0;
+  }
+
+  std::uint32_t group_length = 0;
+  for (; it != elements_.end() && (*it)->tag().group() == group; ++it) {
+    group_length += (*it)->GetElementLength(vr_type_, true);
+  }
+
+  return group_length;
+}
+#endif  // 0
+
+bool DataSet::UpdateGroupLength(std::uint16_t group) {
+  Tag tag(group, 0);
+
+  auto it = LowerBound(tag);
+  if (it == elements_.end() || (*it)->tag() != tag) {
+    // No such group or no group length element.
+    return false;
+  }
+
+  // Group length element.
+  auto element = *it;
+  auto vr_type = group == 2 ? VR::EXPLICIT : vr_type_;
+
+  std::uint32_t group_length = 0;
+  for (++it; it != elements_.end() && (*it)->tag().group() == group; ++it) {
+    group_length += (*it)->GetElementLength(vr_type, true);
+  }
+
+  element->SetUint32(group_length);
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -277,8 +444,8 @@ bool DataSet::SetFloat64Array(Tag tag, const std::vector<float64_t>& values) {
 // -----------------------------------------------------------------------------
 
 DataSet::Elements::iterator DataSet::LowerBound(Tag tag) {
-  auto less = [](DataElement* lhs, Tag tag) {
-    return lhs->tag() < tag;
+  auto less = [](DataElement* element, Tag tag) {
+    return element->tag() < tag;
   };
   return std::lower_bound(elements_.begin(), elements_.end(), tag, less);
 }

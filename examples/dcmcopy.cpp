@@ -15,9 +15,9 @@ void CopyDicomFile(const dcm::Path& path, const dcm::Path& path_copy) {
     return;
   }
 
-  // TEST: Change byte order to Big Endian.
   // TODO: Add command line parameters.
-  std::string transfer_syntax = dcm::transfer_syntax_uids::kExplicitBigEndian;
+  std::string transfer_syntax = dcm::transfer_syntax_uids::kImplicitLittleEndian;
+  //std::string transfer_syntax = dcm::transfer_syntax_uids::kExplicitBigEndian;
   dicom_file.SetTransferSyntax(transfer_syntax);
 
   if (!dicom_file.Save(path_copy)) {
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  //DCM_LOG_INIT("", dcm::LOG_CONSOLE);
+  DCM_LOG_INIT("", dcm::LOG_CONSOLE);
   
   CopyDicomFile(argv[1], argv[2]);
 
