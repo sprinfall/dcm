@@ -10,6 +10,7 @@ project(dcm)
 
 option(DCM_BUILD_UNITTEST "Build unit test?" OFF)
 option(DCM_BUILD_EXAMPLES "Build examples?" ON)
+option(DCM_BUILD_APPS "Build applications?" ON)
 
 if(WIN32)
     option(DCM_ENABLE_VLD "Enable VLD (Visual Leak Detector)?" OFF)
@@ -70,4 +71,8 @@ endif()
 if(DCM_BUILD_UNITTEST)
     add_subdirectory(${THIRD_PARTY_DIR}/src/gtest)
     add_subdirectory(unittest)
+endif()
+
+if(DCM_BUILD_APPS)
+    add_subdirectory(apps)
 endif()

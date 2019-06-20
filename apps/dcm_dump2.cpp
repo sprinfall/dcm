@@ -7,7 +7,7 @@
 #include "dcm/logger.h"
 #include "dcm/visitor.h"
 
-#include "examples/print.h"
+#include "apps/print.h"
 
 // -----------------------------------------------------------------------------
 

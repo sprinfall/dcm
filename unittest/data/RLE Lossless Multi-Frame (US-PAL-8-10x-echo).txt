@@ -1,0 +1,65 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Little Endian Explicit
+(0002,0000) UL 138                                      #   4, 1 FileMetaInformationGroupLength
+(0002,0001) OB 00\01                                    #   2, 1 FileMetaInformationVersion
+(0002,0002) UI =UltrasoundMultiframeImageStorage        #  28, 1 MediaStorageSOPClassUID
+(0002,0003) UI [999.999.133.1996.1.1800.1.6.25]         #  30, 1 MediaStorageSOPInstanceUID
+(0002,0010) UI =RLELossless                             #  20, 1 TransferSyntaxUID
+(0002,0012) UI [999.999.332346]                         #  14, 1 ImplementationClassUID
+
+# Dicom-Data-Set
+# Used TransferSyntax: RLE Lossless
+(0008,0000) UL 202                                      #   4, 1 GenericGroupLength
+(0008,0016) UI =UltrasoundMultiframeImageStorage        #  28, 1 SOPClassUID
+(0008,0018) UI [999.999.133.1996.1.1800.1.6.25]         #  30, 1 SOPInstanceUID
+(0008,0020) DA [1994.01.30]                             #  10, 1 StudyDate
+(0008,0030) TM [11:25:01]                               #   8, 1 StudyTime
+(0008,0060) CS [US]                                     #   2, 1 Modality
+(0008,0070) LO [ACME Products]                          #  14, 1 Manufacturer
+(0008,0090) PN [Anonymized]                             #  10, 1 ReferringPhysicianName
+(0008,1030) LO [Echocardiogram]                         #  14, 1 StudyDescription
+(0008,103e) LO [PS LAX MR & AI]                         #  14, 1 SeriesDescription
+(0010,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0018,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0018,1063) DS [76.000000]                              #  10, 1 FrameTime
+(0020,0000) UL 70                                       #   4, 1 GenericGroupLength
+(0020,000d) UI [999.999.3859744]                        #  16, 1 StudyInstanceUID
+(0020,000e) UI [999.999.94827453]                       #  16, 1 SeriesInstanceUID
+(0020,0011) IS [5829]                                   #   4, 1 SeriesNumber
+(0020,0013) IS [24]                                     #   2, 1 InstanceNumber
+(0028,0000) UL 1754                                     #   4, 1 GenericGroupLength
+(0028,0002) US 1                                        #   2, 1 SamplesPerPixel
+(0028,0004) CS [PALETTE COLOR]                          #  14, 1 PhotometricInterpretation
+(0028,0008) IS [10]                                     #   2, 1 NumberOfFrames
+(0028,0009) AT (0018,1063)                              #   4, 1 FrameIncrementPointer
+(0028,0010) US 430                                      #   2, 1 Rows
+(0028,0011) US 600                                      #   2, 1 Columns
+(0028,0100) US 8                                        #   2, 1 BitsAllocated
+(0028,0101) US 8                                        #   2, 1 BitsStored
+(0028,0102) US 7                                        #   2, 1 HighBit
+(0028,0103) US 0                                        #   2, 1 PixelRepresentation
+(0028,1101) US 256\0\16                                 #   6, 3 RedPaletteColorLookupTableDescriptor
+(0028,1102) US 256\0\16                                 #   6, 3 GreenPaletteColorLookupTableDescriptor
+(0028,1103) US 256\0\16                                 #   6, 3 BluePaletteColorLookupTableDescriptor
+(0028,1199) UI [999.999.389972238]                      #  18, 1 PaletteColorLookupTableUID
+(0028,1201) OW 0000\0200\0400\0700\0a00\0c00\0f00\1100\1300\1700\1900\1c00\1e00... # 512, 1 RedPaletteColorLookupTableData
+(0028,1202) OW 0000\0200\0400\0700\0a00\0c00\0f00\1100\1300\1700\1900\1c00\1e00... # 512, 1 GreenPaletteColorLookupTableData
+(0028,1203) OW 0000\0200\0400\0700\0a00\0c00\0f00\1100\1300\1700\1900\1c00\1e00... # 512, 1 BluePaletteColorLookupTableData
+(7fe0,0000) UL 481194                                   #   4, 1 GenericGroupLength
+(7fe0,0010) OB (PixelSequence #=11)                     # u/l, 1 PixelData
+  (fffe,e000) pi 00\00\00\00\c0\c3\00\00\7c\89\01\00\f0\47\02\00\e6\05\03\00\aa\ba... #  40, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 50104, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 50612, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 48748, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 48622, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 46268, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 43946, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 42746, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 50230, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 51042, 1 Item
+  (fffe,e000) pi 01\00\00\00\40\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00... # 48728, 1 Item
+(fffe,e0dd) na (SequenceDelimitationItem)               #   0, 0 SequenceDelimitationItem

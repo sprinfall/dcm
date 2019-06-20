@@ -8,7 +8,7 @@
 #include "dcm/logger.h"
 #include "dcm/read_handler.h"
 
-#include "examples/print.h"
+#include "apps/print.h"
 
 // -----------------------------------------------------------------------------
 

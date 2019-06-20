@@ -308,6 +308,7 @@ const Tag kPixelData                  = 0x7FE00010;  // OB
 namespace transfer_syntax_uids {
 
 // NOTE: This is not the full list!
+// TODO: Add RLE Lossless ("1.2.840.10008.1.2.5")
 
 // Implicit VR Little Endian
 // Default Transfer Syntax for DICOM

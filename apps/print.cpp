@@ -1,12 +1,18 @@
-#include "examples/print.h"
+#include "apps/print.h"
 
 #include <iostream>
 #include <sstream>
 
 #include "dcm/data_element.h"
 
-static void PrintValue(std::ostream& os, const dcm::DataElement* element) {
+void PrintValue(std::ostream& os, const dcm::DataElement* element) {
   using namespace dcm;
+
+  if (element->tag() == dcm::tags::kSeqDelimatation ||
+      element->tag() == dcm::tags::kSeqItemDelimatation ||
+      element->tag() == dcm::tags::kSeqItemPrefix) {
+    return;
+  }
 
   switch (element->vr().code()) {
     case VR::AT:  // Attribute Tag

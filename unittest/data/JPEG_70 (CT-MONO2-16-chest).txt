@@ -1,0 +1,89 @@
+
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: Little Endian Explicit
+(0002,0000) UL 198                                      #   4, 1 FileMetaInformationGroupLength
+(0002,0001) OB 00\01                                    #   2, 1 FileMetaInformationVersion
+(0002,0002) UI =CTImageStorage                          #  26, 1 MediaStorageSOPClassUID
+(0002,0003) UI [1.2.840.113619.2.22.287.1.19990524.214248] #  42, 1 MediaStorageSOPInstanceUID
+(0002,0010) UI =JPEGLossless:Non-hierarchical-1stOrderPrediction #  22, 1 TransferSyntaxUID
+(0002,0012) UI [1.2.840.113619.6.44]                    #  20, 1 ImplementationClassUID
+(0002,0013) SH [n Mar 9 13:29:59]                       #  16, 1 ImplementationVersionName
+(0002,0016) AE [GEMS_CT_NJ]                             #  10, 1 SourceApplicationEntityTitle
+
+# Dicom-Data-Set
+# Used TransferSyntax: JPEG Lossless, Non-hierarchical, 1st Order Prediction
+(0008,0000) UL 484                                      #   4, 1 GenericGroupLength
+(0008,0008) CS [ORIGINAL\PRIMARY\LOCALIZER]             #  26, 3 ImageType
+(0008,0016) UI =CTImageStorage                          #  26, 1 SOPClassUID
+(0008,0018) UI [1.2.840.113619.2.22.287.1.19990524.214248] #  42, 1 SOPInstanceUID
+(0008,0020) DA [1999.05.24]                             #  10, 1 StudyDate
+(0008,0021) DA [1999.05.24]                             #  10, 1 SeriesDate
+(0008,0022) DA [1999.05.24]                             #  10, 1 AcquisitionDate
+(0008,0023) DA [1999.05.24]                             #  10, 1 ContentDate
+(0008,0030) TM [11:42:21]                               #   8, 1 StudyTime
+(0008,0031) TM [11:42:21]                               #   8, 1 SeriesTime
+(0008,0032) TM [11:42:43.309512]                        #  16, 1 AcquisitionTime
+(0008,0033) TM [11:42:48]                               #   8, 1 ContentTime
+(0008,0060) CS [CT]                                     #   2, 1 Modality
+(0008,0070) LO [GE MEDICAL SYSTEMS]                     #  18, 1 Manufacturer
+(0008,0080) LO [Northwest Regional Hospital]            #  28, 1 InstitutionName
+(0008,0081) ST [on the earth]                           #  12, 1 InstitutionAddress
+(0008,0090) PN [Anonymized]                             #  10, 1 ReferringPhysicianName
+(0008,1010) SH [NP]                                     #   2, 1 StationName
+(0008,1030) LO [CT CHEST/PLAN]                          #  14, 1 StudyDescription
+(0008,1040) LO [CT]                                     #   2, 1 InstitutionalDepartmentName
+(0008,1050) PN [Anonymized]                             #  10, 1 PerformingPhysicianName
+(0008,1060) PN [Anonymized]                             #  10, 1 NameOfPhysiciansReadingStudy
+(0008,1070) PN [Anonymized]                             #  10, 1 OperatorsName
+(0008,1090) LO [HiSpeed]                                #   8, 1 ManufacturerModelName
+(0010,0000) UL 18                                       #   4, 1 GenericGroupLength
+(0010,0010) PN [Anonymized]                             #  10, 1 PatientName
+(0018,0000) UL 248                                      #   4, 1 GenericGroupLength
+(0018,0015) CS [CHEST]                                  #   6, 1 BodyPartExamined
+(0018,0050) DS [1.0]                                    #   4, 1 SliceThickness
+(0018,0060) DS [120]                                    #   4, 1 KVP
+(0018,0090) DS [500.0]                                  #   6, 1 DataCollectionDiameter
+(0018,1000) LO [0000287.0000001]                        #  16, 1 DeviceSerialNumber
+(0018,1020) LO [Series 2.00]                            #  12, 1 SoftwareVersions
+(0018,1050) DS [0.3500000]                              #  10, 1 SpatialResolution
+(0018,1110) DS [949.0750000]                            #  12, 1 DistanceSourceToDetector
+(0018,1111) DS [541.0000000]                            #  12, 1 DistanceSourceToPatient
+(0018,1120) DS [+0.0]                                   #   4, 1 GantryDetectorTilt
+(0018,1130) DS [-212]                                   #   4, 1 TableHeight
+(0018,1140) CS [CW]                                     #   2, 1 RotationDirection
+(0018,1151) IS [80]                                     #   2, 1 XRayTubeCurrent
+(0018,1170) IS [9]                                      #   2, 1 GeneratorPower
+(0018,1190) DS [0.5400000\1.2000000]                    #  20, 2 FocalSpots
+(0018,5100) CS [FFS]                                    #   4, 1 PatientPosition
+(0020,0000) UL 308                                      #   4, 1 GenericGroupLength
+(0020,000d) UI [1.2.840.113619.2.22.287.1.19990524.214221] #  42, 1 StudyInstanceUID
+(0020,000e) UI [1.2.840.113619.2.22.287.1.19990524.214221] #  42, 1 SeriesInstanceUID
+(0020,0011) IS [1]                                      #   2, 1 SeriesNumber
+(0020,0012) IS [1]                                      #   2, 1 AcquisitionNumber
+(0020,0013) IS [1]                                      #   2, 1 InstanceNumber
+(0020,0032) DS [-256.0000000\0.0000000\+50.00]          #  30, 3 ImagePositionPatient
+(0020,0037) DS [1.0000000\0.0000000\0.0000000\0.0000000\0.0000000\-1.0000000] #  60, 6 ImageOrientationPatient
+(0020,0052) UI [1.2.840.113619.2.22.287.1.19990524114221.1700.2120.1.1] #  54, 1 FrameOfReferenceUID
+(0020,1040) LO [SN]                                     #   2, 1 PositionReferenceIndicator
+(0028,0000) UL 154                                      #   4, 1 GenericGroupLength
+(0028,0002) US 1                                        #   2, 1 SamplesPerPixel
+(0028,0004) CS [MONOCHROME2]                            #  12, 1 PhotometricInterpretation
+(0028,0010) US 400                                      #   2, 1 Rows
+(0028,0011) US 512                                      #   2, 1 Columns
+(0028,0030) DS [1\1]                                    #   4, 2 PixelSpacing
+(0028,0100) US 16                                       #   2, 1 BitsAllocated
+(0028,0101) US 16                                       #   2, 1 BitsStored
+(0028,0102) US 15                                       #   2, 1 HighBit
+(0028,0103) US 1                                        #   2, 1 PixelRepresentation
+(0028,0120) SS -1500                                    #   2, 1 PixelPaddingValue
+(0028,1050) DS [40]                                     #   2, 1 WindowCenter
+(0028,1051) DS [400]                                    #   4, 1 WindowWidth
+(0028,1052) DS [0]                                      #   2, 1 RescaleIntercept
+(0028,1053) DS [1]                                      #   2, 1 RescaleSlope
+(7fe0,0000) UL 143510                                   #   4, 1 GenericGroupLength
+(7fe0,0010) OB (PixelSequence #=2)                      # u/l, 1 PixelData
+  (fffe,e000) pi (no value available)                     #   0, 1 Item
+  (fffe,e000) pi ff\d8\ff\c4\00\24\00\00\02\03\01\01\01\01\00\01\04\03\00\00\00\00... # 143474, 1 Item
+(fffe,e0dd) na (SequenceDelimitationItem)               #   0, 0 SequenceDelimitationItem
