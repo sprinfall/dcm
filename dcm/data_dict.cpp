@@ -33,6 +33,22 @@ const Entry* GetEntry(Tag tag) {
   return nullptr;
 }
 
+const char* GetName(Tag tag) {
+  if (tag == tags::kSeqDelimatation) {
+    return "Sequence Delimatation";
+  }
+  if (tag == tags::kSeqItemDelimatation) {
+    return "Sequence Item Delimatation";
+  }
+  if (tag == tags::kSeqItemPrefix) {
+    return "Sequence Item Prefix";
+  }
+
+  const Entry* entry = GetEntry(tag);
+  return (entry != nullptr ? entry->keyword : "");
+}
+
+
 VR GetVR(Tag tag) {
   const Entry* entry = GetEntry(tag);
   return (entry != nullptr ? entry->vr : VR::UN);

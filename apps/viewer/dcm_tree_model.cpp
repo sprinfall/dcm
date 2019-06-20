@@ -26,20 +26,7 @@ static QList<QVariant> GetColumnData(const dcm::DataElement* data_element) {
   vr[0] = data_element->vr().byte1();
   vr[1] = data_element->vr().byte2();
 
-  QString name;
-  if (data_element->tag() == dcm::tags::kSeqDelimatation) {
-    name = "Sequence Delimatation";
-  } else if (data_element->tag() == dcm::tags::kSeqItemDelimatation) {
-    name = "Sequence Item Delimatation";
-  } else if (data_element->tag() == dcm::tags::kSeqItemPrefix) {
-    name = "Sequence Item Prefix";
-  } else {
-    // TODO: Add GetName().
-    auto entry = dcm::dict::GetEntry(data_element->tag());
-    if (entry != nullptr) {
-      name = QString::fromStdString(entry->keyword);
-    }
-  }
+  QString name = QString::fromStdString(dcm::dict::GetName(data_element->tag()));
 
   column_data << tag << vr << data_element->length() << name;
 

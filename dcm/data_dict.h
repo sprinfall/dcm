@@ -11,18 +11,21 @@ namespace dict {
 struct Entry {
   std::uint32_t tag;
   VR vr;
-  const char* keyword;
+  const char* keyword;  // TODO: Rename
 };
 
-// Get entry of the given tag.
+// Get the data entry of the tag.
 // Return nullptr if the the dictionary has no such tag.
 const Entry* GetEntry(Tag tag);
 
-// Get VR of the given tag.
+// Get the name (or description) of the tag.
+const char* GetName(Tag tag);
+
+// Get the VR of the tag.
 // Return VR::UN if the the dictionary has no such tag.
 VR GetVR(Tag tag);
 
-// Get VM of the given tag.
+// Get the VM of the tag.
 // Return nullptr if the tag's VM is 1.
 // For saving memory, the VM dictionary doesn't store the tags whose VM is 1.
 const VM* GetVM(Tag tag);

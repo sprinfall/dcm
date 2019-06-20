@@ -95,7 +95,6 @@ public:
   std::size_t GetVM(Tag tag, std::size_t vm_default = 0) const;
 
   // ---------------------------------------------------------------------------
-
   // String
 
   bool GetString(Tag tag, std::string* value) const;
@@ -108,63 +107,93 @@ public:
 
   bool SetStringArray(Tag tag, const std::vector<std::string>& values);
 
-  // Unsigned short
+  // ---------------------------------------------------------------------------
+  // US (Unsigned Short)
 
   bool GetUint16(Tag tag, std::uint16_t* value) const;
+
+  std::uint16_t GetUint16(Tag tag, std::uint16_t default_value) const;
 
   bool SetUint16(Tag tag, std::uint16_t value);
 
   bool GetUint16Array(Tag tag, std::vector<std::uint16_t>* values) const;
 
+  std::vector<std::uint16_t> GetUint16Array(Tag tag) const;
+
   bool SetUint16Array(Tag tag, const std::vector<std::uint16_t>& values);
 
-  // Signed short
+  // ---------------------------------------------------------------------------
+  // SS (Signed Short)
 
   bool GetInt16(Tag tag, std::int16_t* value) const;
+
+  std::int16_t GetInt16(Tag tag, std::int16_t default_value) const;
 
   bool SetInt16(Tag tag, std::int16_t value);
 
   bool GetInt16Array(Tag tag, std::vector<std::int16_t>* values) const;
 
+  std::vector<std::int16_t> GetInt16Array(Tag tag) const;
+
   bool SetInt16Array(Tag tag, const std::vector<std::int16_t>& values);
 
-  // Unsigned long
+  // ---------------------------------------------------------------------------
+  // UL (Unsigned Long)
 
   bool GetUint32(Tag tag, std::uint32_t* value) const;
+
+  std::uint32_t GetUint32(Tag tag, std::uint32_t default_value) const;
 
   bool SetUint32(Tag tag, std::uint32_t value);
 
   bool GetUint32Array(Tag tag, std::vector<std::uint32_t>* values) const;
 
+  std::vector<std::uint32_t> GetUint32Array(Tag tag) const;
+
   bool SetUint32Array(Tag tag, const std::vector<std::uint32_t>& values);
 
-  // Signed long
+  // ---------------------------------------------------------------------------
+  // SL (Signed Long)
 
   bool GetInt32(Tag tag, std::int32_t* value) const;
+
+  std::int32_t GetInt32(Tag tag, std::int32_t default_value) const;
 
   bool SetInt32(Tag tag, std::int32_t value);
 
   bool GetInt32Array(Tag tag, std::vector<std::int32_t>* values) const;
 
+  std::vector<std::int32_t> GetInt32Array(Tag tag) const;
+
   bool SetInt32Array(Tag tag, const std::vector<std::int32_t>& values);
 
-  // Float 32
+  // ---------------------------------------------------------------------------
+  // FL (Floating Point Single)
 
   bool GetFloat32(Tag tag, float32_t* value) const;
+
+  float32_t GetFloat32(Tag tag, float32_t default_value) const;
 
   bool SetFloat32(Tag tag, float32_t value);
 
   bool GetFloat32Array(Tag tag, std::vector<float32_t>* values) const;
 
+  std::vector<float32_t> GetFloat32Array(Tag tag) const;
+
   bool SetFloat32Array(Tag tag, const std::vector<float32_t>& values);
 
-  // Float 64
+  // ---------------------------------------------------------------------------
+  // FD (Floating Point Double)
 
   bool GetFloat64(Tag tag, float64_t* value) const;
+
+  float64_t GetFloat64(Tag tag, float64_t default_value) const;
 
   bool SetFloat64(Tag tag, float64_t value);
 
   bool GetFloat64Array(Tag tag, std::vector<float64_t>* values) const;
+
+  std::vector<float64_t> GetFloat64Array(Tag tag) const;
 
   bool SetFloat64Array(Tag tag, const std::vector<float64_t>& values);
 

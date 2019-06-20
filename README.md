@@ -4,54 +4,47 @@ A lightweight C++ DICOM library for reading and writing DICOM files.
 
 ## Usage
 
-### Read Full Data Set
+### Read DICOM File
 
 ```cpp
-dcm::DataSet data_set;
-dcm::FullReadHandler read_handler(&data_set);
-dcm::DicomReader reader(&read_handler);
-reader.ReadFile("path/to/some/dcm");
+dcm::DicomFile dicom_file("path/to/some/dcm");
+if (!dicom_file.Load()) {
+  std::cerr << "Failed to load the file." << std::endl;
+  return;
+}
 ```
-
-With the data set, you can get tags.
 
 Read string:
 ```cpp
 std::string transfer_syntax_uid;
-if (data_set.GetString(0x00020010, &transfer_syntax_uid)) {
-  std::cout << "Transfer Syntax UID: " << transfer_syntax_uid << std::endl;
+if (dicom_file.GetString(dcm::tags::kTransferSyntaxUID, &transfer_syntax_uid)) {
+  // ...
 }
 
 std::string patient_name;
-if (data_set.GetString(0x00100010, &patient_name)) {
-  std::cout << "Patient Name: " << patient_name << std::endl;
+if (dicom_file.GetString(dcm::tags::kPatientName, &patient_name)) {
+  // ...
 }
+```
+
+Or:
+```cpp
+auto transfer_syntax_uid = dicom_file.GetString(dcm::tags::kTransferSyntaxUID);
+auto patient_name = dicom_file.GetString(dcm::tags::kPatientName);
 ```
 
 Read integer:
 ```cpp
 std::uint16_t samples_per_pixel;
-if (data_set.GetUint16(0x00280002, &samples_per_pixel)) {
-  std::cout << "Samples Per Pixel: " << samples_per_pixel << std::endl;
+if (dicom_file.GetUint16(dcm::tags::kSamplesPerPixel, &samples_per_pixel)) {
+  // ...
 }
 ```
 
-### Read Specific Tags
-
-Much less memory allocation thus much faster.
-
+Or:
 ```cpp
-dcm::DataSet data_set;
-dcm::TagsReadHandler read_handler(&data_set);
+auto samples_per_pixel = dicom_file.GetUint16(dcm::tags::kSamplesPerPixel, 0);
 
-// Add tags to read.
-read_handler.AddTag(0x00020010).AddTag(0x00100010).AddTag(0x00280002);
-
-dcm::DicomReader reader(&read_handler);
-reader.ReadFile("path/to/some/dcm")
-
-// Get value from data set.
-// ...
 ```
 
 ## Write
