@@ -4,7 +4,6 @@
 
 #include "boost/core/ignore_unused.hpp"
 
-#include "dcm/data_sequence.h"
 #include "dcm/visitor.h"
 
 namespace dcm {
@@ -143,6 +142,14 @@ const DataElement* DataSet::operator[](std::size_t index) const {
 
 const DataElement* DataSet::Get(Tag tag) const {
   return const_cast<DataSet*>(this)->Find(tag);
+}
+
+const DataSequence* DataSet::GetSequence(Tag tag) const {
+  auto element = Get(tag);
+  if (element != nullptr && element->vr() == VR::SQ) {
+    return dynamic_cast<const DataSequence*>(element);
+  }
+  return nullptr;
 }
 
 bool DataSet::Append(DataElement* element) {
@@ -310,11 +317,6 @@ bool DataSet::GetUint16(Tag tag, std::uint16_t* value) const {
   return element->GetUint16(value);
 }
 
-std::uint16_t DataSet::GetUint16(Tag tag, std::uint16_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetUint16(default_value);
-}
-
 bool DataSet::SetUint16(Tag tag, std::uint16_t value) {
   return Set(tag, [&value](DataElement* element) {
     return element->SetUint16(value);
@@ -325,11 +327,6 @@ bool DataSet::GetUint16Array(Tag tag,
                              std::vector<std::uint16_t>* values) const {
   GET_OR_RETURN_FALSE();
   return element->GetUint16Array(values);
-}
-
-std::vector<std::uint16_t> DataSet::GetUint16Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetUint16Array();
 }
 
 bool DataSet::SetUint16Array(Tag tag,
@@ -344,11 +341,6 @@ bool DataSet::GetInt16(Tag tag, std::int16_t* value) const {
   return element->GetInt16(value);
 }
 
-std::int16_t DataSet::GetInt16(Tag tag, std::int16_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetInt16(default_value);
-}
-
 bool DataSet::SetInt16(Tag tag, std::int16_t value) {
   return Set(tag, [&value](DataElement* element) {
     return element->SetInt16(value);
@@ -360,11 +352,6 @@ bool DataSet::GetInt16Array(Tag tag, std::vector<std::int16_t>* values) const {
   return element->GetInt16Array(values);
 }
 
-std::vector<std::int16_t> DataSet::GetInt16Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetInt16Array();
-}
-
 bool DataSet::SetInt16Array(Tag tag, const std::vector<std::int16_t>& values) {
   return Set(tag, [&values](DataElement* element) {
     return element->SetInt16Array(values);
@@ -374,11 +361,6 @@ bool DataSet::SetInt16Array(Tag tag, const std::vector<std::int16_t>& values) {
 bool DataSet::GetUint32(Tag tag, std::uint32_t* value) const {
   GET_OR_RETURN_FALSE();
   return element->GetUint32(value);
-}
-
-std::uint32_t DataSet::GetUint32(Tag tag, std::uint32_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetUint32(default_value);
 }
 
 bool DataSet::SetUint32(Tag tag, std::uint32_t value) {
@@ -393,11 +375,6 @@ bool DataSet::GetUint32Array(Tag tag,
   return element->GetUint32Array(values);
 }
 
-std::vector<std::uint32_t> DataSet::GetUint32Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetUint32Array();
-}
-
 bool DataSet::SetUint32Array(Tag tag,
                              const std::vector<std::uint32_t>& values) {
   return Set(tag, [&values](DataElement* element) {
@@ -408,11 +385,6 @@ bool DataSet::SetUint32Array(Tag tag,
 bool DataSet::GetInt32(Tag tag, std::int32_t* value) const {
   GET_OR_RETURN_FALSE();
   return element->GetInt32(value);
-}
-
-std::int32_t DataSet::GetInt32(Tag tag, std::int32_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetInt32(default_value);
 }
 
 bool DataSet::SetInt32(Tag tag, std::int32_t value) {
@@ -426,11 +398,6 @@ bool DataSet::GetInt32Array(Tag tag, std::vector<std::int32_t>* values) const {
   return element->GetInt32Array(values);
 }
 
-std::vector<std::int32_t> DataSet::GetInt32Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetInt32Array();
-}
-
 bool DataSet::SetInt32Array(Tag tag, const std::vector<std::int32_t>& values) {
   return Set(tag, [&values](DataElement* element) {
     return element->SetInt32Array(values);
@@ -440,11 +407,6 @@ bool DataSet::SetInt32Array(Tag tag, const std::vector<std::int32_t>& values) {
 bool DataSet::GetFloat32(Tag tag, float32_t* value) const {
   GET_OR_RETURN_FALSE();
   return element->GetFloat32(value);
-}
-
-float32_t DataSet::GetFloat32(Tag tag, float32_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetFloat32(default_value);
 }
 
 bool DataSet::SetFloat32(Tag tag, float32_t value) {
@@ -458,11 +420,6 @@ bool DataSet::GetFloat32Array(Tag tag, std::vector<float32_t>* values) const {
   return element->GetFloat32Array(values);
 }
 
-std::vector<float32_t> DataSet::GetFloat32Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetFloat32Array();
-}
-
 bool DataSet::SetFloat32Array(Tag tag, const std::vector<float32_t>& values) {
   return Set(tag, [&values](DataElement* element) {
     return element->SetFloat32Array(values);
@@ -474,11 +431,6 @@ bool DataSet::GetFloat64(Tag tag, float64_t* value) const {
   return element->GetFloat64(value);
 }
 
-float64_t DataSet::GetFloat64(Tag tag, float64_t default_value) const {
-  GET_OR_RETURN(default_value);
-  return element->GetFloat64(default_value);
-}
-
 bool DataSet::SetFloat64(Tag tag, float64_t value) {
   return Set(tag, [&value](DataElement* element) {
     return element->SetFloat64(value);
@@ -488,11 +440,6 @@ bool DataSet::SetFloat64(Tag tag, float64_t value) {
 bool DataSet::GetFloat64Array(Tag tag, std::vector<float64_t>* values) const {
   GET_OR_RETURN_FALSE();
   return element->GetFloat64Array(values);
-}
-
-std::vector<float64_t> DataSet::GetFloat64Array(Tag tag) const {
-  GET_OR_RETURN({});
-  return element->GetFloat64Array();
 }
 
 bool DataSet::SetFloat64Array(Tag tag, const std::vector<float64_t>& values) {

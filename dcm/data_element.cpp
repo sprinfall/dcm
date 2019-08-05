@@ -443,7 +443,7 @@ std::uint32_t DataElement::GetElementLength(VR::Type vr_type,
     element_length += 4;  // Value length
   }
 
-  element_length += buffer_.size();
+  element_length += static_cast<std::uint32_t>(buffer_.size());
 
   return element_length;
 }
@@ -544,12 +544,6 @@ bool DataElement::GetStringArray(std::vector<std::string>* values) const {
 
   boost::split(*values, value, boost::is_any_of("\\"));
   return true;
-}
-
-std::vector<std::string> DataElement::GetStringArray() const {
-  std::vector<std::string> values;
-  GetStringArray(&values);
-  return values;
 }
 
 // TODO: Split by "\\", check each value separately.

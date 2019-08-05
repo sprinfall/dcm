@@ -60,8 +60,6 @@ public:
 
   bool GetStringArray(std::vector<std::string>* values) const;
 
-  std::vector<std::string> GetStringArray() const;
-
   bool SetString(const std::string& value);
 
   bool SetStringArray(const std::vector<std::string>& values);
@@ -73,10 +71,6 @@ public:
     return GetNumber(VR::US, value);
   }
 
-  std::uint16_t GetUint16(std::uint16_t default_value = 0) const {
-    return GetNumber(VR::US, default_value);
-  }
-
   bool SetUint16(std::uint16_t value) {
     return SetNumber(VR::US, value);
   }
@@ -85,10 +79,6 @@ public:
     return GetNumberArray(VR::US, values);
   }
 
-  std::vector<std::uint16_t> GetUint16Array() const {
-    return GetNumberArray<std::uint16_t>(VR::US);
-  }
-  
   bool SetUint16Array(const std::vector<std::uint16_t>& values) {
     return SetNumberArray(VR::US, values);
   }
@@ -100,20 +90,12 @@ public:
     return GetNumber(VR::SS, value);
   }
 
-  std::int16_t GetInt16(std::int16_t default_value = 0) const {
-    return GetNumber(VR::SS, default_value);
-  }
-
   bool SetInt16(std::int16_t value) {
     return SetNumber(VR::SS, value);
   }
 
   bool GetInt16Array(std::vector<std::int16_t>* values) const {
     return GetNumberArray(VR::SS, values);
-  }
-
-  std::vector<std::int16_t> GetInt16Array() const {
-    return GetNumberArray<std::int16_t>(VR::SS);
   }
 
   bool SetInt16Array(const std::vector<std::int16_t>& values) {
@@ -127,20 +109,12 @@ public:
     return GetNumber(VR::UL, value);
   }
 
-  std::uint32_t GetUint32(std::uint32_t default_value = 0) const {
-    return GetNumber(VR::UL, default_value);
-  }
-
   bool SetUint32(std::uint32_t value) {
     return SetNumber(VR::UL, value);
   }
 
   bool GetUint32Array(std::vector<std::uint32_t>* values) const {
     return GetNumberArray(VR::UL, values);
-  }
-
-  std::vector<std::uint32_t> GetUint32Array() const {
-    return GetNumberArray<std::uint32_t>(VR::UL);
   }
 
   bool SetUint32Array(const std::vector<std::uint32_t>& values) {
@@ -154,20 +128,12 @@ public:
     return GetNumber(VR::SL, value);
   }
 
-  std::int32_t GetInt32(std::int32_t default_value = 0) const {
-    return GetNumber(VR::SL, default_value);
-  }
-
   bool SetInt32(std::int32_t value) {
     return SetNumber(VR::SL, value);
   }
 
   bool GetInt32Array(std::vector<std::int32_t>* values) const {
     return GetNumberArray(VR::SL, values);
-  }
-
-  std::vector<std::int32_t> GetInt32Array() const {
-    return GetNumberArray<std::int32_t>(VR::SL);
   }
 
   bool SetInt32Array(const std::vector<std::int32_t>& values) {
@@ -181,20 +147,12 @@ public:
     return GetNumber(VR::FL, value);
   }
 
-  float32_t GetFloat32(float32_t default_value = 0.0f) const {
-    return GetNumber(VR::FL, default_value);
-  }
-
   bool SetFloat32(float32_t value) {
     return SetNumber(VR::FL, value);
   }
 
   bool GetFloat32Array(std::vector<float32_t>* values) const {
     return GetNumberArray(VR::FL, values);
-  }
-
-  std::vector<float32_t> GetFloat32Array() const {
-    return GetNumberArray<float32_t>(VR::FL);
   }
 
   bool SetFloat32Array(const std::vector<float32_t>& values) {
@@ -208,20 +166,12 @@ public:
     return GetNumber(VR::FD, value);
   }
 
-  float64_t GetFloat64(float64_t default_value = 0.0f) const {
-    return GetNumber(VR::FD, default_value);
-  }
-
   bool SetFloat64(float64_t value) {
     return SetNumber(VR::FD, value);
   }
 
   bool GetFloat64Array(std::vector<float64_t>* values) const {
     return GetNumberArray(VR::FD, values);
-  }
-
-  std::vector<float64_t> GetFloat64Array() const {
-    return GetNumberArray<float64_t>(VR::FD);
   }
 
   bool SetFloat64Array(const std::vector<float64_t>& values) {
@@ -237,13 +187,6 @@ private:
   }
 
   template <typename T>
-  T GetNumber(VR vr, T default_value) const {
-    T value = default_value;
-    GetNumber(vr, &value);
-    return value;
-  }
-
-  template <typename T>
   bool SetNumber(VR vr, T value) {
     return SetNumber(vr, sizeof(T), &value);
   }
@@ -253,13 +196,6 @@ private:
     const std::size_t count = GetVM();
     values->resize(count);
     return GetNumberArray(vr, sizeof(T), count, &(*values)[0]);
-  }
-
-  template <typename T>
-  std::vector<T> GetNumberArray(VR vr) const {
-    std::vector<T> values;
-    GetNumberArray(vr, &values);
-    return values;
   }
 
   template <typename T>
