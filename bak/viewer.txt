@@ -1,0 +1,54 @@
+
+
+  DcmItemVisitor v(m_rootItem);
+  dataSet.Accept(v);
+
+  
+class DcmItemVisitor : public dcm::Visitor {
+public:
+  explicit DcmItemVisitor(DcmTreeItem* rootItem) :
+    m_rootItem(rootItem) {
+  }
+
+  void VisitDataElement(const dcm::DataElement* data_element) override {
+    QList<QVariant> column_data = GetColumnData(data_element);
+
+    DcmTreeItem* parent_item = m_parentItemStack.back();
+
+    DcmTreeItem* item = new DcmTreeItem(column_data, parent_item);
+    parent_item->AppendChild(item);
+  }
+
+  void VisitDataSequence(const dcm::DataSequence* data_sequence) override {
+  }
+
+  void VisitDataSet(const dcm::DataSet* data_set) override {
+    if (m_parentItemStack.empty()) {
+      // The root data set is being visited.
+      // The parent item should be the root item.
+
+      m_parentItemStack.push_back(m_rootItem);
+
+    } else {
+      QList<QVariant> columnData = GetColumnData(dataSet);
+
+      DcmTreeItem* parentItem = m_parentItemStack.back();
+      DcmTreeItem* item = new DcmTreeItem(columnData, parentItem);
+      parentItem->AppendChild(item);
+
+      m_parentItemStack.push_back(item);
+    }
+
+    // Visit each child element.
+    // The parent of these child elements is m_parentItemStack.back().
+    for (size_t i = 0; i < dataSet->size(); ++i) {
+      (*dataSet)[i]->Accept(*this);
+    }
+
+    m_parentItemStack.pop_back();
+  }
+
+private:
+  DcmTreeItem* m_rootItem;
+  std::vector<DcmTreeItem*> m_parentItemStack;
+};
