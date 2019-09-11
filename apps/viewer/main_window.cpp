@@ -28,12 +28,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   addToolBar(Qt::TopToolBarArea, file_tool_bar);
 #endif
 
-  // Central widgets
-
+  // Central widget
   QWidget* central_widget = new QWidget(this);
   setCentralWidget(central_widget);
-
-  resize(800, 600);
 }
 
 void MainWindow::OpenFiles(const QStringList& files) {
@@ -45,31 +42,38 @@ void MainWindow::OpenFiles(const QStringList& files) {
       continue;
     }
 
-    QTreeView* tree_view = new QTreeView(centralWidget());
+    QSplitter* splitter = new QSplitter();
+    QHBoxLayout* layout = new QHBoxLayout();
+    layout->addWidget(splitter, 1);
+    centralWidget()->setLayout(layout);
+
+    QTreeView* tree_view = new QTreeView(splitter);
     tree_view->setModel(tree_model);
 
     // Configure tree view.
 
     tree_view->setWindowTitle("DICOM Data Set");
 
-    // TODO: Right-align the Size column.
-    tree_view->setColumnWidth(0, 200);    // Tag
-    tree_view->setColumnWidth(1, 40);     // VR
-    tree_view->setColumnWidth(2, 80);     // Size
-    tree_view->setColumnWidth(3, 300);    // Name
+    tree_view->setColumnWidth(0, 200);  // Tag
+    tree_view->setColumnWidth(1, 40);   // VR
+    tree_view->setColumnWidth(2, 80);   // Size
+    tree_view->setColumnWidth(3, 300);  // Name
+
+    // Use different background colors for even and odd rows.
+    // tree_view->setAlternatingRowColors(true);
+
+    // Forbid to move the headers.
+    // The first column of tree view is always unmovable.
+    // tree_view->header()->setSectionsMovable(false);
 
     tree_view->expandAll();
 
     // Create image display widget.
+    // TODO
+    QWidget* image_widget = new QWidget(splitter);
 
-    QWidget* image_widget = new QWidget(centralWidget());
-
-    QHBoxLayout* hlayout = new QHBoxLayout();
-
-    hlayout->addWidget(tree_view, 1);
-    hlayout->addWidget(image_widget, 1);
-
-    centralWidget()->setLayout(hlayout);
+    splitter->addWidget(tree_view);
+    splitter->addWidget(image_widget);
 
     // TODO: Use tab control to display multiple files.
     break;

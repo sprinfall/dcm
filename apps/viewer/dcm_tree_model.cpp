@@ -100,13 +100,21 @@ QVariant DcmTreeModel::data(const QModelIndex& index, int role) const {
     return QVariant();
   }
 
-  if (role != Qt::DisplayRole) {
-    return QVariant();
+  if (role == Qt::DisplayRole) {
+    DcmTreeItem* item = static_cast<DcmTreeItem*>(index.internalPointer());
+    return item->data(index.column());
   }
 
-  DcmTreeItem* item = static_cast<DcmTreeItem*>(index.internalPointer());
+  if (role == Qt::TextAlignmentRole) {
+    if (index.column() == 1 || index.column() == 2) {
+      // Make VR & Size columns right aligned.
+      return QVariant{ Qt::AlignRight | Qt::AlignVCenter };
+    } else {
+      return QVariant{ Qt::AlignLeft | Qt::AlignVCenter };
+    }
+  }
 
-  return item->data(index.column());
+  return QVariant();
 }
 
 Qt::ItemFlags DcmTreeModel::flags(const QModelIndex& index) const {
