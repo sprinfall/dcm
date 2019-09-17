@@ -19,7 +19,7 @@ public:
     return istream_ != nullptr && !istream_->bad();
   }
 
-  void Seek(long offset, std::ios::seek_dir dir = std::ios::beg) {
+  void Seek(long offset, std::ios::seekdir dir = std::ios::beg) {
     assert(IsOk());
     istream_->seekg(offset, dir);
   }

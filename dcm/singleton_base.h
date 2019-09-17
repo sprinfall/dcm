@@ -20,28 +20,28 @@ namespace dcm {
 //   void Init(const std::string& name) {
 //     name_ = name;
 //   }
-// 
+//
 //   void Print() const {
 //     std::cout << name_ << std::endl;
 //   }
-// 
+//
 // private:
 //   // Only do default initialization in constructor since it's private.
 //   XxxSingleton() : age_(0) {
 //   }
-// 
+//
 //   friend class SingletonBase<XxxSingleton>;
-// 
+//
 // private:
 //   std::string name_;
 //   int age_;
 // };
-// 
+//
 // int main() {
 //   XxxSingleton::Instance()->Init("Name");
-// 
+//
 //   XxxSingleton::Instance()->Print();
-// 
+//
 //   return 0;
 // }
 
@@ -60,8 +60,7 @@ public:
 
 protected:
   SingletonBase() = default;
-  virtual ~SingletonBase() = 0 {
-  }
+  virtual ~SingletonBase() = default;
 
   SingletonBase(const SingletonBase&) = delete;
   SingletonBase& operator=(const SingletonBase&) = delete;

@@ -142,7 +142,7 @@ inline bool operator!=(VR lhs, VR rhs) {
 //
 class VM {
 public:
-  static const std::size_t N = -1;
+  static const std::size_t N;
 
 public:
   // "1", "1-n", "2-2n", etc.

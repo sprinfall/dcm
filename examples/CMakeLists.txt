@@ -5,5 +5,5 @@ set(SRCS
 
 foreach(name ${SRCS})
     add_executable(${name} ${name}.cpp)
-    target_link_libraries(${name} dcm ${Boost_LIBRARIES})
+    target_link_libraries(${name} dcm Boost::system Boost::filesystem)
 endforeach()

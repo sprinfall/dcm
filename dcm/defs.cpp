@@ -137,6 +137,8 @@ bool VR::IsBackSlashVM() const {
 
 // -----------------------------------------------------------------------------
 
+const std::size_t VM::N = -1;
+
 VM::VM(const char* str) : min_(0), max_(0), times_(1) {
   if (!Parse(str)) {
     min_ = max_ = 0;
