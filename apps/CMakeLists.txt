@@ -7,7 +7,7 @@ set(COMMON_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/print.h
 	)
 
-set(COMMON_LIBS dcm Boost::system Boost::filesystem)
+set(COMMON_LIBS dcm)
 
 add_executable(dcm_dump dcm_dump.cpp ${COMMON_SRCS})
 target_link_libraries(dcm_dump ${COMMON_LIBS})

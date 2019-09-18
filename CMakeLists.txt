@@ -21,7 +21,7 @@ if(WIN32)
 endif()
 
 set(DCM_ENABLE_LOG 1 CACHE STRING "Enable logging? (1:Yes, 0:No)")
-set(DCM_LOG_LEVEL 2 CACHE STRING "Log level (0:VERB, 1:INFO, 2:WARN, 3:ERRO or 4:FATA)")
+set(DCM_LOG_LEVEL 2 CACHE STRING "Log level (0:VERB, 1:INFO, 2:USER, 3:WARN, 4:ERRO)")
 
 add_definitions(-DUNICODE -D_UNICODE)
 

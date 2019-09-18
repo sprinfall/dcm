@@ -10,15 +10,18 @@
 #include <string>
 
 // Log levels.
-#define DCM_VERB 0  // Similar to DEBUG in other projects.
+// VERB is similar to DEBUG commonly used by other projects.
+// USER is for the users who want to log their own logs but don't want any
+// VERB or INFO.
+#define DCM_VERB 0
 #define DCM_INFO 1
-#define DCM_WARN 2
-#define DCM_ERRO 3
-#define DCM_FATA 4
+#define DCM_USER 2
+#define DCM_WARN 3
+#define DCM_ERRO 4
 
 // Default log level.
 #ifndef DCM_LOG_LEVEL
-#define DCM_LOG_LEVEL DCM_WARN
+#define DCM_LOG_LEVEL DCM_USER
 #endif
 
 #define DCM_LOG_FILE_NAME "dcm.log"
@@ -48,13 +51,23 @@ void Log(int level, const char* file, int line, const char* format, ...);
 // Initialize the logger with a level.
 #define DCM_LOG_INIT(dir, modes) dcm::LogInit(dir, modes);
 
-#if (defined(WIN32) || defined(_WIN64))
+// Definition of _WIN32 & _WIN64:
+//   https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2015
+#if (defined(_WIN32) || defined(_WIN64))
 
 // See: https://stackoverflow.com/a/8488201
 // ISSUE: The last path separator of __FILE__ in a header file becomes "/"
 //        instead of "\". The result is that __FILENAME__ will contain a
 //        prefix of "dcm/". So don't log from a header file!
 #define __FILENAME__ std::strrchr("\\" __FILE__, '\\') + 1
+
+#else
+
+#define __FILENAME__ std::strrchr("/" __FILE__, '/') + 1
+
+#endif  // defined(_WIN32) || defined(_WIN64)
+
+// See: https://gcc.gnu.org/onlinedocs/gcc/Variadic-Macros.html
 
 #if DCM_LOG_LEVEL <= DCM_VERB
 #define LOG_VERB(format, ...) \
@@ -66,6 +79,13 @@ void Log(int level, const char* file, int line, const char* format, ...);
 #if DCM_LOG_LEVEL <= DCM_INFO
 #define LOG_INFO(format, ...) \
     dcm::Log(DCM_INFO, __FILENAME__, __LINE__, format, ##__VA_ARGS__);
+#else
+#define LOG_INFO(format, ...)
+#endif
+
+#if DCM_LOG_LEVEL <= DCM_USER
+#define LOG_USER(format, ...) \
+    dcm::Log(DCM_USER, __FILENAME__, __LINE__, format, ##__VA_ARGS__);
 #else
 #define LOG_INFO(format, ...)
 #endif
@@ -84,72 +104,15 @@ void Log(int level, const char* file, int line, const char* format, ...);
 #define LOG_ERRO(format, ...)
 #endif
 
-#if DCM_LOG_LEVEL <= DCM_FATA
-#define LOG_FATA(format, ...) \
-    dcm::Log(DCM_FATA, __FILENAME__, __LINE__, format, ##__VA_ARGS__);
-#else
-#define LOG_FATA(format, ...)
-#endif
-
-#else
-
-// See: https://stackoverflow.com/a/8488201
-#define __FILENAME__ std::strrchr("/" __FILE__, '/') + 1
-
-#if DCM_LOG_LEVEL <= DCM_VERB
-#define LOG_VERB(format, args...) \
-    dcm::Log(DCM_VERB, __FILENAME__, __LINE__, format, ##args);
-#else
-#define LOG_VERB(format, args...)
-#endif
-
-#if DCM_LOG_LEVEL <= DCM_INFO
-#define LOG_INFO(format, args...) \
-    dcm::Log(DCM_INFO, __FILENAME__, __LINE__, format, ##args);
-#else
-#define LOG_INFO(format, args...)
-#endif
-
-#if DCM_LOG_LEVEL <= DCM_WARN
-#define LOG_WARN(format, args...) \
-    dcm::Log(DCM_WARN, __FILENAME__, __LINE__, format, ##args);
-#else
-#define LOG_WARN(format, args...)
-#endif
-
-#if DCM_LOG_LEVEL <= DCM_ERRO
-#define LOG_ERRO(format, args...) \
-    dcm::Log(DCM_ERRO, __FILENAME__, __LINE__, format, ##args);
-#else
-#define LOG_ERRO(format, args...)
-#endif
-
-#if DCM_LOG_LEVEL <= DCM_FATA
-#define LOG_FATA(format, args...) \
-    dcm::Log(DCM_FATA, __FILENAME__, __LINE__, format, ##args);
-#else
-#define LOG_FATA(format, args...)
-#endif
-
-#endif  // defined(WIN32) || defined(_WIN64)
-
 #else  // DCM_ENABLE_LOG == 0
 
 #define DCM_LOG_INIT(dir, modes)
 
-#if (defined(WIN32) || defined(_WIN64))
 #define LOG_VERB(format, ...)
 #define LOG_INFO(format, ...)
+#define LOG_USER(format, ...)
 #define LOG_WARN(format, ...)
 #define LOG_ERRO(format, ...)
-#define LOG_FATA(format, ...)
-#else
-#define LOG_VERB(format, args...)
-#define LOG_INFO(format, args...)
-#define LOG_WARN(format, args...)
-#define LOG_ERRO(format, args...)
-#define LOG_FATA(format, args...)
-#endif  // defined(WIN32) || defined(_WIN64)
 
 #endif  // DCM_ENABLE_LOG
 

@@ -48,15 +48,48 @@ namespace dcm {
 template <typename T>
 class SingletonBase {
 public:
+  // NOTE:
+  // If you encounter the following issue on Linux:
+  //   terminate called after throwing an instance of 'std::system_error'
+  //    what():  Unknown error -1
+  // Adding -pthread to your compiler flags solves the problem.
+  // For CMake users, that would be:
+  //   target_link_libraries(<target> pthread)
+  // where <target> is your executable or library.
+  // Or:
+  //   set(THREADS_PREFER_PTHREAD_FLAG ON)
+  //   find_package(Threads REQUIRED)
+  //   target_link_libraries(<target> "${CMAKE_THREAD_LIBS_INIT}")
+  
   static T* Instance() {
     static std::once_flag s_flag;
-
-    std::call_once(s_flag, [&]() {
-      s_instance.reset(new T);
+    std::call_once(s_flag, []() {
+      s_instance.reset(new T{});
     });
-
     return s_instance.get();
   }
+  
+  // Using Magic Statics with C++11:
+  //   static T* Instance() {
+  //     static T s_instance;
+  //     return &s_instance;
+  //   }
+  // See: http://www.nuonsoft.com/blog/2017/08/10/implementing-a-thread-safe-singleton-with-c11-using-magic-statics/
+  // But for Visual Studio, 2015+ is required.
+
+  // Another implementation:
+  //   static T* Instance() {
+  //     static std::mutex s_mutex;
+  // 
+  //     if (!s_instance) {
+  //       std::lock_guard<std::mutex> lock{ s_mutex };
+  //       if (!s_instance) {
+  //         s_instance.reset(new T{});
+  //       }
+  //     }
+  // 
+  //     return s_instance.get();
+  //   }
 
 protected:
   SingletonBase() = default;

@@ -17,6 +17,8 @@ set(TARGET dcm)
 
 add_library(${TARGET} STATIC ${SRCS})
 
+target_link_libraries(${TARGET} Boost::filesystem "${CMAKE_THREAD_LIBS_INIT}")
+
 # Install lib and header files.
 # On Linux, if CMAKE_INSTALL_PREFIX is ~, the lib (libdcm.a) will be installed
 # to ~/lib and header files will be installed to ~/include.

@@ -89,9 +89,9 @@ bool CheckByteOrder(Reader& reader, ByteOrder* byte_order) {
   }
 
   if (*byte_order == ByteOrder::LE) {
-    LOG_INFO("Byte order checked: little endian.", );
+    LOG_INFO("Byte order checked: little endian.");
   } else {
-    LOG_INFO("Byte order checked: big endian.", );
+    LOG_INFO("Byte order checked: big endian.");
   }
 
   return true;
@@ -132,7 +132,7 @@ bool DicomReader::DoRead(Reader& reader) {
   }
 
   if (memcmp(prefix, "DICM", 4) != 0) {
-    // Preamble is omitted.
+    LOG_WARN("Preamble is omitted.");
     reader.UndoRead(132);
   }
 
@@ -200,6 +200,7 @@ std::uint32_t DicomReader::Read(Reader& reader, std::size_t max_length) {
 
     VR vr = VR::UN;
     if (!ReadVR(reader, tag, read_length, &vr)) {
+      LOG_ERRO("Failed to read VR for (%u,%u).", tag.group(), tag.element());
       break;
     }
 

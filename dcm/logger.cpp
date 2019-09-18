@@ -12,7 +12,7 @@
 #include <string>
 #include <thread>
 
-#if (defined(WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64))
 #include <Windows.h>
 #else
 // For getting thread ID.
@@ -29,7 +29,7 @@ namespace dcm {
 static std::string g_main_thread_id;
 
 static const char* kLevelNames[] = {
-  "VERB", "INFO", "WARN", "ERRO", "FATA"
+  "VERB", "INFO", "USER", "WARN", "ERRO"
 };
 
 // -----------------------------------------------------------------------------
@@ -72,10 +72,8 @@ static Logger g_logger;
 //   https://github.com/emilk/loguru/blob/master/loguru.cpp
 // Thanks to Loguru!
 
-bool g_colorlogtostderr = true;
-
 static const bool g_terminal_has_color = []() {
-#if (defined(WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64))
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 #endif
@@ -104,60 +102,30 @@ static const bool g_terminal_has_color = []() {
 #endif
 }();
 
-// Colors
-
-#if (defined(WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64))
 #define VTSEQ(ID) ("\x1b[1;" #ID "m")
 #else
 #define VTSEQ(ID) ("\x1b[" #ID "m")
 #endif
 
-const char* TerminalBlack() {
-  return g_terminal_has_color ? VTSEQ(30) : "";
-}
-const char* TerminalRed() {
-  return g_terminal_has_color ? VTSEQ(31) : "";
-}
-const char* TerminalGreen() {
-  return g_terminal_has_color ? VTSEQ(32) : "";
-}
-const char* TerminalYellow() {
-  return g_terminal_has_color ? VTSEQ(33) : "";
-}
-const char* TerminalBlue() {
-  return g_terminal_has_color ? VTSEQ(34) : "";
-}
-const char* TerminalPurple() {
-  return g_terminal_has_color ? VTSEQ(35) : "";
-}
-const char* TerminalCyan() {
-  return g_terminal_has_color ? VTSEQ(36) : "";
-}
-const char* TerminalLightGray() {
-  return g_terminal_has_color ? VTSEQ(37) : "";
-}
-const char* TerminalWhite() {
-  return g_terminal_has_color ? VTSEQ(37) : "";
-}
-const char* TerminalLightRed() {
-  return g_terminal_has_color ? VTSEQ(91) : "";
-}
-const char* TerminalDim() {
-  return g_terminal_has_color ? VTSEQ(2) : "";
-}
+// Colors
+#define TERM_BLACK        VTSEQ(30)
+#define TERM_RED          VTSEQ(31)
+#define TERM_GREEN        VTSEQ(32)
+#define TERM_YELLOW       VTSEQ(33)
+#define TERM_BLUE         VTSEQ(34)
+#define TERM_PURPLE       VTSEQ(35)
+#define TERM_CYAN         VTSEQ(36)
+#define TERM_LLIGHT_GRAY  VTSEQ(37)
+#define TERM_LLIGHT_RED   VTSEQ(91)
+#define TERM_DIM          VTSEQ(2)
 
 // Formating
-const char* TerminalBold() {
-  return g_terminal_has_color ? VTSEQ(1) : "";
-}
-const char* TerminalUnderline() {
-  return g_terminal_has_color ? VTSEQ(4) : "";
-}
+#define TERM_BOLD         VTSEQ(1)
+#define TERM_UNDERLINE    VTSEQ(4)
 
 // You should end each line with this!
-const char* TerminalReset() {
-  return g_terminal_has_color ? VTSEQ(0) : "";
-}
+#define TERM_RESET        VTSEQ(0)
 
 // -----------------------------------------------------------------------------
 
@@ -167,7 +135,7 @@ namespace bfs = boost::filesystem;
 // on Linux, e.g., 140219133990656. syscall(SYS_gettid) is much prefered because
 // it's shorter and the same as `ps -T -p <pid>` output.
 static std::string DoGetThreadID() {
-#if (defined(WIN32) || defined(_WIN64))
+#if (defined(_WIN32) || defined(_WIN64))
   auto thread_id = std::this_thread::get_id();
   std::stringstream ss;
   ss << thread_id;
@@ -248,7 +216,7 @@ void Log(int level, const char* file, int line, const char* format, ...) {
     va_list args;
     va_start(args, format);
 
-    fprintf(g_logger.file, "%s, %s, %7s, %24s, %4d, ",
+    fprintf(g_logger.file, "%s, %s, %7s, %20s, %4d, ",
             timestamp.c_str(), kLevelNames[level], thread_id.c_str(),
             file, line);
 
@@ -269,25 +237,25 @@ void Log(int level, const char* file, int line, const char* format, ...) {
     va_list args;
     va_start(args, format);
 
-    if (g_colorlogtostderr && g_terminal_has_color) {
+    if (g_terminal_has_color) {
       if (level < DCM_WARN) {
-        fprintf(stderr, "%s%s, %s, %7s, %25s, %4d, ",
-                TerminalReset(),
+        fprintf(stderr, "%s%s, %s, %7s, %20s, %4d, ",
+                TERM_RESET,
                 timestamp.c_str(), kLevelNames[level], thread_id.c_str(),
                 file, line);
       } else {
-        fprintf(stderr, "%s%s%s, %s, %7s, %25s, %4d, ",
-                TerminalReset(),
-                level == DCM_WARN ? TerminalYellow() : TerminalRed(),
+        fprintf(stderr, "%s%s%s, %s, %7s, %20s, %4d, ",
+                TERM_RESET,
+                level == DCM_WARN ? TERM_YELLOW : TERM_RED,
                 timestamp.c_str(), kLevelNames[level], thread_id.c_str(),
                 file, line);
       }
 
       vfprintf(stderr, format, args);
 
-      fprintf(stderr, "%s\n", TerminalReset());
+      fprintf(stderr, "%s\n", TERM_RESET);
     } else {
-      fprintf(stderr, "%s, %s, %7s, %25s, %4d, ",
+      fprintf(stderr, "%s, %s, %7s, %20s, %4d, ",
               timestamp.c_str(), kLevelNames[level], thread_id.c_str(),
               file, line);
 

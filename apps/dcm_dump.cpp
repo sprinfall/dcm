@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  //DCM_LOG_INIT("", dcm::LOG_CONSOLE);
+  DCM_LOG_INIT("", dcm::LOG_CONSOLE);
 
   const char* path = argv[1];
 
