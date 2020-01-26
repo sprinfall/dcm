@@ -88,8 +88,8 @@ public:
         item.prefix->set_length(kUndefinedLength);
       } else {
         std::uint32_t length = 0;
-        for (std::size_t i = 0; i < item.data_set->size(); ++i) {
-          length += item.data_set->At(i)->GetElementLength(vr_type_, true);
+        for (std::size_t j = 0; j < item.data_set->size(); ++j) {
+          length += item.data_set->At(j)->GetElementLength(vr_type_, true);
         }
         item.prefix->set_length(length);
       }
