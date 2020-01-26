@@ -15,9 +15,6 @@ target_link_libraries(dcm_dump ${COMMON_LIBS})
 add_executable(dcm_dump2 dcm_dump2.cpp ${COMMON_SRCS})
 target_link_libraries(dcm_dump2 ${COMMON_LIBS})
 
-add_executable(cs_mesh_reader cs_mesh_reader.cpp)
-target_link_libraries(cs_mesh_reader ${COMMON_LIBS})
-
 if(DCM_BUILD_VIEWER_APP)
     add_subdirectory(viewer)
 endif()
