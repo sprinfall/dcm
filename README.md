@@ -1,5 +1,7 @@
 # dcm
 
+NOTE: This project is only for study purpose. Please consider to use DCMTK in your project. 
+
 A lightweight C++ DICOM library for reading and writing DICOM files.
 
 ## Usage
@@ -46,7 +48,3 @@ Or:
 auto samples_per_pixel = dicom_file.GetUint16(dcm::tags::kSamplesPerPixel, 0);
 
 ```
-
-## Write
-
-Coming soon...
